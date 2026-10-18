@@ -1,11 +1,8 @@
-import chroma from 'chroma-js'
 import type { Metadata } from 'next'
 import type { BlogPosting, BreadcrumbList, WithContext } from 'schema-dts'
 
-import { PageColorGradient } from '~/components/common/PageColorGradient'
 import type { Locale } from '~/i18n/config'
 import { articleMetaOf } from '~/lib/api/article-meta'
-import { topicStringToHue } from '~/lib/color'
 import { getContentLocaleRedirect } from '~/lib/content-locale'
 import { getOgUrl } from '~/lib/helper.server'
 import { getSummaryFromMd, getWordCountFromMd } from '~/lib/markdown'
@@ -70,14 +67,6 @@ export const NoteDetailPageContent = ({
 }) => {
   const { data } = notePayload
 
-  const coverImage = data.images?.find((i) => i.src === data.meta?.cover)
-  const topicAccent = data.topic?.name
-    ? chroma.hsl(topicStringToHue(data.topic.name), 0.35, 0.5).hex()
-    : null
-  const coverAccent =
-    data.meta?.cover && coverImage?.accent ? coverImage.accent : null
-  const pageAccent = topicAccent ?? coverAccent
-
   const wordCount = getWordCountFromMd(data.text ?? '', locale)
   const jsonLd: WithContext<BlogPosting> = {
     '@context': 'https://schema.org',
@@ -123,7 +112,6 @@ export const NoteDetailPageContent = ({
           __html: JSON.stringify(breadcrumbLd),
         }}
       />
-      {!!pageAccent && <PageColorGradient baseColor={pageAccent} />}
       <NoteDetailClient
         fetchedAt={fetchedAt}
         nid={nid}

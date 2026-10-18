@@ -1,4 +1,3 @@
-import BeautifulMermaid
 import CryptoKit
 import ExpoModulesCore
 import UIKit
@@ -37,23 +36,18 @@ enum MermaidDomain {
     let dest = cacheURL(source: trimmed, bg: bg, fg: fg)
     if let cached = UIImage(contentsOfFile: dest.path) {
       return RenderedImage(
-        height: cached.size.height,
+        height: cached.size.height / renderScale,
         uri: dest.absoluteString,
-        width: cached.size.width
+        width: cached.size.width / renderScale
       )
     }
 
-    let theme = DiagramTheme(
-      background: BMColor(hex: bg),
-      foreground: BMColor(hex: fg)
-    )
-    guard let image = try await MermaidRenderer.renderImageAsync(
+    let image = try await MermaidEngine.shared.render(
       source: trimmed,
-      theme: theme,
+      bg: bg,
+      fg: fg,
       scale: renderScale
-    ) else {
-      throw RenderError.renderFailed
-    }
+    )
     guard let png = image.pngData() else { throw RenderError.renderFailed }
     try png.write(to: dest, options: .atomic)
     return RenderedImage(
@@ -64,7 +58,7 @@ enum MermaidDomain {
   }
 
   private static func cacheURL(source: String, bg: String, fg: String) -> URL {
-    let key = "\(source)\n\(bg)\n\(fg)\n\(renderScale)"
+    let key = "\(MermaidEngine.version)\n\(source)\n\(bg)\n\(fg)\n\(renderScale)"
     let digest = SHA256.hash(data: Data(key.utf8))
       .compactMap { String(format: "%02x", $0) }
       .joined()

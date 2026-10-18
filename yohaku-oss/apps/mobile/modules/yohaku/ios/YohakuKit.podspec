@@ -10,7 +10,8 @@ Pod::Spec.new do |s|
   s.static_framework = true
 
   s.dependency 'ExpoModulesCore'
-  s.dependency 'BeautifulMermaid'
+  s.dependency 'SDWebImageSVGCoder'
+  s.frameworks = 'JavaScriptCore'
   s.dependency 'SwiftMath'
   s.dependency 'SwiftTreeSitterLayer'
   Dir[File.join(__dir__, 'Vendor/TreeSitter/TreeSitter?*.podspec')].each do |spec|
@@ -24,6 +25,9 @@ Pod::Spec.new do |s|
   install_modules_dependencies(s)
 
   s.source_files = '**/*.{h,m,mm,swift}'
-  s.exclude_files = 'Code/Package.swift', 'Code/Tests/**/*', 'Code/.build/**/*'
-  s.resource_bundles = { 'YohakuCodeQueries' => ['Code/Core/Queries/*.scm'] }
+  s.exclude_files = 'Code/Package.swift', 'Code/Tests/**/*', 'Code/.build/**/*', 'Mermaid/Package.swift', 'Mermaid/Tests/**/*', 'Mermaid/.build/**/*'
+  s.resource_bundles = {
+    'YohakuCodeQueries' => ['Code/Core/Queries/*.scm'],
+    'YohakuMermaid' => ['Mermaid/Resources/*'],
+  }
 end

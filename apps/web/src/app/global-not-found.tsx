@@ -12,22 +12,17 @@ import { getLocaleFontStyle } from '~/lib/font-locale'
 import { fontVariables } from '~/lib/fonts'
 
 import defaultMessages from '../messages/zh'
-import { fetchAggregationData } from './[locale]/api'
 
 export default async function GlobalNotFound() {
   const locale = defaultLocale
   const localeFontStyle = getLocaleFontStyle(locale)
   const messages = defaultMessages
 
-  const data = await fetchAggregationData({ locale }).catch(() => null)
-
   return (
     <html suppressHydrationWarning className="themed" lang={locale}>
       <head>
         <Global />
-        {data?.theme.config?.color && (
-          <AccentColorStyleInjector color={data.theme.config.color} />
-        )}
+        <AccentColorStyleInjector />
       </head>
       <body
         suppressHydrationWarning

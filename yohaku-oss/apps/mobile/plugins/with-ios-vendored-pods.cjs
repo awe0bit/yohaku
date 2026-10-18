@@ -24,25 +24,14 @@ function vendoredPods() {
   return found.sort(([a], [b]) => a.localeCompare(b))
 }
 
-const PACKAGE_NAME_POST_INSTALL = `
-    {
-      'ElkSwift' => 'ElkSwift',
-      'BeautifulMermaid' => 'BeautifulMermaid',
-    }.each do |target_name, package_name|
-      target = installer.pods_project.targets.find { |item| item.name == target_name }
-      next unless target
-      target.build_configurations.each do |build_config|
-        flags = String(build_config.build_settings['OTHER_SWIFT_FLAGS'] || '$(inherited)')
-        unless flags.include?("-package-name #{package_name}")
-          build_config.build_settings['OTHER_SWIFT_FLAGS'] = "#{flags} -package-name #{package_name}"
-        end
-        build_config.build_settings['SWIFT_PACKAGE_NAME'] = package_name
-      end
-    end
-`
-
 function patchPodfile(source, pods) {
   let src = source
+    .replaceAll(/^\s*pod '(?:ElkSwift|BeautifulMermaid)',[^\n]*\n/gm, '')
+    .replace(
+      // eslint-disable-next-line unicorn/better-regex -- regexp/strict requires escaped literal braces and brackets.
+      /\n {4}\{\n {6}'ElkSwift' => 'ElkSwift',.*?build_config\.build_settings\['SWIFT_PACKAGE_NAME'\] = package_name\n {6}end\n {4}end\n/s,
+      '\n',
+    )
   const missing = pods.filter(([name]) => !src.includes(`pod '${name}',`))
   if (missing.length > 0) {
     if (!src.includes('use_react_native!')) {
@@ -51,15 +40,9 @@ function patchPodfile(source, pods) {
       )
     }
     src = src.replace(
-      /use_react_native!\([\s\S]*?\)\n/,
+      /use_react_native!\(.*?\)\n/s,
       (block) =>
         `${block}\n${missing.map(([name, podspec]) => `  pod '${name}', :podspec => '${podspec}'`).join('\n')}\n`,
-    )
-  }
-  if (!src.includes("SWIFT_PACKAGE_NAME'] = package_name")) {
-    src = src.replace(
-      /react_native_post_install\(\s*installer,[\s\S]*?\)\n/,
-      (block) => `${block}${PACKAGE_NAME_POST_INSTALL}`,
     )
   }
   return src

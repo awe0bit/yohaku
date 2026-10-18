@@ -61,39 +61,4 @@ describe('native dependency policy', () => {
     expect(podspec).not.toContain("s.dependency 'libavif")
     expect(imageModule).not.toContain('AVIFCoder')
   })
-
-  it('pods ElkSwift and BeautifulMermaid for native mermaid', () => {
-    const appConfig = readFileSync(
-      path.join(mobileRoot, 'app.config.ts'),
-      'utf8',
-    )
-    expect(appConfig).toContain('./plugins/with-ios-vendored-pods.cjs')
-
-    const { vendoredPods } = require('../plugins/with-ios-vendored-pods.cjs') as {
-      vendoredPods: () => Array<[string, string]>
-    }
-    const pods = vendoredPods().map(([name]) => name)
-    expect(pods).toContain('ElkSwift')
-    expect(pods).toContain('BeautifulMermaid')
-
-    const elk = readFileSync(
-      path.join(mobileRoot, 'modules/yohaku/ios/Vendor/ElkSwift.podspec'),
-      'utf8',
-    )
-    const mermaid = readFileSync(
-      path.join(
-        mobileRoot,
-        'modules/yohaku/ios/Vendor/BeautifulMermaid.podspec',
-      ),
-      'utf8',
-    )
-    expect(elk).toContain("s.version = '1.0.2'")
-    expect(mermaid).toContain("s.version = '1.0.4'")
-
-    const kit = readFileSync(
-      path.join(mobileRoot, 'modules/yohaku/ios/YohakuKit.podspec'),
-      'utf8',
-    )
-    expect(kit).toContain("s.dependency 'BeautifulMermaid'")
-  })
 })

@@ -145,7 +145,6 @@ export default async function LocaleLayout({ children, params }: Props) {
     )
   }
 
-  const themeConfig = data.theme
   const localizedHomeUrl = new URL(
     buildLocalePrefixedPath(currentLocale, '/'),
     data.url.webUrl,
@@ -187,9 +186,7 @@ export default async function LocaleLayout({ children, params }: Props) {
             __html: JSON.stringify(webSiteLdJson),
           }}
         />
-        {themeConfig.config?.color && (
-          <AccentColorStyleInjector color={themeConfig.config.color} />
-        )}
+        <AccentColorStyleInjector />
         <ScriptInjectProvider />
       </head>
       <body

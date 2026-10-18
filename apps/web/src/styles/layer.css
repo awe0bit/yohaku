@@ -660,6 +660,7 @@
 /* Safari: 去 deckle SVG filter，避 feDisplacementMap 之渲染高度与裁切之疾。
    纸边退化为直角矩形，余视觉效果由 shadow-paper-contact 承担。 */
 .is-safari .paper-sheet-deckle,
+.is-safari .hover-link-card-paper,
 .is-safari .yohaku-drawer-paper-sheet {
   filter: none !important;
 }

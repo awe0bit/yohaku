@@ -6,7 +6,12 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default defineConfig(
   {
-    ignores: ['**/*.md', 'apps/web/scripts/**', 'packages/dom-webview/**'],
+    ignores: [
+      '**/*.md',
+      'apps/web/scripts/**',
+      'packages/dom-webview/**',
+      '**/Mermaid/Resources/**',
+    ],
     react: 'next',
     next: true,
     sortImports: true,

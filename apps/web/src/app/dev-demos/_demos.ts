@@ -80,8 +80,8 @@ export const devDemos: DevDemo[] = [
     group: 'ambient',
     href: '/dev-demos/backgrounds',
     name: 'Backgrounds',
-    meta: '粒子氛围层全录 · tweakpane 实时调参',
-    tags: ['particle', 'sakura', 'snow', 'tweakpane'],
+    meta: '余白の紙 · 节气 / 时刻 / 页面状态调参',
+    tags: ['paper', 'webgl', 'season', 'tweakpane'],
   },
   {
     group: 'ambient',
@@ -89,13 +89,6 @@ export const devDemos: DevDemo[] = [
     name: 'Page bleed',
     meta: 'WebGL 天头场线 · 划线进场 · seed / accent 实时换',
     tags: ['webgl', 'shader', 'bleed', 'header'],
-  },
-  {
-    group: 'ambient',
-    href: '/dev-demos/ambient-sides',
-    name: 'Ambient sides',
-    meta: '两侧环境色 · 生产组件调参台（染纸纹）',
-    tags: ['scroll', 'image', 'ambient'],
   },
   {
     group: 'ambient',

@@ -25,6 +25,7 @@ allowBuilds:
   '@swc/core': false
   better-sqlite3: true
   esbuild: false
+  node-pty: true
   # postinstall only downloads tree-sitter/RaTeX assets; both features are
   # disabled via the app's "enriched-markdown" config, so skip it
   react-native-enriched-markdown: false
@@ -86,6 +87,7 @@ minimumReleaseAgeExclude:
   - expo-system-ui@58.0.6
   - expo-updates@58.0.17
   - expo@58.0.13
+  - pele@1.6.0
 
 overrides:
   react-tweet: 'npm:@innei/react-tweet@4.0.0'
@@ -109,42 +111,41 @@ overrides:
   object.hasown: 'npm:@nolyfill/object.hasown@^1.0.44'
   object.values: 'npm:@nolyfill/object.values@^1.0.44'
   string.prototype.matchall: 'npm:@nolyfill/string.prototype.matchall@^1.0.44'
-  # @haklex/rich-ext-chat -> @streamdown/code hard-deps shiki@^3.x while
-  # @haklex/rich-editor peers shiki>=4.0.0; force one runtime copy.
-  shiki: ^4.4.3
+  # Keep the Markdown code plugin and editor on one Shiki runtime.
+  shiki: ^4.5.0
   # apps/mobile pins react/react-dom exactly to match react-native's
   # embedded renderer; force the same copy repo-wide so
   # packages/rich-content (consumed inside the mobile WebView) never
   # resolves a second react instance with a null hook dispatcher.
-  react: 19.3.0
-  react-dom: 19.3.0
+  react: 19.3.1
+  react-dom: 19.3.1
   # Editor stack tracks a single lexical runtime copy; keep in lockstep with
   # the @haklex/* peer floor (^0.52 as of @haklex 0.46.0).
   lexical: 0.52.0
-  "@lexical/a11y": 0.52.0
-  "@lexical/clipboard": 0.52.0
-  "@lexical/code-core": 0.52.0
-  "@lexical/devtools-core": 0.52.0
-  "@lexical/dragon": 0.52.0
-  "@lexical/extension": 0.52.0
-  "@lexical/hashtag": 0.52.0
-  "@lexical/headless": 0.52.0
-  "@lexical/history": 0.52.0
-  "@lexical/html": 0.52.0
-  "@lexical/internal": 0.52.0
-  "@lexical/link": 0.52.0
-  "@lexical/list": 0.52.0
-  "@lexical/mark": 0.52.0
-  "@lexical/markdown": 0.52.0
-  "@lexical/overflow": 0.52.0
-  "@lexical/plain-text": 0.52.0
-  "@lexical/react": 0.52.0
-  "@lexical/rich-text": 0.52.0
-  "@lexical/selection": 0.52.0
-  "@lexical/table": 0.52.0
-  "@lexical/text": 0.52.0
-  "@lexical/utils": 0.52.0
-  "@lexical/yjs": 0.52.0
+  '@lexical/a11y': 0.52.0
+  '@lexical/clipboard': 0.52.0
+  '@lexical/code-core': 0.52.0
+  '@lexical/devtools-core': 0.52.0
+  '@lexical/dragon': 0.52.0
+  '@lexical/extension': 0.52.0
+  '@lexical/hashtag': 0.52.0
+  '@lexical/headless': 0.52.0
+  '@lexical/history': 0.52.0
+  '@lexical/html': 0.52.0
+  '@lexical/internal': 0.52.0
+  '@lexical/link': 0.52.0
+  '@lexical/list': 0.52.0
+  '@lexical/mark': 0.52.0
+  '@lexical/markdown': 0.52.0
+  '@lexical/overflow': 0.52.0
+  '@lexical/plain-text': 0.52.0
+  '@lexical/react': 0.52.0
+  '@lexical/rich-text': 0.52.0
+  '@lexical/selection': 0.52.0
+  '@lexical/table': 0.52.0
+  '@lexical/text': 0.52.0
+  '@lexical/utils': 0.52.0
+  '@lexical/yjs': 0.52.0
   # Not link:./packages/dom-webview — pnpm 12 writes relative link: overrides
   # importer-relative in the lockfile but compares them root-relative, so
   # --frozen-lockfile rejects the lockfile pnpm itself just wrote.

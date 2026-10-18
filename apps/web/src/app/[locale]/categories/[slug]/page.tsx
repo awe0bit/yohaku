@@ -1,4 +1,3 @@
-import { PageColorGradient } from '~/components/common/PageColorGradient'
 import { CategoryHero } from '~/components/modules/category/CategoryHero'
 import { CategoryRowList } from '~/components/modules/category/CategoryRowList'
 import { EmptyCategoryState } from '~/components/modules/category/EmptyCategoryState'
@@ -33,7 +32,6 @@ export default definePrerenderPage<{ slug: string; locale: string }>()({
 
     return (
       <>
-        <PageColorGradient seed={`category|${slug}`} />
         <BottomToUpSoftSpringTransitionView>
           <CategoryHero
             count={count ?? 0}

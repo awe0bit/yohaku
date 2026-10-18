@@ -10,6 +10,28 @@ interface Props {
 }
 
 const HEX_RE = /^#[\da-f]{6}$/i
+const DECKLE_ID = 'hover-link-card-deckle'
+
+const WashiDeckle = () => (
+  <svg aria-hidden className="absolute" height="0" width="0">
+    <filter height="110%" id={DECKLE_ID} width="110%" x="-5%" y="-5%">
+      <feTurbulence
+        baseFrequency="0.06"
+        numOctaves={3}
+        result="t"
+        seed={9}
+        type="fractalNoise"
+      />
+      <feDisplacementMap
+        in="SourceGraphic"
+        in2="t"
+        scale={5}
+        xChannelSelector="R"
+        yChannelSelector="G"
+      />
+    </filter>
+  </svg>
+)
 
 function hostOf(url: string): string {
   try {
@@ -38,39 +60,46 @@ export const HoverLinkCard: FC<Props> = ({ data }) => {
 
   return (
     <a
-      className="block w-[360px] max-w-[400px] overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-neutral-3/50 dark:bg-[var(--surface-paper)]"
+      className="relative isolate block w-[360px] max-w-[400px]"
       href={data.url}
       rel="noopener"
       style={anchorStyle}
       target="_blank"
     >
-      <WideOgMedia
-        alt={mediaAlt}
-        captureImage={data.captureImage}
-        previewImage={data.previewImage}
-        thumbnailImage={data.thumbnailImage}
+      <WashiDeckle />
+      <span
+        aria-hidden
+        className="hover-link-card-paper absolute inset-0 -z-10 bg-[color-mix(in_oklab,var(--color-accent)_3%,white)] shadow-paper-contact [filter:url(#hover-link-card-deckle)] dark:bg-[color-mix(in_oklab,var(--color-accent)_3%,var(--surface-paper))]"
       />
-      <div className="p-3">
-        <div className="line-clamp-2 text-copy-15 font-medium text-neutral-10">
-          {data.title}
-        </div>
-        {data.description && (
-          <div className="mt-1 line-clamp-3 text-copy-13 text-neutral-7">
-            {data.description}
+      <div className="overflow-hidden">
+        <WideOgMedia
+          alt={mediaAlt}
+          captureImage={data.captureImage}
+          previewImage={data.previewImage}
+          thumbnailImage={data.thumbnailImage}
+        />
+        <div className="p-3">
+          <div className="line-clamp-2 text-copy-15 font-medium text-neutral-10">
+            {data.title}
           </div>
-        )}
-        <div className="mt-2 flex items-center gap-2 border-t border-border pt-2 font-mono text-[0.75rem] text-neutral-7">
-          <Favicon
-            className="mr-0 inline-flex size-[14px] shrink-0 items-center justify-center [&_svg]:h-[14px]! [&_svg]:w-[14px]!"
-            href={data.url}
-          />
-          <span className="truncate">{host}</span>
-          {data.subtype && (
-            <>
-              <span className="text-neutral-5">·</span>
-              <span className="truncate">{data.subtype}</span>
-            </>
+          {data.description && (
+            <div className="mt-1 line-clamp-3 text-copy-13 text-neutral-7">
+              {data.description}
+            </div>
           )}
+          <div className="mt-2 flex items-center gap-2 border-t border-border pt-2 font-mono text-[0.75rem] text-neutral-7">
+            <Favicon
+              className="mr-0 inline-flex size-[14px] shrink-0 items-center justify-center [&_svg]:h-[14px]! [&_svg]:w-[14px]!"
+              href={data.url}
+            />
+            <span className="truncate">{host}</span>
+            {data.subtype && (
+              <>
+                <span className="text-neutral-5">·</span>
+                <span className="truncate">{data.subtype}</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </a>

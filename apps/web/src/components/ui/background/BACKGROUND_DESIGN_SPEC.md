@@ -1,66 +1,49 @@
-# Seasonal Background Design Spec
+# Paper Background Spec
 
-User-approved rules for every component in this directory. A background that
-violates rule 1 or 2 gets rejected regardless of craft — this has happened
-(Tsubaki large blossoms, Higanbana rooted clusters, Tsukimi moon + grass,
-Cumulus clouds, Tsubame birds were all cut for being "pictures").
+Full design of record: `docs/superpowers/specs/2026-10-17-paper-background-design.md`
+(reference bench beside it in `assets/`). These are the rules any change here must keep.
 
-## The seven rules
+## The page is the paper
 
-1. **Atmosphere, not picture.** A background depicts weather, light, or drift —
-   never a nameable object or scenery. Banned: ground lines, horizons, rooted
-   plants, celestial discs (moon/sun), animals, large individual flowers. The
-   season is conveyed only through hue family, particle density, and motion.
-2. **Full-field distribution.** Elements scatter across the whole viewport.
-   No anchored composition, no edge-grown clusters, no focal subject. Diffuse
-   light fields (Komorebi) are fine; shaped light sources (a moon disc) are not.
-3. **Element size.** Base size typically 8–36 px, hard max 44 px (the
-   AutumnLeaves near-layer cap). Reference ranges: Snow 4–22, Sakura 8–36,
-   AutumnLeaves 14–44. Larger elements must be sparser and blur-softened (DoF).
-4. **Restraint.** Single-element peak alpha ≤ ~0.7 (nearest layer only; most
-   elements 0.25–0.5). Instantaneous screen coverage stays low. Overlay test:
-   body text on top of the background must never have a recognizable shape
-   behind a paragraph.
-5. **Motion without events.** Continuous slow drift. Small, dim accent events
-   are allowed (DiamondDust glints, Kazahana gusts); large-area or
-   high-brightness events are not. Density may breathe on a ≥15 s period at
-   subtle amplitude.
-6. **One hue family per background,** receding toward the page surface —
-   light theme reads as pale ink on paper, dark theme as faint glow in night.
-7. **Performance.** dpr capped at 2, particle counts capped and scaled with
-   viewport area, geometry/sprites pre-generated (per resize), rAF loop with
-   dt clamp, full cleanup on unmount.
+The background is one washi sheet, not things drifting in front of it. Its
+stock changes with the 24 solar terms (二十四节气) and its light follows the
+reader's local clock. It stays alive through small in-place motion, as if the
+sheet were still floating in the papermaking vat.
 
-## House component pattern
+## Rejected — do not reintroduce
 
-`'use client'`; named export `XxxBackground` + exported `XxxBackgroundProps`
-(`density` / `speed` / `intensity` all defaulting to 1, plus extras as needed);
-`useIsomorphicLayoutEffect` + `isClientSide` resize handling; `propsRef` for
-live prop reads inside the loop; canvas className
-`pointer-events-none fixed inset-0 z-0 size-full`. Canvas 2D for sprite/vector
-particles, WebGL fullscreen shader for surface textures (Minamo), WebGPU
-instanced quads for SDF-drawn petals (Sakura/Wisteria — must render null when
-WebGPU is unavailable). Theme-adaptive components read `useIsDark` rather than
-receiving a theme prop.
+- Falling or flying particles of nameable things (the old Sakura / Snow /
+  AutumnLeaves / Firefly … set).
+- 空摺り blind-embossed patterns.
+- Per-season material events (ink bleed, suminagashi, sun-bleach sweep, frost).
+- Blurry bokeh light spots; softness comes from grain, not blur.
+- Water ripples on click; the only click effect is 按压 (a shallow dent).
+- Footer seal, ruled 版心 lines, pinned hover cards.
+- Syncing other surfaces to the paper color; surfaces follow the accent.
 
-## Seasonal wheel (design of record)
+## Layers and states
 
-Implemented in `BackgroundTexture.tsx` as the table-driven `SEASON_PRESETS`
-(pools of presets per slot; a pool with several entries is sampled once per
-mount).
+Layers: paper color + thickness + grain, 楮 fibers, 漉き込み fragments,
+seasonal pressed petals/leaves (江南 phenology), 砂子 leaf flakes, top ぼかし,
+小口染め fore-edge dye from article figures, footer 地ぼかし, PaperSheet contact
+shadow.
 
-| Slot | Period | Light | Dark |
+| Layer | browse | read | immersive |
 |---|---|---|---|
-| Deep winter | Dec 1 – Jan 31 | DiamondDust | Snow |
-| Late winter | Feb 1 – Mar 10 | Ume (snow-plum mix) | Kazahana |
-| Spring | Mar 11 – Apr 15 | Sakura | Sakura |
-| Late spring | Apr 16 – May 31 | Wisteria | Wisteria |
-| Early summer | Jun | Ajisai | Firefly |
-| High summer | Jul 1 – Aug 31 | Komorebi / Minamo (pool) | Firefly / Hanabi (pool) |
-| Early autumn | Sep 1 – Oct 15 | Kinmokusei (day tuning) | Kinmokusei (night tuning) |
-| Late autumn | Oct 16 – Nov 30 | AutumnLeaves | AutumnLeaves |
+| Fibers | moving | still | 60% |
+| 漉き込み | moving | 50% | hidden |
+| 砂子 | glinting | no glint | hidden |
+| Petals / leaves | moving | hidden | hidden |
+| ぼかし | flowing | still | 50% |
+| 小口染め | where figures exist | on | 60% |
+| 按压 | on | on | on |
 
-Hanabi is the one user-approved exception to rule 5 (localized, dim, rare
-bursts). Not wired into the wheel: ParticlePhysics (demo-only since the wheel
-became exhaustive). Cut and deleted: Aoba, Cumulus, Tsubame, Tsubaki,
-Higanbana, Tsukimi. `(dev)/backgrounds` is the review bench for all of this.
+Solar-term changes transition over ~10 s, staggered across the sheet, keeping
+anything shared by both terms in place. The background owns `--color-accent`.
+Not rendered on phones, with reduced motion it renders statically.
+
+Entering and leaving are layered (`paper/presence.ts`): the first frame equals
+the root background, the paper color washes in, then fibers settle, 漉き込み
+sink, 砂子 sprinkle and flash, and petals/leaves fall on a slow critically
+damped spring (~4 s total). Exit reverses in ~1.3 s, leaves lifting away
+first; the canvas unmounts after the paper has dried back.

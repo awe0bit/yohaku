@@ -2,9 +2,9 @@
 
 import type { PropsWithChildren } from 'react'
 
-import { AmbientImageSides } from '~/components/common/AmbientImageSides'
-import { AMBIENT_SCOPE_CLASS } from '~/components/common/AmbientImageSides/constants'
 import { useYohakuArticleRef } from '~/components/modules/yohaku/YohakuArticleShell'
+import { PAPER_DYE_SCOPE_CLASS } from '~/components/ui/background/paper/dye-input'
+import { PaperDyeSource } from '~/components/ui/background/paper/PaperDyeSource'
 
 import { IndentArticleContainer } from './[id]/pageExtra'
 
@@ -15,11 +15,11 @@ export function YohakuArticleContainer({
   const articleRef = useYohakuArticleRef()
   return (
     <IndentArticleContainer
-      className={AMBIENT_SCOPE_CLASS}
+      className={PAPER_DYE_SCOPE_CLASS}
       prose={prose}
       ref={articleRef}
     >
-      <AmbientImageSides />
+      <PaperDyeSource />
       {children}
     </IndentArticleContainer>
   )

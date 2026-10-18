@@ -1,4 +1,3 @@
-import { PageColorGradient } from '~/components/common/PageColorGradient'
 import { CategoryCrossChips } from '~/components/modules/category/CategoryCrossChips'
 import { CategoryRowList } from '~/components/modules/category/CategoryRowList'
 import { TagHero } from '~/components/modules/category/TagHero'
@@ -47,7 +46,6 @@ export default definePrerenderPage<{
 
     return (
       <>
-        <PageColorGradient seed={`tag|${name}`} />
         <BottomToUpSoftSpringTransitionView>
           <TagHero
             count={posts.length}

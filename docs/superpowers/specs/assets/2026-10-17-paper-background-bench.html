@@ -1,0 +1,1527 @@
+<title>余白の紙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@400;600&display=swap">
+<style>
+/* Layout: the stage is the paper itself, edge to edge; a quiet bench panel sits to its right (below on phones). */
+:root {
+  --bg: #efeee9;
+  --surface: #f6f5f1;
+  --fg: #24231f;
+  --muted: #77736a;
+  --line: rgba(36, 35, 31, 0.13);
+  --accent: #a8473b;
+  --ink: #2a2824;
+  --ink-soft: #6a665e;
+  --serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --paper-accent: #b4452f;
+  --mock-root: #fefefb;
+  --mock-sheet: #ffffff;
+  --seal: #b04a3c;
+  --seal-text: #f6f1e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141413; --surface: #1b1a19; --fg: #e7e3db; --muted: #9b968c;
+    --line: rgba(231, 227, 219, 0.12); --accent: #d27d6b; --ink: #e4dfd6;
+    --ink-soft: #a29c92; --mock-root: rgb(28, 28, 30); --mock-sheet: #2a2a2c;
+    --seal: #9e4638; --seal-text: #1c1a18; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141413; --surface: #1b1a19; --fg: #e7e3db; --muted: #9b968c;
+  --line: rgba(231, 227, 219, 0.12); --accent: #d27d6b; --ink: #e4dfd6;
+  --ink-soft: #a29c92; --mock-root: rgb(28, 28, 30); --mock-sheet: #2a2a2c;
+  --seal: #9e4638; --seal-text: #1c1a18; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100%; }
+.stage { position: relative; overflow: hidden; min-width: 0; background: var(--mock-root); }
+.stage canvas.legacy-in { animation: legacyIn 1000ms ease-out both; }
+@keyframes legacyIn { from { opacity: 0; } to { opacity: 1; } }
+.tl { width: 100%; height: auto; display: block; margin-top: 10px; font-family: var(--sans); }
+.tl .lab { font-size: 9.5px; fill: var(--muted); }
+.tl .axis { font-size: 8.5px; fill: var(--muted); font-family: var(--mono); }
+.tl .track { fill: var(--line); }
+.tl .bar { fill: var(--paper-accent); opacity: 0.55; }
+.tl .fill { fill: var(--paper-accent); }
+.tl .head { stroke: var(--fg); stroke-width: 1; }
+.tl .grid { stroke: var(--line); stroke-width: 1; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.sample {
+  position: relative; max-width: 34em; margin: 0 auto;
+  padding-block: 11vh 4rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-family: var(--serif); color: var(--ink);
+  transition: opacity 0.4s ease;
+}
+.sample.off { opacity: 0; }
+.sample .tag { font: 11px/1 var(--sans); letter-spacing: 0.12em; color: var(--ink-soft); margin: 0 0 1.2rem; }
+.sample h1 { font-size: 1.95rem; font-weight: 600; letter-spacing: 0.03em; margin: 0 0 0.6rem; text-wrap: balance; }
+.sample .date { font: 13px/1.4 var(--sans); color: var(--ink-soft); margin: 0 0 2.2rem; }
+.sample p { font-size: 1.0625rem; line-height: 1.95; margin: 0 0 1.15em; }
+.cap {
+  position: absolute; right: 16px; bottom: 32px; z-index: 3; text-align: right;
+  font: 11.5px/1.3 var(--mono); letter-spacing: 0.02em; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; color: var(--muted); text-align: center; }
+
+.panel {
+  border-left: 1px solid var(--line); background: var(--surface); overflow: auto;
+  padding-block: 22px 32px; padding-inline: 22px;
+  display: flex; flex-direction: column; gap: 24px; min-width: 0;
+}
+.ph h2 { font: 600 1.25rem/1.2 var(--serif); letter-spacing: 0.06em; margin: 0 0 0.5rem; }
+.ph p, .desc { font-size: 12.5px; line-height: 1.7; color: var(--muted); margin: 0; }
+.grp { display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.lbl { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--muted); }
+.val { font: 500 15px/1.2 var(--serif); color: var(--fg); font-variant-numeric: tabular-nums; }
+.meta { font: 11.5px/1.6 var(--mono); color: var(--muted); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 6px; padding: 2px; gap: 2px; }
+.seg button {
+  font: 13px/1 var(--sans); color: var(--muted); background: transparent; border: 0;
+  padding: 8px 6px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+}
+.seg button[aria-pressed="true"] { background: var(--bg); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+.link { font: 12px/1 var(--sans); color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer; white-space: nowrap; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg); cursor: pointer; }
+.chk input, .layer input { accent-color: var(--accent); margin: 0; }
+.layer { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; padding-block: 2px; }
+.layer input { margin-top: 3px; }
+.layer .t { display: block; font-size: 13.5px; color: var(--fg); }
+.layer .t em { font-style: normal; font-family: var(--serif); margin-left: 6px; color: var(--muted); font-size: 12px; }
+.layer .d { display: block; font-size: 12px; line-height: 1.6; color: var(--muted); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.info { font: 11.5px/1.75 var(--mono); color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+
+.scroller { position: absolute; inset: 0; overflow-y: auto; z-index: 1; }
+.scroller .sample { padding-bottom: 140px; }
+.sample figure { margin: 2.2rem 0; }
+.sample figure img { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 2px; background: var(--line); }
+.sample figcaption { margin-top: 8px; font: 12px/1.5 var(--sans); color: var(--ink-soft); text-align: center; }
+.mock-header {
+  position: absolute; inset: 0 0 auto; height: 52px; z-index: 3;
+  display: flex; align-items: center; gap: 28px; padding-inline: 24px;
+  background: color-mix(in oklab, var(--paper-accent) 5%, var(--mock-root));
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-accent) 14%, transparent);
+  font-size: 13px; color: var(--ink-soft); transition: background 0.6s ease;
+}
+.mock-header b { font: 600 16px/1 var(--serif); color: var(--ink); letter-spacing: 0.04em; }
+.mock-header nav { display: flex; gap: 18px; }
+.mock-header nav span.on { color: var(--paper-accent); box-shadow: inset 0 -2px 0 var(--paper-accent); padding-bottom: 4px; }
+.mock-footer {
+  position: absolute; inset: auto 0 0; height: 84px; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; padding-inline: 24px;
+  font-size: 12px; color: var(--ink-soft);
+}
+.mock-footer.old { background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--paper-accent) 5%, var(--mock-root))); }
+.mock-footer .colophon { display: flex; align-items: center; gap: 14px; }
+.seal {
+  width: 36px; height: 36px; display: grid; place-items: center; background: var(--seal); color: var(--seal-text);
+  font: 600 12.5px/1 var(--serif); writing-mode: vertical-rl; letter-spacing: 0.06em;
+  border-radius: 3px; transform: rotate(-2deg); filter: url(#stamp); opacity: 0.88; transition: opacity 0.6s ease;
+}
+.mock-link { color: var(--paper-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; position: relative; }
+.hcard {
+  position: absolute; z-index: 4; width: 300px; padding: 14px 16px; font-family: var(--sans);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; transform: translateY(4px);
+}
+.hcard.show { opacity: 1; transform: none; }
+.hcard .t { font: 600 14px/1.4 var(--serif); color: var(--ink); margin: 0 0 6px; }
+.hcard .d { font-size: 12.5px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 8px; }
+.hcard .u { font: 11px var(--mono); color: var(--paper-accent); }
+.hcard.old { background: var(--mock-sheet); border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.05); }
+.hcard.washi { background: transparent; }
+.hcard.washi::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--card-fiber, none), color-mix(in oklab, var(--paper-accent) 3%, var(--mock-sheet));
+  background-size: 256px 256px, auto;
+  filter: url(#deckle); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 6px 18px rgb(0 0 0 / 0.06);
+}
+.sheet {
+  position: relative; isolation: isolate; margin-top: 2.2rem; padding: 18px 20px; font-family: var(--sans); font-size: 13.5px; line-height: 1.8; color: var(--ink);
+}
+.sheet::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; background: var(--mock-sheet);
+  filter: url(#deckle); box-shadow: 0 1px 1.5px rgb(0 0 0 / 0.06);
+}
+.sheet .m { font-size: 11.5px; color: var(--ink-soft); margin: 0 0 6px; }
+.sheet .tag { display: inline-block; margin-top: 8px; font-size: 11.5px; color: var(--paper-accent); border: 1px solid color-mix(in oklab, var(--paper-accent) 40%, transparent); padding: 1px 7px; border-radius: 3px; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.swatches button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.swatches button[aria-pressed="true"] { border-color: var(--fg); }
+.accent-chip { display: inline-flex; align-items: center; gap: 8px; font: 12px var(--mono); color: var(--muted); }
+.accent-chip i { width: 16px; height: 16px; border-radius: 4px; background: var(--paper-accent); display: inline-block; }
+
+@media (max-width: 820px) {
+  html, body { height: auto; }
+  .app { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .stage { height: 74svh; }
+  .panel {
+    border-left: 0; border-top: 1px solid var(--line); overflow: visible;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .sample h1 { font-size: 1.6rem; }
+  .sample p { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { .sample { transition: none; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="stamp">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.7 0 0 0 1.5" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in"/>
+  </filter>
+  <filter id="deckle" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="9" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div class="app">
+  <main class="stage" id="stage">
+    <canvas id="paper"></canvas>
+    <div class="scroller" id="scroller">
+    <article class="sample" id="sample">
+      <p class="tag">示例正文</p>
+      <h1>寒露以后</h1>
+      <p class="date">2026 年 10 月 12 日 · 随笔</p>
+      <p>早上推开窗，楼下那棵桂花已经过了最香的几天，空气里只剩一点甜味的尾巴。气温掉得很快，昨天还穿短袖的人，今天都把外套翻了出来。</p>
+      <p>写东西和晾衣服有点像：写完先挂一挂，等风吹过几轮，再收回来看哪里起了皱。大部分文章隔一天再看都不太一样，有的变好了，有的只是变旧了。</p>
+      <p>今年秋天打算少写一点，多读一点。书架上<span class="mock-link" id="mockLink">那几本买了一年还没拆封的</span>，先从最薄的那本开始。</p>
+      <div class="sheet" id="sheet">
+        <p class="m">思考 · 10 月 15 日（PaperSheet 示例）</p>
+        桂花落了一地，扫地的人说今年开得晚，谢得也快。
+        <div><span class="tag">#季节</span></div>
+      </div>
+      <p>傍晚去河边走了一圈。水位比夏天低了很多，露出一片铺满卵石的滩，几个小孩在上面找扁平的石头打水漂。</p>
+      <figure data-dye="0"><img alt="示例配图：傍晚的青灰色河面" id="fig0"><figcaption>配图一 · 青瓦（示例图，主色偏青灰）</figcaption></figure>
+      <p>回来的路上经过一家老裁缝铺，门口挂着改到一半的旧大衣，袖口用粉笔画了两道线。老板说天一冷，来改衣服的人就多起来。</p>
+      <p>想起小时候家里也有一台缝纫机，踏板踩起来咔哒咔哒响。那台机器后来被收走了，只留下一个装纽扣的铁皮盒子。</p>
+      <figure data-dye="1"><img alt="示例配图：挂满柿子的院子" id="fig1"><figcaption>配图二 · 柿色（示例图，主色偏橙）</figcaption></figure>
+      <p>隔壁院子的柿子熟了，挂在光秃秃的枝上，一个比一个红。没人去摘，鸟倒是天天来。</p>
+      <p>这个季节最适合晒东西：被子、书、腌好的萝卜干。阳光斜斜地照进来，在地板上铺出一块暖色的长方形。</p>
+      <p>下午把书架上的书搬出来晒了一遍。有几本书页已经泛黄，翻开有一股旧纸的味道，说不上好闻，但很熟悉。</p>
+      <figure data-dye="2"><img alt="示例配图：长满苔藓的石阶" id="fig2"><figcaption>配图三 · 苔绿（示例图，主色偏绿）</figcaption></figure>
+      <p>后山的石阶上长满了苔，下过雨之后绿得发亮。走得小心一点，鞋底还是会打滑。</p>
+      <p>山顶的亭子里有人在下棋，旁边围了一圈看的人，没人说话，只有落子的声音。</p>
+      <figure data-dye="3"><img alt="示例配图：紫色的暮色天空" id="fig3"><figcaption>配图四 · 藤紫（示例图，主色偏紫）</figcaption></figure>
+      <p>天黑得越来越早了。六点不到，路灯就亮了起来，天边还剩一点紫色。</p>
+      <p>写到这里，窗外起风了。明天大概会更冷一些，记得把厚一点的被子拿出来。</p>
+    </article>
+    </div>
+    <div class="hcard washi" id="hcard"><p class="t">读书笔记：那几本没拆封的书</p><p class="d">链接预览卡示例。书单、摘抄和一点读后感，按读完的顺序排。</p><span class="u">innei.in/notes/reading</span></div>
+    <header class="mock-header"><b>Yohaku</b><nav><span class="on">文章</span><span>日记</span><span>思考</span><span>关于</span></nav></header>
+    <footer class="mock-footer" id="mockFooter"><span>© 2026 Innei · 页脚示例</span></footer>
+    <div class="cap" id="cap"></div>
+  </main>
+
+  <aside class="panel">
+    <header class="ph">
+      <h2>余白の紙</h2>
+      <p>纸还浮在纸槽里，没有完全定型：纤维轻轻晃，碎屑悬着漂，箔片慢慢翻，顶边的刷痕在流。强度 1.0、速度 3× 是打算上线的值。</p>
+    </header>
+
+    <section class="grp">
+      <div class="row"><span class="lbl">入场 / 出场</span><button type="button" class="link" id="presReplay">↻ 重播入场</button></div>
+      <div class="seg" role="group" aria-label="过渡方式">
+        <button type="button" data-pmode="layered" aria-pressed="true">分层渐进</button>
+        <button type="button" data-pmode="legacy" aria-pressed="false">现状</button>
+      </div>
+      <div class="seg" role="group" aria-label="慢放">
+        <button type="button" data-pslow="1" aria-pressed="true">1×</button>
+        <button type="button" data-pslow="0.5" aria-pressed="false">½ 慢放</button>
+        <button type="button" data-pslow="0.25" aria-pressed="false">¼ 慢放</button>
+      </div>
+      <div class="row"><button type="button" class="link" id="presToggle">关闭背景（出场）</button></div>
+      <svg class="tl" id="presTL" role="img" aria-label="各图层的入场 / 出场时间轴"></svg>
+      <p class="desc" id="presDesc"></p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">页面状态</div>
+      <div class="seg" role="group" aria-label="页面状态">
+        <button type="button" data-page="browse" aria-pressed="true">浏览</button>
+        <button type="button" data-page="read" aria-pressed="false">阅读</button>
+        <button type="button" data-page="immersive" aria-pressed="false">沉浸</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="autoImm" checked> 阅读时鼠标移入正文自动沉浸</label>
+      <p class="desc" id="pageDesc"></p>
+    </section>
+
+    <section class="grp">
+      <div class="row"><label for="jq" class="lbl">节气</label><span class="val" id="jqLabel"></span></div>
+      <input type="range" id="jq" min="0" max="23" step="1" value="16">
+      <div class="row"><span class="meta" id="jqDate"></span><button type="button" class="link" id="jqToday">回到今天</button></div>
+      <div class="row"><button type="button" class="link" id="jqNext">▶ 过渡到下一个节气</button><label class="chk"><input type="checkbox" id="jqAuto"> 自动连播</label></div>
+      <p class="info" id="jqInfo"></p>
+    </section>
+
+    <section class="grp">
+      <div class="row"><label for="hr" class="lbl">时刻</label><span class="val" id="hrLabel"></span></div>
+      <input type="range" id="hr" min="0" max="24" step="0.25" value="9">
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="follow"> 光跟随鼠标</label>
+        <button type="button" class="link" id="hrNow">现在</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="hrPlay"> 时刻快进（1 秒 = 1 小时）</label>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">动态</div>
+      <div class="seg" role="group" aria-label="速度">
+        <button type="button" data-speed="1" aria-pressed="false">1×</button>
+        <button type="button" data-speed="3" aria-pressed="true">3× 上线</button>
+        <button type="button" data-speed="8" aria-pressed="false">8×</button>
+      </div>
+      <label class="layer"><input type="checkbox" id="M_fiber" checked><span><span class="t">纤维摇曳<em>流し漉き</em></span><span class="d">纤维像还在纸槽里，各处轻轻晃，幅度约 4px。</span></span></label>
+      <label class="layer"><input type="checkbox" id="M_suki" checked><span><span class="t">碎屑漂浮</span><span class="d">漉き込み 悬得比纤维浅，漂得更远，约 7px。</span></span></label>
+      <label class="layer"><input type="checkbox" id="M_sunago" checked><span><span class="t">箔片翻转</span><span class="d">砂子原地慢漂、各自慢转，转到对光的角度就亮一下。</span></span></label>
+      <label class="layer"><input type="checkbox" id="M_bok" checked><span><span class="t">刷痕流动</span><span class="d">ぼかし 的刷边横向慢慢流，深浅约 40 秒呼吸一次。</span></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">点击效果</div>
+      <div class="opts" role="radiogroup" aria-label="点击效果">
+        <label class="layer"><input type="radio" name="click" value="press" checked><span><span class="t">按压</span><span class="d">指尖按出一个浅窝，周围微微内收，窝边一圈明暗，附近箔片被压斜闪一下，约 1.5 秒弹回。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="blow"><span><span class="t">吹气</span><span class="d">轻吹一口，箔片和碎屑被吹得远，纤维只晃一下，再落回原处。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="crumple"><span><span class="t">揉皱</span><span class="d">点击处起一小片皱褶，碎成许多小折面，约 3 秒慢慢舒平。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="seal"><span><span class="t">落印</span><span class="d">盖下一枚淡朱的「余白」小印，约 5 秒后褪去。最多同时 4 枚。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="ripple"><span><span class="t">水波</span><span class="d">上一版的效果，留作对照。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="none"><span><span class="t">无</span><span class="d">点击不产生任何效果。</span></span></label>
+      </div>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">图层</div>
+      <label class="layer"><input type="checkbox" id="L_fiber" checked><span><span class="t">楮纤维<em>楮</em></span><span class="d">长短纤维、树皮碎点、纸的厚薄不匀。全年都在，只有纸色随节气变。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_sunago" checked><span><span class="t">砂子<em>すなご</em></span><span class="d">稀疏的金银箔碎，冬密夏疏。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_suki" checked><span><span class="t">漉き込み<em>すきこみ</em></span><span class="d">抄进纸里的极小碎屑，小到认不出是什么。冬天没有。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_elem" checked><span><span class="t">季节花叶<em>花入り</em></span><span class="d">抄进纸里的整片花瓣和叶子，被纤维压着、半透。梅、樱、紫阳花、青枫、红叶、银杏、六花按节气轮换。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_bok" checked><span><span class="t">ぼかし<em>一文字</em></span><span class="d">页面顶边一道刷出来的渐层，晨昏最明显。</span></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">Accent</div>
+      <div class="row"><span class="accent-chip"><i></i><span id="accentHex"></span></span><label class="chk"><input type="checkbox" id="accentDrive" checked> 由背景驱动</label></div>
+      <p class="desc">每组花叶对应一个 accent，明度和彩度固定，只有色相跟着季节变；节气过渡时它在 OKLab 里同步渐变。关掉则回到一个固定的示意 accent，用来对比。页头、链接、标签、页脚都吃这个颜色。</p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">小口染め · 配图染色</div>
+      <label class="layer"><input type="checkbox" id="L_dye" checked><span><span class="t">小口染め</span><span class="d">替代 AmbientImageSides。在左边纸面上往下滚动文章：哪张配图经过视口中央，左右书口就被它的颜色染上，染料沿纤维往里渗。没有配图在视野里时褪掉，快速滚动时也会淡下去。</span></span></label>
+      <p class="info" id="dyeInfo"></p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">点缀</div>
+      <label class="layer"><input type="checkbox" id="L_foot" checked><span><span class="t">页脚地ぼかし</span><span class="d">关掉时是现在的页脚渐变色带；打开后改由背景在底部刷一道渐层，颜色取时刻色与 accent 的混合。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_card" checked><span><span class="t">和纸片悬停卡</span><span class="d">关掉时是现在的圆角白卡。把鼠标移到正文第三段的链接上看。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_sheet" checked><span><span class="t">PaperSheet 压纸</span><span class="d">示例卡片底下一圈很淡的接触阴影，砂子、碎屑和花叶在边缘附近让开。</span></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="row"><label for="gain" class="lbl">强度</label><span class="val" id="gainLabel"></span></div>
+      <input type="range" id="gain" min="0.5" max="3" step="0.1" value="1">
+      <label class="chk"><input type="checkbox" id="showText" checked> 叠上示例正文</label>
+      <p class="desc">叠字测试：段落后面不应认出任何形状。</p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">主题</div>
+      <div class="seg" role="group" aria-label="主题">
+        <button type="button" data-th="system" aria-pressed="true">跟随系统</button>
+        <button type="button" data-th="light" aria-pressed="false">浅</button>
+        <button type="button" data-th="dark" aria-pressed="false">深</button>
+      </div>
+    </section>
+  </aside>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const JIEQI = [
+    ['立春', 2, 4], ['雨水', 2, 18], ['惊蛰', 3, 5], ['春分', 3, 20], ['清明', 4, 5], ['谷雨', 4, 20],
+    ['立夏', 5, 5], ['小满', 5, 21], ['芒种', 6, 5], ['夏至', 6, 21], ['小暑', 7, 7], ['大暑', 7, 22],
+    ['立秋', 8, 7], ['处暑', 8, 23], ['白露', 9, 7], ['秋分', 9, 23], ['寒露', 10, 8], ['霜降', 10, 23],
+    ['立冬', 11, 7], ['小雪', 11, 22], ['大雪', 12, 7], ['冬至', 12, 21], ['小寒', 1, 5], ['大寒', 1, 20],
+  ]
+  const SEASON_NAME = ['春', '夏', '秋', '冬']
+  const PAPER = {
+    light: [[0.962, 0.946, 0.940], [0.938, 0.951, 0.944], [0.958, 0.941, 0.906], [0.944, 0.947, 0.952]],
+    dark: [[0.112, 0.103, 0.106], [0.093, 0.106, 0.103], [0.116, 0.104, 0.088], [0.095, 0.099, 0.111]],
+  }
+  const SUKI = [
+    { label: '梅、樱与桃的碎瓣', colors: ['#d79aa2', '#e4b9bb', '#c7848e'], kind: 'petal', amt: 1 },
+    { label: '青竹纤维', colors: ['#8fae94', '#a3bfae', '#7d9c8e'], kind: 'fiber', amt: 0.75 },
+    { label: '枫与银杏的碎屑', colors: ['#b2603c', '#c88a3a', '#97452f', '#cfa14a'], kind: 'petal', amt: 1 },
+    { label: '无', colors: [], kind: 'none', amt: 0 },
+  ]
+  const ELEM_COLORS = {
+    petal: ['#f1c6cf', '#ebb3c0', '#f5d5dc'],
+    sakura: ['#f1c6cf', '#ebb3c0', '#f5d5dc'],
+    ume: ['#e9a3b3', '#f2e2e2', '#dd8ea0'],
+    roundPetal: ['#e9a3b3', '#f2e2e2', '#dd8ea0'],
+    peach: ['#e8879c', '#f0a3b4', '#dc7590'],
+    peachPetal: ['#e8879c', '#f0a3b4', '#dc7590'],
+    pear: ['#f6f3ec', '#f1eee6'],
+    pearPetal: ['#f6f3ec', '#f1eee6'],
+    peony: ['#e59ab8', '#d97aa0', '#f0b8cc'],
+    wisteria: ['#a996cf', '#b8a8da', '#9583c4'],
+    lotus: ['#efb7c6', '#f3c9d4', '#e8a3b6'],
+    osmanthus: ['#e3a23c', '#eab24f', '#d9902e'],
+    wintersweet: ['#e6c25a', '#eccd6e', '#dcb447'],
+    'maple:green': ['#8fb07a', '#7aa067', '#a3bd86'],
+    'maple:turning': ['#a7b06a', '#cf8d42', '#c45b3a'],
+    'maple:red': ['#c4493a', '#d0653a', '#b03a32', '#d9883e'],
+    ginkgo: ['#e2bf4e', '#d8ae3a', '#ead07a'],
+    'ginkgo:fallen': ['#c79a45', '#b88a3c', '#d2a958'],
+    ajisai: ['#9db0d8', '#b3a5d6', '#8aa6cc', '#d3a9c9'],
+    snow: ['#a9b6c8', '#bcc7d6'],
+  }
+  const ELEM_SIZE = {
+    petal: [10, 16], roundPetal: [8, 12], sakura: [18, 26], ume: [14, 20], peach: [18, 26], peachPetal: [10, 15],
+    pear: [16, 22], pearPetal: [9, 13], peony: [16, 26], wisteria: [9, 13], lotus: [16, 26],
+    osmanthus: [8, 13], wintersweet: [13, 18],
+    'maple:green': [24, 38], 'maple:turning': [24, 38], 'maple:red': [24, 38],
+    ginkgo: [18, 28], 'ginkgo:fallen': [18, 26], ajisai: [10, 15], snow: [10, 18],
+  }
+  const ELEM_GROUPS = [
+    { at: [0, 1], label: '梅', mix: [['ume', 1], ['roundPetal', 2]] },
+    { at: [2], label: '桃（桃始华）', mix: [['peachPetal', 3], ['peach', 1]] },
+    { at: [3], label: '樱', mix: [['petal', 4], ['sakura', 1]] },
+    { at: [4], label: '梨花，夹几片落樱', mix: [['pearPetal', 3], ['pear', 1.2], ['petal', 0.6]] },
+    { at: [5], label: '牡丹与藤', mix: [['peony', 1.4], ['wisteria', 2]] },
+    { at: [6], label: '藤与青枫', mix: [['wisteria', 1.5], ['maple:green', 1]] },
+    { at: [7], label: '青枫', mix: [['maple:green', 1]] },
+    { at: [8, 9], label: '紫阳花与青枫', mix: [['ajisai', 3], ['maple:green', 0.5]] },
+    { at: [10, 11], label: '荷与青枫', mix: [['lotus', 1.4], ['maple:green', 1]] },
+    { at: [12, 13], label: '青枫，夹几片落荷', mix: [['maple:green', 1.5], ['lotus', 0.4]] },
+    { at: [14, 15], label: '桂花', mix: [['osmanthus', 1]] },
+    { at: [16, 17], label: '落桂与转色的枫', mix: [['osmanthus', 1.2], ['maple:turning', 1]] },
+    { at: [18, 19], label: '红叶与银杏', mix: [['maple:red', 1.2], ['ginkgo', 1]] },
+    { at: [20], label: '落银杏与晚红叶', mix: [['ginkgo:fallen', 1.2], ['maple:red', 0.6]] },
+    { at: [21], label: '六花', mix: [['snow', 1]] },
+    { at: [22, 23], label: '蜡梅与六花', mix: [['wintersweet', 1.4], ['snow', 1]] },
+  ]
+  const elemGroup = (i) => ELEM_GROUPS.find((g) => g.at.includes(i))
+
+  const LIGHT_KEYS = [
+    [0, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+    [5, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+    [6.5, { src: [-0.1, -0.15], radius: 1.25, color: [1, 0.9, 0.86], bok: [0.86, 0.62, 0.6], amt: 0.11 }],
+    [9, { src: [0.15, -0.3], radius: 1.4, color: [1, 0.97, 0.93], bok: [0.45, 0.55, 0.68], amt: 0.05 }],
+    [12, { src: [0.5, -0.4], radius: 1.6, color: [1, 1, 0.98], bok: [0.45, 0.55, 0.68], amt: 0.04 }],
+    [15, { src: [0.85, -0.3], radius: 1.4, color: [1, 0.95, 0.88], bok: [0.5, 0.56, 0.66], amt: 0.05 }],
+    [17.5, { src: [1.1, -0.12], radius: 1.25, color: [1, 0.84, 0.68], bok: [0.82, 0.5, 0.36], amt: 0.12 }],
+    [19, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+    [24, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+  ]
+
+  const lerp = (a, b, t) => a + (b - a) * t
+  const lerpArr = (a, b, t) => a.map((v, i) => lerp(v, b[i], t))
+  const smooth = (t) => t * t * (3 - 2 * t)
+  const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
+  const toHex = (c) => '#' + c.map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, '0')).join('')
+
+  function rng(seed) {
+    return () => {
+      seed |= 0; seed = (seed + 0x6d2b79f5) | 0
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  }
+
+  function lightFor(h) {
+    let k = 0
+    while (k < LIGHT_KEYS.length - 2 && LIGHT_KEYS[k + 1][0] <= h) k++
+    const [h0, a] = LIGHT_KEYS[k], [h1, b] = LIGHT_KEYS[k + 1]
+    const t = smooth(Math.min(1, Math.max(0, (h - h0) / (h1 - h0 || 1))))
+    return {
+      src: lerpArr(a.src, b.src, t), radius: lerp(a.radius, b.radius, t),
+      color: lerpArr(a.color, b.color, t), bok: lerpArr(a.bok, b.bok, t), amt: lerp(a.amt, b.amt, t),
+    }
+  }
+  const hourWord = (h) => (h >= 5 && h < 8 ? '晨' : h >= 8 && h < 16 ? '昼' : h >= 16 && h < 19 ? '暮' : '夜')
+  const fmtHour = (h) => {
+    const hh = Math.floor(h) % 24, mm = Math.round((h - Math.floor(h)) * 60)
+    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+  }
+
+  const seasonOf = (i) => Math.floor(i / 6)
+  function paperColor(i, dark) {
+    const a = dark ? PAPER.dark : PAPER.light
+    const t = ((i - 3 + 24) % 24) / 6, s = Math.floor(t), f = smooth(t - s)
+    return lerpArr(a[s % 4], a[(s + 1) % 4], f)
+  }
+  const sunagoDensity = (i) => 0.35 + 1.65 * Math.pow((1 + Math.cos((2 * Math.PI * (i - 21)) / 24)) / 2, 1.5)
+  const goldness = (i) => (1 + Math.cos((2 * Math.PI * (i - 17)) / 24)) / 2
+  const sukiDensity = (i) => SUKI[seasonOf(i)].amt * (0.55 + 0.45 * Math.sin((Math.PI * ((i % 6) + 0.5)) / 6))
+
+  function todayIndex(d = new Date()) {
+    const v = (d.getMonth() + 1) * 100 + d.getDate()
+    let best = -1, bestV = -1
+    JIEQI.forEach(([, m, day], i) => { const jv = m * 100 + day; if (jv <= v && jv > bestV) { bestV = jv; best = i } })
+    return best < 0 ? 21 : best
+  }
+
+  function makeCanvas(W, H, dpr) {
+    const c = document.createElement('canvas')
+    c.width = Math.max(1, Math.round(W * dpr)); c.height = Math.max(1, Math.round(H * dpr))
+    return c
+  }
+
+  function makeFibers(W, H, dpr) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.fillStyle = 'rgb(128,128,128)'; x.fillRect(0, 0, c.width, c.height)
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.lineCap = 'round'
+    const r = rng(7), n = Math.round((W * H) / 1300)
+    for (let i = 0; i < n; i++) {
+      const len = 24 + Math.pow(r(), 2.2) * 170, a = r() * Math.PI * 2
+      const x0 = r() * W, y0 = r() * H, x1 = x0 + Math.cos(a) * len, y1 = y0 + Math.sin(a) * len
+      const bend = (r() - 0.5) * len * 0.5
+      const mx = (x0 + x1) / 2 - Math.sin(a) * bend, my = (y0 + y1) / 2 + Math.cos(a) * bend
+      x.strokeStyle = r() < 0.58 ? `rgba(255,255,255,${0.16 + r() * 0.3})` : `rgba(0,0,0,${0.08 + r() * 0.2})`
+      x.lineWidth = 0.35 + r() * 0.6
+      x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(mx, my, x1, y1); x.stroke()
+    }
+    const m = Math.round((W * H) / 11000)
+    for (let i = 0; i < m; i++) {
+      const s = 0.5 + r() * 1.2
+      x.fillStyle = `rgba(0,0,0,${0.2 + r() * 0.3})`
+      x.beginPath(); x.ellipse(r() * W, r() * H, s, s * (0.4 + r() * 0.6), r() * 3.14, 0, Math.PI * 2); x.fill()
+    }
+    return c
+  }
+
+  function makeSuki(W, H, dpr, i) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.lineCap = 'round'
+    const spec = SUKI[seasonOf(i)]
+    if (spec.kind === 'none') return c
+    const r = rng(31 + seasonOf(i)), n = Math.round((W * H) / 6500), keepBelow = sukiDensity(i)
+    for (let k = 0; k < n; k++) {
+      x.globalAlpha = r() < keepBelow ? 1 : 0
+      const [cr, cg, cb] = hexToRgb(spec.colors[Math.floor(r() * spec.colors.length)])
+      const px = r() * W, py = r() * H
+      if (spec.kind === 'fiber') {
+        const len = 5 + r() * 13, a = r() * Math.PI * 2
+        x.strokeStyle = `rgba(${cr},${cg},${cb},${0.45 + r() * 0.3})`; x.lineWidth = 0.5 + r() * 0.4
+        x.beginPath(); x.moveTo(px, py)
+        x.quadraticCurveTo(px + Math.cos(a) * len * 0.5 + (r() - 0.5) * 3, py + Math.sin(a) * len * 0.5 + (r() - 0.5) * 3, px + Math.cos(a) * len, py + Math.sin(a) * len)
+        x.stroke()
+        continue
+      }
+      const rr = 1.1 + Math.pow(r(), 1.6) * 3.2, rot = r() * Math.PI, stretch = 0.55 + r() * 0.45
+      x.fillStyle = `rgba(${cr},${cg},${cb},${0.4 + r() * 0.4})`
+      x.beginPath()
+      for (let v = 0; v < 9; v++) {
+        const a = (v / 9) * Math.PI * 2, d = rr * (0.55 + r() * 0.6)
+        const lx = Math.cos(a) * d, ly = Math.sin(a) * d * stretch
+        const qx = px + lx * Math.cos(rot) - ly * Math.sin(rot), qy = py + lx * Math.sin(rot) + ly * Math.cos(rot)
+        v === 0 ? x.moveTo(qx, qy) : x.lineTo(qx, qy)
+      }
+      x.closePath(); x.fill()
+      if (r() < 0.3) {
+        const a = r() * Math.PI * 2, len = 3 + r() * 5
+        x.strokeStyle = `rgba(${cr},${cg},${cb},0.3)`; x.lineWidth = 0.45
+        x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * len, py + Math.sin(a) * len); x.stroke()
+      }
+    }
+    return c
+  }
+
+  function makeFlakes(W, H, dpr, i) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const r = rng(101), M = Math.max(W, H), sig = 0.2 * M
+    const blobs = Array.from({ length: 7 }, () => [r() * W, r() * H])
+    const field = (px, py) => {
+      let s = 0
+      for (const [bx, by] of blobs) { const dx = px - bx, dy = py - by; s += Math.exp(-(dx * dx + dy * dy) / (sig * sig)) }
+      return Math.min(1, s)
+    }
+    const n = Math.round(((W * H) / 4200) * 2), keepBelow = sunagoDensity(i) / 2
+    let placed = 0, guard = 0
+    while (placed < n && guard++ < n * 6) {
+      const px = r() * W, py = r() * H
+      if (r() > 0.3 + 0.7 * field(px, py)) continue
+      x.globalAlpha = r() < keepBelow ? 1 : 0
+      const o = Math.floor(r() * 255), spin = Math.floor(r() * 255)
+      const base = 0.5 + Math.pow(r(), 2) * 2.2, a0 = r() * Math.PI * 2
+      x.fillStyle = `rgb(${o},${spin},0)`
+      x.beginPath()
+      for (let v = 0; v < 4; v++) {
+        const a = a0 + v * (Math.PI / 2) + (r() - 0.5) * 0.9, d = base * (0.6 + r() * 0.7)
+        const qx = px + Math.cos(a) * d, qy = py + Math.sin(a) * d
+        v === 0 ? x.moveTo(qx, qy) : x.lineTo(qx, qy)
+      }
+      x.closePath(); x.fill(); placed++
+    }
+    return c
+  }
+
+  function drawPetal(x, s) {
+    const w = s * 0.36, h = s * 0.5
+    x.beginPath(); x.moveTo(0, h)
+    x.bezierCurveTo(w * 1.15, h * 0.55, w * 1.05, -h * 0.85, w * 0.38, -h)
+    x.lineTo(0, -h * 0.74); x.lineTo(-w * 0.38, -h)
+    x.bezierCurveTo(-w * 1.05, -h * 0.85, -w * 1.15, h * 0.55, 0, h)
+    x.fill()
+  }
+  function drawPeachPetal(x, s) {
+    const w = s * 0.34, h = s * 0.5
+    x.beginPath(); x.moveTo(0, h)
+    x.bezierCurveTo(w * 1.2, h * 0.6, w * 1.1, -h * 0.55, 0, -h)
+    x.bezierCurveTo(-w * 1.1, -h * 0.55, -w * 1.2, h * 0.6, 0, h)
+    x.fill()
+  }
+  function drawMaple(x, s) {
+    const R = s * 0.5
+    const lobes = [[-202, 0.45], [-166, 0.68], [-128, 0.86], [-90, 1], [-52, 0.86], [-14, 0.68], [22, 0.45]]
+    const at = (deg, r) => [Math.cos((deg * Math.PI) / 180) * R * r, Math.sin((deg * Math.PI) / 180) * R * r]
+    x.beginPath(); x.moveTo(0, R * 0.12)
+    lobes.forEach(([deg, len], k) => {
+      const prev = k === 0 ? deg - 34 : (lobes[k - 1][0] + deg) / 2
+      const valley = at(prev, 0.4), tip = at(deg, len)
+      const mid = [(valley[0] + tip[0]) / 2, (valley[1] + tip[1]) / 2]
+      const side = at(deg - 90, 0.15)
+      x.lineTo(valley[0], valley[1]); x.lineTo(mid[0] + side[0], mid[1] + side[1]); x.lineTo(tip[0], tip[1])
+      const next = k === lobes.length - 1 ? deg + 34 : (lobes[k + 1][0] + deg) / 2
+      const v2 = at(next, 0.4), m2 = [(v2[0] + tip[0]) / 2, (v2[1] + tip[1]) / 2]
+      x.lineTo(m2[0] - side[0], m2[1] - side[1])
+    })
+    x.closePath(); x.fill()
+    x.save(); x.globalAlpha = 0.35; x.strokeStyle = 'rgba(0,0,0,0.5)'; x.lineWidth = 0.5
+    x.beginPath()
+    for (const [deg, len] of lobes) { const t = at(deg, len * 0.85); x.moveTo(0, 0); x.lineTo(t[0], t[1]) }
+    x.stroke(); x.restore()
+    x.save(); x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.8, s * 0.03)
+    x.beginPath(); x.moveTo(0, R * 0.1); x.quadraticCurveTo(R * 0.02, R * 0.35, R * 0.08, R * 0.55); x.stroke(); x.restore()
+  }
+  function drawGinkgo(x, s) {
+    const R = s * 0.55
+    x.beginPath(); x.moveTo(0, 0)
+    x.quadraticCurveTo(-R * 0.35, -R * 0.2, -R * 0.9, -R * 0.62)
+    x.quadraticCurveTo(-R * 0.6, -R * 1.05, -R * 0.08, -R * 0.98)
+    x.lineTo(0, -R * 0.8); x.lineTo(R * 0.08, -R * 0.98)
+    x.quadraticCurveTo(R * 0.6, -R * 1.05, R * 0.9, -R * 0.62)
+    x.quadraticCurveTo(R * 0.35, -R * 0.2, 0, 0)
+    x.fill()
+    x.save(); x.strokeStyle = 'rgba(0,0,0,0.12)'; x.lineWidth = 0.4; x.beginPath()
+    for (let k = 0; k < 9; k++) { const a = (-150 + k * 15) * Math.PI / 180; x.moveTo(0, 0); x.lineTo(Math.cos(a) * R * 0.9, Math.sin(a) * R * 0.9) }
+    x.stroke(); x.restore()
+    x.save(); x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.8, s * 0.035)
+    x.beginPath(); x.moveTo(0, 0); x.lineTo(R * 0.04, R * 0.42); x.stroke(); x.restore()
+  }
+  function drawExtra(x, type, s, r) {
+    if (type === 'pear' || type === 'pearPetal') {
+      x.strokeStyle = 'rgba(90,80,70,0.28)'; x.lineWidth = 0.5
+      const petals = type === 'pear' ? 5 : 1
+      for (let k = 0; k < petals; k++) {
+        x.save(); x.rotate((k * Math.PI * 2) / 5); if (petals > 1) x.translate(0, -s * 0.24)
+        x.beginPath(); x.ellipse(0, 0, s * (petals > 1 ? 0.2 : 0.42), s * (petals > 1 ? 0.22 : 0.5), 0, 0, Math.PI * 2); x.fill(); x.stroke(); x.restore()
+      }
+      if (type === 'pear') {
+        x.fillStyle = '#6b2a3a'
+        for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2 + r() * 0.3, d = s * (0.08 + r() * 0.05); x.beginPath(); x.arc(Math.cos(a) * d, Math.sin(a) * d, 0.8, 0, Math.PI * 2); x.fill() }
+      }
+      return true
+    }
+    if (type === 'peony') {
+      const w = s * 0.42, h = s * 0.5
+      x.beginPath(); x.moveTo(0, h)
+      x.quadraticCurveTo(-w * 1.1, h * 0.1, -w, -h * 0.45)
+      for (let k = 0; k < 5; k++) {
+        const x0 = -w + (k * 2 * w) / 5, x1 = -w + ((k + 1) * 2 * w) / 5
+        x.quadraticCurveTo((x0 + x1) / 2, -h * (0.95 + r() * 0.15), x1, -h * (0.5 + r() * 0.12))
+      }
+      x.quadraticCurveTo(w * 1.1, h * 0.1, 0, h); x.fill()
+      x.save(); x.strokeStyle = 'rgba(120,30,60,0.14)'; x.lineWidth = 0.45; x.beginPath()
+      for (let k = 0; k < 6; k++) { const ex = -w * 0.8 + (k * 1.6 * w) / 5; x.moveTo(0, h * 0.85); x.quadraticCurveTo(ex * 0.4, 0, ex, -h * 0.6) }
+      x.stroke(); x.restore(); return true
+    }
+    if (type === 'wisteria') {
+      x.beginPath(); x.ellipse(0, -s * 0.12, s * 0.32, s * 0.28, 0, 0, Math.PI * 2); x.fill()
+      x.save(); x.globalAlpha *= 0.85
+      x.fillStyle = '#7d69b3'; x.beginPath(); x.ellipse(0, s * 0.2, s * 0.15, s * 0.2, 0, 0, Math.PI * 2); x.fill()
+      x.fillStyle = '#e8d98a'; x.beginPath(); x.ellipse(0, -s * 0.06, s * 0.06, s * 0.09, 0, 0, Math.PI * 2); x.fill()
+      x.restore(); return true
+    }
+    if (type === 'lotus') {
+      const w = s * 0.28, h = s * 0.5
+      x.beginPath(); x.moveTo(0, h)
+      x.bezierCurveTo(w * 1.25, h * 0.3, w * 0.85, -h * 0.7, 0, -h)
+      x.bezierCurveTo(-w * 0.85, -h * 0.7, -w * 1.25, h * 0.3, 0, h); x.fill()
+      x.save(); x.strokeStyle = 'rgba(150,50,80,0.15)'; x.lineWidth = 0.45; x.beginPath()
+      for (const ex of [-0.5, -0.2, 0.2, 0.5]) { x.moveTo(0, h * 0.9); x.quadraticCurveTo(ex * w, 0, ex * w * 0.6, -h * 0.85) }
+      x.stroke(); x.restore(); return true
+    }
+    if (type === 'osmanthus') {
+      const n = 3 + Math.floor(r() * 3)
+      for (let j = 0; j < n; j++) {
+        x.save(); x.translate((r() - 0.5) * s * 0.7, (r() - 0.5) * s * 0.7); x.rotate(r() * Math.PI)
+        for (let k = 0; k < 4; k++) { x.save(); x.rotate((k * Math.PI) / 2); x.beginPath(); x.ellipse(0, -s * 0.07, s * 0.055, s * 0.075, 0, 0, Math.PI * 2); x.fill(); x.restore() }
+        x.restore()
+      }
+      return true
+    }
+    if (type === 'wintersweet') {
+      for (let k = 0; k < 8; k++) {
+        x.save(); x.rotate((k * Math.PI * 2) / 8 + (k % 2) * 0.2); x.translate(0, -s * 0.2)
+        x.beginPath(); x.ellipse(0, 0, s * 0.13, s * 0.22, 0, 0, Math.PI * 2); x.fill(); x.restore()
+      }
+      x.save(); x.fillStyle = '#7a4a3a'; x.beginPath(); x.arc(0, 0, s * 0.11, 0, Math.PI * 2); x.fill(); x.restore()
+      return true
+    }
+    return false
+  }
+  function drawElem(x, type, s, r) {
+    if (drawExtra(x, type, s, r)) return
+    if (type === 'petal') return drawPetal(x, s)
+    if (type === 'peachPetal') return drawPeachPetal(x, s)
+    if (type === 'roundPetal') { x.beginPath(); x.ellipse(0, 0, s * 0.42, s * 0.5, 0, 0, Math.PI * 2); x.fill(); return }
+    if (type === 'sakura' || type === 'ume' || type === 'peach') {
+      for (let k = 0; k < 5; k++) {
+        x.save(); x.rotate((k * Math.PI * 2) / 5); x.translate(0, -s * 0.27)
+        if (type === 'sakura') drawPetal(x, s * 0.55)
+        else if (type === 'peach') drawPeachPetal(x, s * 0.55)
+        else { x.beginPath(); x.arc(0, 0, s * 0.2, 0, Math.PI * 2); x.fill() }
+        x.restore()
+      }
+      x.save(); x.fillStyle = type === 'sakura' ? '#c97b8c' : type === 'peach' ? '#c2566e' : '#c98a3a'
+      for (let k = 0; k < 7; k++) { const a = r() * Math.PI * 2, d = s * (0.06 + r() * 0.08); x.beginPath(); x.arc(Math.cos(a) * d, Math.sin(a) * d, 0.7, 0, Math.PI * 2); x.fill() }
+      x.restore(); return
+    }
+    if (type.startsWith('maple')) return drawMaple(x, s)
+    if (type.startsWith('ginkgo')) return drawGinkgo(x, s)
+    if (type === 'ajisai') {
+      for (let k = 0; k < 4; k++) {
+        x.save(); x.rotate((k * Math.PI) / 2 + Math.PI / 4)
+        x.beginPath(); x.ellipse(0, -s * 0.24, s * 0.17, s * 0.24, 0, 0, Math.PI * 2); x.fill(); x.restore()
+      }
+      return
+    }
+    if (type === 'snow') {
+      x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.8, s * 0.05); x.lineCap = 'round'
+      x.beginPath()
+      for (let k = 0; k < 6; k++) {
+        const a = (k * Math.PI) / 3, ux = Math.cos(a), uy = Math.sin(a)
+        x.moveTo(0, 0); x.lineTo(ux * s * 0.5, uy * s * 0.5)
+        for (const t of [0.24, 0.38]) {
+          const bx = ux * s * t, by = uy * s * t, bl = s * 0.11
+          for (const sgn of [-1, 1]) {
+            const b = a + sgn * Math.PI / 3
+            x.moveTo(bx, by); x.lineTo(bx + Math.cos(b) * bl, by + Math.sin(b) * bl)
+          }
+        }
+      }
+      x.stroke()
+    }
+  }
+  const strHash = (str) => { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0 }
+  function makeElems(W, H, dpr, i) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const group = elemGroup(i), r = rng(211)
+    const n = Math.round((W * H) / 40000), placed = []
+    for (let tries = 0; placed.length < n && tries < n * 20; tries++) {
+      const px = r() * W, py = r() * H
+      if (placed.some(([qx, qy]) => Math.hypot(qx - px, qy - py) < 90)) continue
+      placed.push([px, py])
+    }
+    placed.forEach(([px, py], k) => {
+      let type = group.mix[0][0], best = -1
+      for (const [t, w] of group.mix) {
+        const score = Math.pow(rng(strHash(t) ^ Math.imul(k + 1, 2654435761))(), 1 / w)
+        if (score > best) { best = score; type = t }
+      }
+      const family = type.split(':')[0], g = rng(strHash(family) + k * 7919)
+      const [s0, s1] = ELEM_SIZE[type], colors = ELEM_COLORS[type]
+      x.save(); x.translate(px + (g() - 0.5) * 50, py + (g() - 0.5) * 50); x.rotate(g() * Math.PI * 2)
+      if (g() < 0.5) x.scale(-1, 1)
+      x.globalAlpha = 0.82 + g() * 0.15
+      x.fillStyle = colors[Math.floor(g() * colors.length)]
+      drawElem(x, type, s0 + g() * (s1 - s0), g)
+      x.restore()
+    })
+    return c
+  }
+
+  const VS = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }'
+  const FS = `
+precision highp float;
+uniform vec2 uRes; uniform float uDpr; uniform float uT;
+uniform vec3 uPaper; uniform float uDark; uniform float uGain;
+uniform vec4 uLayers; uniform vec4 uMotion; uniform vec4 uBok;
+uniform float uGlint; uniform float uSpinT; uniform float uBokT;
+uniform sampler2D tFlakeB; uniform sampler2D tSukiB; uniform sampler2D tElemB; uniform float uMix; uniform float uGoldB;
+uniform vec3 uAccent; uniform vec3 uDyeA; uniform vec3 uDyeB; uniform float uDyeMix; uniform vec4 uDeco; uniform vec4 uSheet; uniform vec2 uRule; uniform float uFootAmt;
+uniform vec2 uSrc; uniform float uRadius; uniform vec3 uLC; uniform float uGold;
+uniform sampler2D tFiber; uniform sampler2D tFlake; uniform sampler2D tSuki; uniform sampler2D tElem;
+uniform vec4 uRip[4]; uniform float uClick; uniform sampler2D tSeal;
+uniform vec3 uRoot; uniform vec4 uIn; uniform vec4 uIn2; uniform vec2 uLeaf;
+
+float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+float vnoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }
+float fbm(vec2 p){ float v = 0.0; float a = 0.5; for (int i = 0; i < 5; i++){ v += a*vnoise(p); p = p*2.03 + vec2(17.1, 9.2); a *= 0.5; } return v; }
+vec2 drift(vec2 css, float scale, float t, vec2 seed){
+  vec2 q = css / scale + seed;
+  return vec2(vnoise(q + vec2(t, 0.37 * t)), vnoise(q.yx + vec2(-0.41 * t, t) + 5.3)) * 2.0 - 1.0;
+}
+vec2 hash2(vec2 p){ return vec2(hash(p), hash(p + 17.3)); }
+vec4 clickFx(vec2 css){
+  vec2 acc = vec2(0.0);
+  float sh = 0.0;
+  float gl = 0.0;
+  for (int i = 0; i < 4; i++) {
+    vec4 r = uRip[i];
+    if (r.w <= 0.0) continue;
+    vec2 d = css - r.xy;
+    float dist = length(d);
+    vec2 dir = d / max(dist, 1.0);
+    float t = r.z;
+    if (uClick < 0.5) {
+      float R = t * 240.0;
+      float x = dist - R;
+      float env = exp(-x * x / 4900.0) * exp(-t / 1.3) / sqrt(1.0 + R / 220.0);
+      acc += dir * sin(x * 0.075) * env * 9.0;
+      sh += cos(x * 0.075) * env * 0.45;
+      gl += cos(x * 0.075) * env * 2.5;
+    } else if (uClick < 1.5) {
+      float q = dist / 60.0;
+      float k = q * exp(-q * q);
+      float depth = smoothstep(0.0, 0.12, t) * exp(-max(t - 0.15, 0.0) / 0.45);
+      acc -= dir * k * depth * 7.0;
+      float s = dot(dir, vec2(0.7071)) * k * depth;
+      sh += s * 3.0;
+      gl += s * 5.0;
+    } else if (uClick < 2.5) {
+      float q = dist / 140.0;
+      float k = q * exp(-q * q) * 1.6;
+      float push = t < 0.22 ? smoothstep(0.0, 0.22, t) : exp(-(t - 0.22) / 0.5) * cos((t - 0.22) * 4.5);
+      acc += dir * k * push * 12.0;
+      gl += k * push * 3.0;
+    } else if (uClick < 3.5) {
+      float m = 1.0 - smoothstep(55.0, 120.0, dist + (vnoise(css / 25.0) - 0.5) * 40.0);
+      if (m > 0.0) {
+        float relax = smoothstep(0.0, 0.08, t) * exp(-t / 0.9);
+        vec2 p = d / 18.0 + r.xy * 0.013;
+        vec2 ip = floor(p);
+        vec2 fp = fract(p);
+        float best = 9.0;
+        float second = 9.0;
+        vec2 bid = vec2(0.0);
+        for (int yy = -1; yy <= 1; yy++) {
+          for (int xx = -1; xx <= 1; xx++) {
+            vec2 o = vec2(float(xx), float(yy));
+            float dd = length(fp - o - hash2(ip + o));
+            if (dd < best) { second = best; best = dd; bid = ip + o; }
+            else if (dd < second) { second = dd; }
+          }
+        }
+        float facet = hash(bid + 3.1) - 0.5;
+        float crease = 1.0 - smoothstep(0.0, 0.06, second - best);
+        sh += (facet * 2.0 - crease) * m * relax;
+        gl += facet * m * relax * 6.0;
+        acc += (hash2(bid) - 0.5) * 3.0 * m * relax;
+      }
+    }
+  }
+  return vec4(acc, sh, gl);
+}
+float sealInk(vec2 css){
+  float a = 0.0;
+  for (int i = 0; i < 4; i++) {
+    vec4 r = uRip[i];
+    if (r.w <= 0.0) continue;
+    float ang = (hash(r.xy) - 0.5) * 0.14;
+    vec2 d = css - r.xy;
+    d = mat2(cos(ang), sin(ang), -sin(ang), cos(ang)) * d;
+    vec2 st = d / 34.0 + 0.5;
+    if (st.x < 0.0 || st.y < 0.0 || st.x > 1.0 || st.y > 1.0) continue;
+    float fade = smoothstep(0.0, 0.1, r.z) * (1.0 - smoothstep(2.5, 5.5, r.z));
+    a = max(a, texture2D(tSeal, st).a * fade);
+  }
+  return a;
+}
+
+float gFlash;
+float wash(float p, float k){
+  return smoothstep(0.0, 1.0, clamp((p * 1.25 - k) / 0.45, 0.0, 1.0));
+}
+float arrive(float p, vec2 css, float seed){
+  return smoothstep(0.0, 1.0, clamp(p * 1.6 - vnoise(css / 240.0 + seed) * 0.6, 0.0, 1.0));
+}
+float stagger(vec2 css){
+  return smoothstep(0.0, 1.0, clamp(uMix * 1.6 - vnoise(css / 380.0 + 7.7) * 0.6, 0.0, 1.0));
+}
+vec3 tone(vec4 t, bool dark, float desat, float darkMul){
+  vec3 r = t.rgb / max(t.a, 0.001);
+  return dark ? r * darkMul : mix(r, vec3(dot(r, vec3(0.299, 0.587, 0.114))), desat);
+}
+vec3 flakeLayer(vec3 col, vec4 fl, float w, float gold, bool dark, float mask, float ang, float spinOff, float g){
+  float a = fl.a * uLayers.y * w;
+  vec3 leaf = dark ? mix(vec3(0.42, 0.42, 0.43), vec3(0.50, 0.40, 0.22), gold)
+                   : mix(vec3(0.82, 0.82, 0.81), vec3(0.83, 0.75, 0.60), gold);
+  float spin = uSpinT * (0.15 + fl.g * 0.6) + spinOff;
+  float glint = pow(max(0.0, cos(fl.r * 6.2832 - ang + spin)), 40.0);
+  float own = clamp(gFlash * 1.5 - fl.g * 0.5, 0.0, 1.0);
+  float spark = 4.0 * own * (1.0 - own) * uIn2.w;
+  a *= smoothstep(0.0, 0.6, own);
+  col = mix(col, leaf * (0.9 + 0.25 * mask), a * (dark ? 0.6 : 0.42) * min(g, 1.5));
+  col += a * spark * (dark ? 0.5 : 0.35) * vec3(1.0, 0.92, 0.74);
+  return col + a * glint * (0.12 + 0.5 * mask) * uLC * g * (dark ? 1.0 : 0.6) * uGlint;
+}
+
+void main(){
+  vec2 px = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+  vec2 size = uRes / uDpr;
+  vec2 uv = px / uRes;
+  vec2 css = px / uDpr;
+  float g = uGain;
+  bool dark = uDark > 0.5;
+  float wk = uv.y * 0.55 + (fbm(css / 140.0 + 2.1) - 0.5) * 0.5 + 0.15;
+  vec3 col = mix(uRoot, uPaper, wash(uIn.x, wk));
+  col *= 1.0 + (fbm(css / 220.0) - 0.5) * 0.07 * g * uIn.y;
+
+  vec2 ld = (uSrc - uv) * uRes;
+  vec2 ldir = ld / max(length(ld), 0.001);
+  float dist = length((uv - uSrc) * vec2(uRes.x / uRes.y, 1.0));
+  float mask = exp(-dist * dist / (uRadius * uRadius));
+
+  vec4 rp = clickFx(css);
+  float ms = stagger(css);
+  float avoid = 0.0;
+  float shadow = 0.0;
+  if (uDeco.w > 0.001) {
+    vec2 sc = (uSheet.xy + uSheet.zw) * 0.5;
+    vec2 sq = abs(css - sc) - (uSheet.zw - uSheet.xy) * 0.5;
+    float sd = length(max(sq, 0.0)) + min(max(sq.x, sq.y), 0.0);
+    float settle = max(uIn2.z, 0.04);
+    avoid = (1.0 - smoothstep(0.0, 26.0, sd)) * uDeco.w * uIn2.z;
+    shadow = sd > 0.0 ? exp(-sd / (7.0 * settle)) * uDeco.w * uIn2.z * (0.55 + 0.45 * smoothstep(-20.0, 20.0, css.y - sc.y)) : 0.0;
+  }
+
+  float aF = arrive(uIn.z, css * 0.5, 1.3);
+  vec2 dF = drift(css, 200.0, uT * 0.08, vec2(0.0)) * 4.0 * uMotion.x;
+  dF += drift(css, 150.0, uIn.z * 1.7 + 4.0, vec2(9.1, 1.7)) * 34.0 * (1.0 - aF) * (1.0 - aF);
+  float f = texture2D(tFiber, (css + dF - rp.xy * 0.6) / size).r - 0.5;
+
+  vec2 dS = drift(css, 260.0, uT * 0.07, vec2(3.1, 8.7)) * 7.0 * uMotion.y;
+  float aS = arrive(uIn.w, css, 5.1);
+  dS += vec2(0.0, 22.0 * (1.0 - aS) * (1.0 - aS));
+  vec2 suv = (css + dS - rp.xy * 1.2) / size;
+  vec4 sk = texture2D(tSuki, suv);
+  vec4 skB = texture2D(tSukiB, suv);
+  float kS = uLayers.z * (dark ? 0.5 : 0.36) * min(g, 1.6) * (1.0 - avoid) * aS;
+  col = mix(col, tone(sk, dark, 0.4, 1.0), sk.a * kS * (1.0 - ms));
+  col = mix(col, tone(skB, dark, 0.4, 1.0), skB.a * kS * ms);
+
+  vec2 dE = drift(css, 280.0, uT * 0.05, vec2(6.1, 2.3)) * 5.0 * uMotion.y;
+  float lDelay = vnoise(css / 240.0 + 2.9);
+  float swayPh = vnoise(css / 90.0 + 3.7) * 6.2832;
+  float aE;
+  if (uLeaf.y > 0.5) {
+    float lt = max(0.0, uLeaf.x - lDelay * 0.9);
+    float rest = (1.0 + 3.2 * lt) * exp(-3.2 * lt);
+    float ph = lt * 2.3 + swayPh;
+    dE += vec2(sin(ph) * 20.0 * rest, 96.0 * rest + cos(ph * 2.0) * 6.0 * rest);
+    aE = smoothstep(0.0, 0.5, lt);
+  } else {
+    float lt = max(0.0, uLeaf.x - lDelay * 0.35);
+    float u = clamp(lt / 0.9, 0.0, 1.0);
+    float ph = lt * 2.3 + swayPh;
+    dE += vec2(sin(ph) * 14.0 * u, 70.0 * u * u);
+    aE = 1.0 - smoothstep(0.2, 1.0, u);
+  }
+  vec2 euv = (css + dE - rp.xy) / size;
+  vec4 el = texture2D(tElem, euv);
+  vec4 elB = texture2D(tElemB, euv);
+  float occ = 1.0 - clamp(abs(f) * 1.5, 0.0, 0.45);
+  float kE = uLayers.w * occ * (dark ? 0.4 : 0.45) * min(g, 1.6) * (1.0 - avoid) * aE;
+  col = mix(col, tone(el, dark, 0.2, 0.85), el.a * kE * (1.0 - ms));
+  col = mix(col, tone(elB, dark, 0.2, 0.85), elB.a * kE * ms);
+
+  col += f * (dark ? 0.22 : 0.24) * uLayers.x * g * aF;
+  col += rp.z * 0.025 * g;
+  if (uClick > 3.5) col = mix(col, dark ? vec3(0.74, 0.33, 0.27) : vec3(0.70, 0.25, 0.20), sealInk(css) * occ * (dark ? 0.42 : 0.5));
+
+  col += uLC * mask * (dark ? 0.03 : 0.014) * uIn.y;
+
+  vec2 dA = drift(css, 320.0, uT * 0.06, vec2(11.3, 4.2)) * 10.0 * uMotion.z;
+  float fIn = arrive(uIn2.x, css, 8.7);
+  gFlash = fIn;
+  dA += vec2(0.0, 30.0 * (1.0 - fIn) * (1.0 - fIn));
+  vec2 fuv = (css + dA - rp.xy * 1.4) / size;
+  float ang = atan(ldir.y, ldir.x);
+  col = flakeLayer(col, texture2D(tFlake, fuv), (1.0 - ms) * (1.0 - avoid), uGold, dark, mask, ang, rp.w, g);
+  col = flakeLayer(col, texture2D(tFlakeB, fuv), ms * (1.0 - avoid), uGoldB, dark, mask, ang, rp.w, g);
+
+  if (uDeco.x > 0.001) {
+    float D = clamp(size.x * 0.18, 140.0, 300.0);
+    float dx = min(css.x, size.x - css.x);
+    float jag = (fbm(css / 40.0 + 3.3) - 0.5) * D * 0.5;
+    float wick = 1.0 - smoothstep(0.0, D * max(uIn2.z, 0.02), dx + jag * uIn2.z);
+    float body = pow(wick, 1.5) * (0.5 + 0.5 * clamp(abs(f) * 5.0 + sk.a, 0.0, 1.0));
+    float front = uDyeMix * D * 1.25;
+    float inB = 1.0 - smoothstep(front - 30.0, front, dx + jag);
+    float kD = (dark ? 0.34 : 0.32) * uDeco.x * g;
+    col = mix(col, uDyeA, body * kD * (1.0 - uDyeMix));
+    col = mix(col, uDyeB, body * kD * inB);
+  }
+  if (uDeco.z > 0.001) {
+    float rd = min(abs(css.x - uRule.x), abs(css.x - uRule.y));
+    float line = 1.0 - smoothstep(0.4, 1.0 + (hash(px) - 0.5) * 0.5, rd);
+    float skip = smoothstep(0.2, 0.5, vnoise(vec2(css.y / 7.0, floor(css.x / 400.0) * 3.0)));
+    col = mix(col, uAccent, line * skip * (dark ? 0.2 : 0.16) * uDeco.z);
+  }
+  if (uDeco.y > 0.001) {
+    float eN = fbm(vec2(css.x / 90.0 - uBokT * 0.1, css.y / 30.0 + 4.0));
+    float yb = (1.0 - uv.y) + (eN - 0.5) * 0.05;
+    float tf = 1.0 - smoothstep(0.0, 0.16 * max(uIn2.z, 0.02), yb);
+    tf *= 0.7 + 0.3 * vnoise(vec2(css.x / 260.0 - uBokT * 0.05, css.y / 2.2 + 9.0));
+    col = mix(col, mix(uBok.rgb, uAccent, 0.45), tf * uFootAmt * uDeco.y * g);
+  }
+  col *= 1.0 - shadow * (dark ? 0.12 : 0.07);
+
+  if (uBok.a > 0.0) {
+    float tb = uBokT;
+    float streak = vnoise(vec2(css.x / 260.0 + tb * 0.05, css.y / 2.2));
+    float edgeN = fbm(vec2(css.x / 90.0 + tb * 0.12, css.y / 30.0 - tb * 0.02));
+    float depth = (0.24 + 0.035 * sin(tb * 6.2832 / 40.0)) * max(uIn.y, 0.02);
+    float y = uv.y + (edgeN - 0.5) * 0.07;
+    float t = 1.0 - smoothstep(0.0, depth, y);
+    t *= 0.7 + 0.3 * streak;
+    col = mix(col, uBok.rgb, t * uBok.a * g);
+  }
+
+  col += (hash(px + 0.37) - 0.5) * 0.03 * g * uIn.y;
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`
+
+  const stage = $('stage'), canvas = $('paper')
+  const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false })
+  if (!gl) {
+    const d = document.createElement('div'); d.className = 'nogl'; d.textContent = '这个浏览器没有开启 WebGL，纸张预览画不出来。换一个浏览器再打开试试。'
+    stage.appendChild(d); return
+  }
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s)); return s }
+  const prog = gl.createProgram()
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog)
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(prog))
+  gl.useProgram(prog)
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
+  const U = {}
+  for (const n of ['uRes', 'uDpr', 'uT', 'uPaper', 'uDark', 'uGain', 'uLayers', 'uMotion', 'uBok', 'uGlint', 'uSpinT', 'uBokT', 'uSrc', 'uRadius', 'uLC', 'uGold', 'uRip', 'uClick', 'tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB', 'uMix', 'uGoldB', 'uAccent', 'uDyeA', 'uDyeB', 'uDyeMix', 'uDeco', 'uSheet', 'uRule', 'uFootAmt', 'uRoot', 'uIn', 'uIn2', 'uLeaf']) U[n] = gl.getUniformLocation(prog, n)
+  const TEX = {}
+  ;['tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB'].forEach((n, unit) => {
+    const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    gl.uniform1i(U[n], unit); TEX[n] = { t, unit }
+  })
+  const upload = (n, src) => {
+    gl.activeTexture(gl.TEXTURE0 + TEX[n].unit); gl.bindTexture(gl.TEXTURE_2D, TEX[n].t)
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, n !== 'tFiber' && n !== 'tFlake' && n !== 'tFlakeB')
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src)
+  }
+
+  const CLICK_CODE = { ripple: 0, press: 1, blow: 2, crumple: 3, seal: 4 }
+  const CLICK_LIFE = { ripple: 4500, press: 1800, blow: 2200, crumple: 3200, seal: 5600 }
+  const CLICK_NAME = { ripple: '水波', press: '按压', blow: '吹气', crumple: '揉皱', seal: '落印', none: '无' }
+  function makeSeal() {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 128
+    const x = c.getContext('2d'), r = rng(5)
+    x.fillStyle = '#000'
+    x.beginPath(); x.roundRect ? x.roundRect(10, 10, 108, 108, 6) : x.rect(10, 10, 108, 108); x.fill()
+    x.globalCompositeOperation = 'destination-out'
+    x.font = '600 46px "Noto Serif SC", "Songti SC", serif'; x.textAlign = 'center'; x.textBaseline = 'middle'
+    x.fillText('余', 64, 40); x.fillText('白', 64, 89)
+    for (let k = 0; k < 260; k++) {
+      x.globalAlpha = 0.25 + r() * 0.6
+      x.beginPath(); x.arc(r() * 128, r() * 128, 0.6 + r() * 2.2, 0, Math.PI * 2); x.fill()
+    }
+    return c
+  }
+  const GROUP_ACCENT = ['#b5536b', '#c25a77', '#b56a7f', '#7c8f5c', '#8463ad', '#7a68a8', '#5b8a55', '#5f74b0', '#b85f7c', '#5f8a5a', '#c0852a', '#b56a35', '#b4452f', '#a87b34', '#5f7690', '#b08a2a']
+  const FIXED_ACCENT = '#3f7f8f'
+  const DYES = [['青瓦', '#5d7a8c'], ['柿色', '#c47a3c'], ['苔绿', '#6d8a4f'], ['藤紫', '#8a6fae']]
+  const toLin = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  const toSrgb = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)
+  function rgbToOklab(rgb) {
+    const [r, g, b] = rgb.map(toLin)
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+    const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+    const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+    return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s]
+  }
+  function oklabToRgb([L, a, b]) {
+    const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
+    return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s]
+      .map((v) => Math.min(1, Math.max(0, toSrgb(Math.max(0, v)))))
+  }
+  const hexRgb = (h) => hexToRgb(h).map((v) => v / 255)
+  const shapeLab = (hex, L, C) => {
+    const [, a, b] = rgbToOklab(hexRgb(hex)), c = Math.hypot(a, b) || 1
+    return [L, (a / c) * C, (b / c) * C]
+  }
+  const groupIndex = (i) => ELEM_GROUPS.findIndex((g) => g.at.includes(i))
+  const accentLab = (i, dark) => shapeLab(GROUP_ACCENT[groupIndex(i)], dark ? 0.74 : 0.56, dark ? 0.1 : 0.12)
+  const dyeLab = (hex, dark) => shapeLab(hex, dark ? 0.46 : 0.62, 0.075)
+  const PAGE = {
+    browse: {
+      name: '浏览', desc: '首页、列表等。所有图层都在，花叶、碎屑、砂子都在动，点击按压。',
+      vis: { fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1, click: true,
+    },
+    read: {
+      name: '阅读', desc: '文章、页面、日记。花叶隐藏，碎屑压到一半，砂子不再闪，所有微动停下。点击仍是按压。',
+      vis: { fiber: 1, suki: 0.5, sunago: 1, elem: 0, bok: 1, dye: 1, foot: 1, rule: 1, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
+    },
+    immersive: {
+      name: '沉浸', desc: '鼠标停在正文里（只有文章和页面）。只剩纸色、颗粒，以及压淡的纤维和ぼかし。点击仍是按压。',
+      vis: { fiber: 0.6, suki: 0, sunago: 0, elem: 0, bok: 0.5, dye: 0.6, foot: 0.5, rule: 0, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
+    },
+  }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+  const mqDark = matchMedia('(prefers-color-scheme: dark)')
+  const isDark = () => { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : mqDark.matches }
+  const now = new Date()
+  const state = {
+    jq: todayIndex(now), hour: now.getHours() + Math.round(now.getMinutes() / 15) / 4,
+    follow: false, pointer: null, light: null, gain: 1, speed: 3, themeSet: 'system', T: 0,
+    layers: { fiber: true, sunago: true, suki: true, bok: true, elem: true, dye: true, foot: true, rule: false, sheet: true },
+    accentDrive: true, dye: 0, dyePrev: 0, dyeStart: -1e9, dyeFrom: null, dyeTo: null, cand: -1, candSince: 0, dyeAmp: 0, dyeGate: 1, dyeVel: 0, lastScroll: 0,
+    motion: { fiber: true, suki: true, sunago: true, bok: true },
+    click: 'press',
+    W: 0, H: 0, dpr: 1, ripples: [],
+    trans: null, mix: 0, jqAuto: false, autoNext: 0, hrPlay: false, lastSync: 0,
+    page: 'browse', autoImm: true, hoverText: false, spinT: 0, bokT: 0,
+    anim: { vis: { fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1 },
+  }
+  let dirty = true
+
+  const PRES_KEYS = ['base', 'tone', 'fiber', 'suki', 'sunago', 'elem', 'deco']
+  const PRES_LABEL = { base: '纸色 · 洇开', tone: '厚薄 · 刷下ぼかし', fiber: '楮纤维 · 沉定', suki: '漉き込み · 沉入', sunago: '砂子 · 撒落', elem: '押し花 · 飘落（弹簧）', deco: '书口 · 页脚 · 纸影' }
+  const TIMELINE = {
+    in: { base: [0, 1100], tone: [150, 1250], fiber: [350, 1450], suki: [700, 1800], sunago: [1000, 2000], elem: [1150, 4000], deco: [1500, 2500] },
+    out: { elem: [0, 1250], deco: [0, 600], sunago: [100, 650], suki: [200, 750], fiber: [350, 950], tone: [500, 1100], base: [600, 1300] },
+  }
+  const TL_END = { in: 4000, out: 1300 }
+  const REDUCED_SPAN = 400
+  const LEGACY_BUILD_MS = 450
+  const easeInOut = (t) => t * t * t * (t * (t * 6 - 15) + 10)
+  const easeIn = (t) => t * t * (2 - t) * t
+  const pres = {
+    mode: 'layered', phase: 'in', start: performance.now(), slow: 1,
+    from: Object.fromEntries(PRES_KEYS.map((k) => [k, 0])),
+    v: Object.fromEntries(PRES_KEYS.map((k) => [k, 0])),
+  }
+  function presElapsed(t) { return (t - pres.start) * pres.slow }
+  function leafClock() {
+    if (pres.mode === 'legacy' || reduce.matches) return 99
+    return (presElapsed(performance.now()) - TIMELINE[pres.phase].elem[0]) / 1000
+  }
+  function stepPresence(t) {
+    const el = presElapsed(t)
+    if (pres.mode === 'legacy') {
+      const on = pres.phase === 'in' && el >= LEGACY_BUILD_MS
+      for (const k of PRES_KEYS) pres.v[k] = on ? 1 : 0
+      canvas.style.visibility = on ? 'visible' : 'hidden'
+      return pres.phase === 'in' && el < LEGACY_BUILD_MS + 1100
+    }
+    canvas.style.visibility = 'visible'
+    const tl = TIMELINE[pres.phase]
+    let busy = false
+    for (const k of PRES_KEYS) {
+      const [a, b] = reduce.matches ? [0, REDUCED_SPAN] : tl[k]
+      const r = Math.min(1, Math.max(0, (el - a) / (b - a)))
+      if (r < 1) busy = true
+      const from = pres.from[k]
+      pres.v[k] = pres.phase === 'in' ? from + (1 - from) * easeInOut(r) : from * (1 - easeIn(r))
+    }
+    return busy
+  }
+  function startPresence(phase) {
+    for (const k of PRES_KEYS) pres.from[k] = pres.v[k]
+    if (pres.mode === 'legacy' && phase === 'in') {
+      for (const k of PRES_KEYS) pres.from[k] = 0
+      canvas.classList.remove('legacy-in'); void canvas.offsetWidth
+      canvas.style.animationDelay = '0ms'
+      canvas.classList.add('legacy-in')
+      canvas.style.animationDuration = `${1000 / pres.slow}ms`
+    }
+    if (pres.mode === 'layered') canvas.classList.remove('legacy-in')
+    pres.phase = phase; pres.start = performance.now(); dirty = true
+    syncPresUI()
+  }
+  function buildTimeline() {
+    const svg = $('presTL'), W = 300, L = 92, R = 8, rowH = 15, top = 6
+    const phase = pres.phase, end = TL_END[phase], tl = TIMELINE[phase]
+    const x = (ms) => L + (ms / end) * (W - L - R)
+    let h = ''
+    const step = phase === 'in' ? 500 : 200
+    for (let ms = 0; ms <= end; ms += step) h += `<line class="grid" x1="${x(ms)}" x2="${x(ms)}" y1="${top}" y2="${top + rowH * PRES_KEYS.length}"/><text class="axis" x="${x(ms)}" y="${top + rowH * PRES_KEYS.length + 10}" text-anchor="middle">${ms}</text>`
+    PRES_KEYS.forEach((k, i) => {
+      const y = top + i * rowH, [a, b] = tl[k]
+      h += `<text class="lab" x="0" y="${y + 10}">${PRES_LABEL[k]}</text>`
+      h += `<rect class="track" x="${L}" y="${y + 4}" width="${W - L - R}" height="4" rx="2"/>`
+      h += `<rect class="bar" x="${x(a)}" y="${y + 3}" width="${x(b) - x(a)}" height="6" rx="3"/>`
+      h += `<rect class="fill" data-k="${k}" x="${x(a)}" y="${y + 3}" width="0" height="6" rx="3"/>`
+    })
+    h += `<line class="head" id="presHead" x1="${L}" x2="${L}" y1="${top - 3}" y2="${top + rowH * PRES_KEYS.length + 1}"/>`
+    svg.setAttribute('viewBox', `0 0 ${W} ${top + rowH * PRES_KEYS.length + 14}`)
+    svg.innerHTML = h
+    svg.dataset.phase = phase
+  }
+  function drawTimeline(t) {
+    const svg = $('presTL')
+    if (svg.dataset.phase !== pres.phase) buildTimeline()
+    const W = 300, L = 92, R = 8, end = TL_END[pres.phase], tl = TIMELINE[pres.phase]
+    const el = Math.min(end, presElapsed(t))
+    const x = (ms) => L + (ms / end) * (W - L - R)
+    const head = $('presHead'); head.setAttribute('x1', x(el)); head.setAttribute('x2', x(el))
+    svg.querySelectorAll('.fill').forEach((r) => {
+      const [a, b] = tl[r.dataset.k]
+      r.setAttribute('width', Math.max(0, x(Math.min(b, Math.max(a, el))) - x(a)))
+    })
+  }
+  function syncPresUI() {
+    document.querySelectorAll('[data-pmode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pmode === pres.mode)))
+    document.querySelectorAll('[data-pslow]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.pslow === pres.slow)))
+    $('presToggle').textContent = pres.phase === 'in' ? '关闭背景（出场）' : '打开背景（入场）'
+    $('presDesc').textContent = pres.mode === 'legacy'
+      ? '现状：画布挂载即开始 1s 透明度淡入，但纹理要先在主线程生成（这里模拟 450ms），等第一帧画出来时淡入已过半，整屏颜色一下子跳过去；关闭时直接卸载，硬切回底色。'
+      : pres.phase === 'in'
+        ? '入场 ≈4s（押し花最后落定）：第一帧与页面底色一致。纸色从上往下洇开（边缘是纤维毛边，不是羽化）；顶边ぼかし一刷往下带；纤维从纸槽里的漂动沉定到位；漉き込み往下沉入；砂子撒落，每片落定时闪一下；押し花各自错开起落，从上方约 96px 摇摆着飘下，用近临界阻尼弹簧（ω=3.2，无回弹）：起步慢、中段最快、落地前一直在减速，约 2s 才完全停稳；最后书口从边缘往里洇、页脚ぼかし往上升、纸影从无到有像纸落到桌面。'
+        : '出场 1.3s：反向、更快。押し花先被风托起，缓缓加速往上飘走，书口和页脚往边缘收回，砂子不再闪、直接上浮淡去，纤维重新漂起散开，最后纸色从下往上干回页面底色，然后才卸载画布。'
+  }
+
+  function seasonalCanvases(i) {
+    return { flake: makeFlakes(state.W, state.H, state.dpr, i), suki: makeSuki(state.W, state.H, state.dpr, i), elem: makeElems(state.W, state.H, state.dpr, i) }
+  }
+  function startTransition(to) {
+    if (!state.W) return
+    if (state.trans) commitTransition()
+    const c = seasonalCanvases(to)
+    upload('tFlakeB', c.flake); upload('tSukiB', c.suki); upload('tElemB', c.elem)
+    state.trans = { to, start: performance.now(), c }
+    syncUI()
+  }
+  function commitTransition() {
+    const { to, c } = state.trans
+    upload('tFlake', c.flake); upload('tSuki', c.suki); upload('tElem', c.elem)
+    state.jq = to; state.trans = null; state.mix = 0; dirty = true
+    syncUI()
+  }
+  function regenSeasonal() {
+    if (!state.W) return
+    state.trans = null; state.mix = 0
+    upload('tFlake', makeFlakes(state.W, state.H, state.dpr, state.jq))
+    upload('tSuki', makeSuki(state.W, state.H, state.dpr, state.jq))
+    upload('tElem', makeElems(state.W, state.H, state.dpr, state.jq))
+    dirty = true
+  }
+  function resize() {
+    const r = stage.getBoundingClientRect()
+    state.W = Math.max(1, Math.round(r.width)); state.H = Math.max(1, Math.round(r.height))
+    state.dpr = Math.min(2, window.devicePixelRatio || 1)
+    canvas.width = Math.round(state.W * state.dpr); canvas.height = Math.round(state.H * state.dpr)
+    upload('tFiber', makeFibers(state.W, state.H, state.dpr))
+    regenSeasonal()
+  }
+  upload('tSeal', makeSeal())
+  if (document.fonts) document.fonts.load('600 46px "Noto Serif SC"', '余白').then(() => upload('tSeal', makeSeal())).catch(() => {})
+  let rT = 0
+  new ResizeObserver(() => { clearTimeout(rT); rT = setTimeout(resize, 120) }).observe(stage)
+  resize()
+
+  function render() {
+    const dark = isDark()
+    const L = lightFor(state.hour)
+    let src = L.src, radius = L.radius
+    if (state.follow && state.light) { src = state.light; radius = 0.5 }
+    const bok = dark ? lerpArr(L.bok, [0.72, 0.74, 0.8], 0.3) : L.bok
+    const av = state.anim.vis, am = state.anim.move
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.uniform2f(U.uRes, canvas.width, canvas.height); gl.uniform1f(U.uDpr, state.dpr)
+    gl.uniform1f(U.uT, state.T)
+    const toJq = state.trans ? state.trans.to : state.jq
+    gl.uniform3fv(U.uPaper, lerpArr(paperColor(state.jq, dark), paperColor(toJq, dark), state.mix))
+    const accLab = state.accentDrive
+      ? lerpArr(accentLab(state.jq, dark), accentLab(toJq, dark), state.mix)
+      : rgbToOklab(hexRgb(FIXED_ACCENT))
+    const acc = oklabToRgb(accLab)
+    const accHex = toHex(acc)
+    if (accHex !== state.accHex) { state.accHex = accHex; document.documentElement.style.setProperty('--paper-accent', accHex); $('accentHex').textContent = accHex }
+    gl.uniform3fv(U.uAccent, acc)
+    const dyeT = Math.min(1, (performance.now() - state.dyeStart) / 3000)
+    if (!state.dyeFrom) { state.dyeFrom = dyePair(state.dye); state.dyeTo = dyePair(state.dye) }
+    gl.uniform3fv(U.uDyeA, oklabToRgb(state.dyeFrom[dark ? 1 : 0]))
+    gl.uniform3fv(U.uDyeB, oklabToRgb(state.dyeTo[dark ? 1 : 0]))
+    gl.uniform1f(U.uDyeMix, smooth(dyeT))
+    const pv = pres.v
+    gl.uniform4f(U.uDeco, av.dye * state.dyeAmp * state.dyeGate * Math.sqrt(pv.deco), av.foot * Math.sqrt(pv.deco), av.rule * pv.deco, av.sheet)
+    gl.uniform3fv(U.uRoot, dark ? [28 / 255, 28 / 255, 30 / 255] : [254 / 255, 254 / 255, 251 / 255])
+    gl.uniform4f(U.uIn, pv.base, pv.tone, pv.fiber, pv.suki)
+    gl.uniform4f(U.uIn2, pv.sunago, pv.elem, pv.deco, pres.phase === 'in' ? 1 : 0)
+    gl.uniform2f(U.uLeaf, leafClock(), pres.phase === 'in' ? 1 : 0)
+    const sr = stage.getBoundingClientRect(), shr = $('sheet').getBoundingClientRect(), sa = $('sample').getBoundingClientRect()
+    gl.uniform4f(U.uSheet, shr.left - sr.left, shr.top - sr.top, shr.right - sr.left, shr.bottom - sr.top)
+    gl.uniform2f(U.uRule, sa.left - sr.left + 16 - 28, sa.right - sr.left - 16 + 28)
+    gl.uniform1f(U.uFootAmt, L.amt + 0.04)
+    gl.uniform1f(U.uMix, state.mix); gl.uniform1f(U.uGoldB, goldness(toJq)); gl.uniform1f(U.uDark, dark ? 1 : 0); gl.uniform1f(U.uGain, state.gain)
+    gl.uniform4f(U.uLayers, av.fiber, av.sunago, av.suki, av.elem)
+    const rip = new Float32Array(16), tNow = performance.now()
+    state.ripples = state.ripples.filter((r) => tNow - r.t0 < (CLICK_LIFE[state.click] || 0))
+    gl.uniform1f(U.uClick, CLICK_CODE[state.click] ?? 0)
+    state.ripples.forEach((r, k) => rip.set([r.x, r.y, (tNow - r.t0) / 1000, 1], k * 4))
+    gl.uniform4fv(U.uRip, rip)
+    gl.uniform4f(U.uMotion, am.fiber, am.suki, am.sunago, am.bok)
+    gl.uniform1f(U.uGlint, state.anim.glint); gl.uniform1f(U.uSpinT, state.spinT); gl.uniform1f(U.uBokT, state.bokT)
+    gl.uniform4f(U.uBok, bok[0], bok[1], bok[2], L.amt * av.bok * Math.sqrt(pv.tone))
+    gl.uniform2fv(U.uSrc, src); gl.uniform1f(U.uRadius, radius)
+    gl.uniform3fv(U.uLC, dark ? L.color.map((v) => v * 0.9) : L.color)
+    gl.uniform1f(U.uGold, goldness(state.jq))
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+  }
+
+  let last = performance.now(), lastDraw = 0
+  function frame(t) {
+    requestAnimationFrame(frame)
+    const dt = Math.min(0.1, (t - last) / 1000)
+    last = t
+    if (!reduce.matches) state.T += dt * state.speed
+    if (state.trans) {
+      const m = Math.min(1, (t - state.trans.start) / 10000)
+      state.mix = reduce.matches ? 1 : smooth(m)
+      dirty = true
+      if (m >= 1 || reduce.matches) commitTransition()
+    }
+    if (state.jqAuto && !state.trans && t >= state.autoNext) { startTransition((state.jq + 1) % 24); state.autoNext = t + 13000 }
+    {
+      const sc = $('scroller'), vr = sc.getBoundingClientRect(), vh = vr.height
+      const raw = dt > 0 ? Math.abs(sc.scrollTop - state.lastScroll) / dt : 0
+      state.lastScroll = sc.scrollTop
+      state.dyeVel += (raw - state.dyeVel) * (1 - Math.exp(-dt / 0.09))
+      let best = 0, bestK = -1
+      document.querySelectorAll('figure[data-dye]').forEach((fig) => {
+        const r = fig.getBoundingClientRect(), tt = (vr.bottom - r.top) / (vh + r.height)
+        if (tt <= 0 || tt >= 1) return
+        const w = Math.sin(Math.PI * tt) ** 2
+        if (w > best) { best = w; bestK = +fig.dataset.dye }
+      })
+      if (bestK >= 0 && bestK !== state.dye) {
+        if (state.dyeAmp < 0.05) {
+          state.dye = bestK; state.dyeFrom = dyePair(bestK); state.dyeTo = dyePair(bestK); state.cand = -1
+        } else if (state.cand !== bestK) { state.cand = bestK; state.candSince = t }
+        else if (t - state.candSince > 350) { setDye(bestK); state.cand = -1 }
+      } else state.cand = -1
+      state.dyeAmp += (best - state.dyeAmp) * (1 - Math.exp(-dt / 0.6))
+      const gateT = 1 - 0.55 * smooth(Math.min(1, Math.max(0, (state.dyeVel - 1200) / 2800)))
+      state.dyeGate += (gateT - state.dyeGate) * (1 - Math.exp(-dt / (gateT < state.dyeGate ? 0.7 : 1.1)))
+      if (t - (state.dyeInfoAt || 0) > 200) {
+        state.dyeInfoAt = t
+        $('dyeInfo').textContent = bestK >= 0 || state.dyeAmp > 0.02
+          ? `当前配图：${DYES[state.dye][0]} · 染色 ${(state.dyeAmp * state.dyeGate).toFixed(2)}${state.page === 'browse' ? '' : ''}`
+          : '视野里没有配图，书口未染色。往下滚动正文。'
+      }
+    }
+    if (performance.now() - state.dyeStart < 3100) dirty = true
+    if (state.hrPlay) {
+      state.hour = (state.hour + dt) % 24; dirty = true
+      if (t - state.lastSync > 200) { state.lastSync = t; syncUI() }
+    }
+    const prof = PAGE[effectivePage()]
+    const k = reduce.matches ? 1 : 1 - Math.exp(-dt / 0.2)
+    let moving = false
+    for (const key of Object.keys(state.anim.vis)) {
+      const target = prof.vis[key] * (state.layers[key] ? 1 : 0)
+      const d = target - state.anim.vis[key]
+      if (Math.abs(d) > 0.001) { state.anim.vis[key] += d * k; moving = true } else state.anim.vis[key] = target
+    }
+    for (const key of Object.keys(state.anim.move)) {
+      const target = prof.move[key] * (state.motion[key] ? 1 : 0)
+      const d = target - state.anim.move[key]
+      if (Math.abs(d) > 0.001) { state.anim.move[key] += d * k; moving = true } else state.anim.move[key] = target
+    }
+    const gd = prof.glint - state.anim.glint
+    if (Math.abs(gd) > 0.001) { state.anim.glint += gd * k; moving = true } else state.anim.glint = prof.glint
+    if (moving) dirty = true
+    if (!reduce.matches) {
+      state.spinT += dt * state.speed * state.anim.move.sunago
+      state.bokT += dt * state.speed * state.anim.move.bok
+    }
+    if (state.follow && state.pointer) {
+      if (!state.light) state.light = state.pointer.slice()
+      const k = reduce.matches ? 1 : 0.07
+      const dx = state.pointer[0] - state.light[0], dy = state.pointer[1] - state.light[1]
+      if (Math.abs(dx) + Math.abs(dy) > 0.0005) { state.light = [state.light[0] + dx * k, state.light[1] + dy * k]; dirty = true }
+    }
+    if (stepPresence(t)) dirty = true
+    drawTimeline(t)
+    const idle = pres.phase === 'out' && pres.v.base < 0.001 && pres.mode === 'layered'
+    if (pres.mode === 'legacy' && pres.phase === 'out') canvas.style.visibility = 'hidden'
+    if (!idle && (dirty || (!reduce.matches && t - lastDraw >= 33))) { render(); lastDraw = t; dirty = false }
+    if (idle) canvas.style.visibility = 'hidden'
+  }
+  buildTimeline(); syncPresUI()
+  requestAnimationFrame(frame)
+
+  stage.addEventListener('pointermove', (e) => {
+    const r = stage.getBoundingClientRect()
+    state.pointer = [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]
+  })
+  stage.addEventListener('pointerdown', (e) => {
+    if (state.click === 'none' || reduce.matches || !PAGE[effectivePage()].click) return
+    const r = stage.getBoundingClientRect()
+    state.ripples = [...state.ripples, { x: e.clientX - r.left, y: e.clientY - r.top, t0: performance.now() }].slice(-4)
+  })
+  stage.addEventListener('pointerleave',() => { state.pointer = null; state.light = null; dirty = true })
+
+  const effectivePage = () => (state.page === 'read' && state.autoImm && state.hoverText ? 'immersive' : state.page)
+  function dyePair(k) { return [dyeLab(DYES[k][1], false), dyeLab(DYES[k][1], true)] }
+  function setDye(k) {
+    if (k === state.dye) return
+    const m = smooth(Math.min(1, (performance.now() - state.dyeStart) / 3000))
+    state.dyeFrom = state.dyeFrom.map((lab, th) => lerpArr(lab, state.dyeTo[th], m))
+    state.dyeTo = dyePair(k); state.dye = k; state.dyeStart = performance.now()
+  }
+  function syncDeco() {
+    $('mockFooter').classList.toggle('old', !state.layers.foot)
+    const card = $('hcard')
+    card.classList.toggle('washi', state.layers.card !== false)
+    card.classList.toggle('old', state.layers.card === false)
+    card.classList.toggle('show', state.cardPin || state.cardHover)
+    const lr = $('mockLink').getBoundingClientRect(), sr = stage.getBoundingClientRect()
+    card.style.left = `${Math.min(lr.left - sr.left, sr.width - 316)}px`
+    card.style.top = `${lr.bottom - sr.top + 10}px`
+  }
+  function syncUI() {
+    const ep = effectivePage()
+    $('pageDesc').textContent = PAGE[ep].desc
+    document.querySelectorAll('[data-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.page === state.page)))
+    const [name, m, d] = JIEQI[state.jq]
+    const season = seasonOf(state.jq)
+    const dens = sunagoDensity(state.jq), gold = goldness(state.jq)
+    $('jqLabel').textContent = state.trans ? `${name} → ${JIEQI[state.trans.to][0]}` : `${name} · ${SEASON_NAME[season]}`
+    $('jqDate').textContent = `${m} 月 ${d} 日起`
+    $('jqInfo').innerHTML = [
+      `纸色 ${toHex(paperColor(state.jq, isDark()))}`,
+      `砂子 ${dens < 0.7 ? '疏' : dens < 1.3 ? '中' : '密'} · ${gold > 0.5 ? '金' : '银'}`,
+      `漉き込み ${SUKI[season].label}`,
+      `花叶 ${elemGroup(state.jq).label}`,
+    ].join('<br>')
+    $('hrLabel').textContent = `${fmtHour(state.hour)} ${hourWord(state.hour)}`
+    $('gainLabel').textContent = `${state.gain.toFixed(1)}×${Math.abs(state.gain - 1) < 0.01 ? ' 上线值' : ''}`
+    $('cap').textContent = `${name} · ${m}月${d}日起 · ${fmtHour(state.hour)} ${hourWord(state.hour)} · 动态 ${reduce.matches ? '已按系统设置暂停' : state.speed + '×'}${state.follow ? ' · 光随鼠标' : ''} · ${PAGE[ep].name}${ep !== state.page ? '（自动）' : ''} · 点击 ${PAGE[ep].click ? CLICK_NAME[state.click] : '关'}`
+    document.querySelectorAll('[data-speed]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.speed === state.speed)))
+    document.querySelectorAll('[data-th]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.th === state.themeSet)))
+    $('jq').value = state.jq; $('hr').value = Math.round(state.hour * 4) / 4; $('gain').value = state.gain
+  }
+
+  document.querySelectorAll('[data-speed]').forEach((b) => b.addEventListener('click', () => { state.speed = +b.dataset.speed; syncUI() }))
+  document.querySelectorAll('[data-th]').forEach((b) => b.addEventListener('click', () => {
+    state.themeSet = b.dataset.th
+    if (state.themeSet === 'system') document.documentElement.removeAttribute('data-theme')
+    else document.documentElement.setAttribute('data-theme', state.themeSet)
+    dirty = true; syncUI()
+  }))
+  $('jq').addEventListener('input', (e) => { state.jq = +e.target.value; regenSeasonal(); syncUI() })
+  $('jqNext').addEventListener('click', () => startTransition((state.jq + 1) % 24))
+  $('jqAuto').addEventListener('change', (e) => { state.jqAuto = e.target.checked; state.autoNext = 0 })
+  $('hrPlay').addEventListener('change', (e) => { state.hrPlay = e.target.checked })
+  $('jqToday').addEventListener('click', () => { state.jq = todayIndex(); regenSeasonal(); syncUI() })
+  $('hr').addEventListener('input', (e) => { state.hour = +e.target.value; dirty = true; syncUI() })
+  $('hrNow').addEventListener('click', () => { const d = new Date(); state.hour = d.getHours() + Math.round(d.getMinutes() / 15) / 4; dirty = true; syncUI() })
+  $('follow').addEventListener('change', (e) => { state.follow = e.target.checked; state.light = null; dirty = true; syncUI() })
+  $('gain').addEventListener('input', (e) => { state.gain = +e.target.value; dirty = true; syncUI() })
+  $('showText').addEventListener('change', (e) => $('sample').classList.toggle('off', !e.target.checked))
+  function makePhoto(hex, seed) {
+    const c = document.createElement('canvas'); c.width = 960; c.height = 540
+    const x = c.getContext('2d'), r = rng(seed), base = rgbToOklab(hexRgb(hex))
+    const shade = (dL) => toHex(oklabToRgb([Math.min(0.97, Math.max(0.15, base[0] + dL)), base[1], base[2]]))
+    const sky = x.createLinearGradient(0, 0, 0, 540)
+    sky.addColorStop(0, shade(0.3)); sky.addColorStop(1, shade(0.08))
+    x.fillStyle = sky; x.fillRect(0, 0, 960, 540)
+    for (let layer = 0; layer < 4; layer++) {
+      const y0 = 260 + layer * 70, amp = 50 - layer * 8, ph = r() * 10, f1 = 0.004 + r() * 0.004, f2 = 0.013 + r() * 0.01
+      x.fillStyle = shade(0.02 - layer * 0.12)
+      x.beginPath(); x.moveTo(0, 540)
+      for (let px = 0; px <= 960; px += 8) x.lineTo(px, y0 - Math.sin(px * f1 + ph) * amp - Math.sin(px * f2 + ph * 2) * amp * 0.35)
+      x.lineTo(960, 540); x.closePath(); x.fill()
+    }
+    const img = x.getImageData(0, 0, 960, 540), d = img.data
+    for (let k = 0; k < d.length; k += 4) { const n = (r() - 0.5) * 14; d[k] += n; d[k + 1] += n; d[k + 2] += n }
+    x.putImageData(img, 0, 0)
+    return c.toDataURL('image/jpeg', 0.85)
+  }
+  DYES.forEach(([, hex], k) => { $('fig' + k).src = makePhoto(hex, 400 + k) })
+  $('scroller').addEventListener('scroll', syncDeco, { passive: true })
+  $('accentDrive').addEventListener('change', (e) => { state.accentDrive = e.target.checked; dirty = true })
+  state.cardPin = false; state.cardHover = false
+  $('mockLink').addEventListener('pointerenter', () => { state.cardHover = true; syncDeco() })
+  $('mockLink').addEventListener('pointerleave', () => { state.cardHover = false; syncDeco() })
+  for (const k of ['card']) {
+    state.layers[k] = true
+    $('L_' + k).addEventListener('change', (e) => { state.layers[k] = e.target.checked; syncDeco() })
+  }
+  const tile = document.createElement('canvas')
+  tile.width = 256; tile.height = 256
+  {
+    const x = tile.getContext('2d'), r = rng(77)
+    x.lineCap = 'round'
+    for (let i = 0; i < 70; i++) {
+      const len = 16 + Math.pow(r(), 2) * 120, a = r() * Math.PI * 2, x0 = r() * 256, y0 = r() * 256
+      x.strokeStyle = r() < 0.5 ? `rgba(0,0,0,${0.04 + r() * 0.06})` : `rgba(255,255,255,${0.25 + r() * 0.3})`
+      x.lineWidth = 0.4 + r() * 0.6
+      x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(x0 + (r() - 0.5) * len, y0 + (r() - 0.5) * len, x0 + Math.cos(a) * len, y0 + Math.sin(a) * len); x.stroke()
+    }
+  }
+  $('hcard').style.setProperty('--card-fiber', `url(${tile.toDataURL()})`)
+  new ResizeObserver(syncDeco).observe(stage)
+  for (const k of ['dye', 'foot', 'sheet']) {
+    $('L_' + k).addEventListener('change', (e) => { state.layers[k] = e.target.checked; dirty = true; syncDeco() })
+  }
+  for (const k of ['fiber', 'sunago', 'suki', 'bok', 'elem']) {
+    $('L_' + k).addEventListener('change', (e) => { state.layers[k] = e.target.checked; dirty = true })
+  }
+  document.querySelectorAll('[data-pmode]').forEach((b) => b.addEventListener('click', () => { pres.mode = b.dataset.pmode; for (const k of PRES_KEYS) pres.v[k] = 0; startPresence('in') }))
+  document.querySelectorAll('[data-pslow]').forEach((b) => b.addEventListener('click', () => { pres.slow = +b.dataset.pslow; syncPresUI() }))
+  $('presReplay').addEventListener('click', () => { for (const k of PRES_KEYS) pres.v[k] = 0; startPresence('in') })
+  $('presToggle').addEventListener('click', () => startPresence(pres.phase === 'in' ? 'out' : 'in'))
+  document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => { state.page = b.dataset.page; state.ripples = []; syncUI() }))
+  $('autoImm').addEventListener('change', (e) => { state.autoImm = e.target.checked; syncUI() })
+  $('sample').addEventListener('pointerenter', () => { state.hoverText = true; syncUI() })
+  $('sample').addEventListener('pointerleave', () => { state.hoverText = false; syncUI() })
+  document.querySelectorAll('input[name="click"]').forEach((el) => el.addEventListener('change', () => {
+    state.click = el.value; state.ripples = []; dirty = true; syncUI()
+  }))
+  for (const k of ['fiber', 'sunago', 'suki', 'bok']) {
+    $('M_' + k).addEventListener('change', (e) => { state.motion[k] = e.target.checked; dirty = true })
+  }
+  mqDark.addEventListener('change', () => { dirty = true; syncUI() })
+  new MutationObserver(() => {
+    const t = document.documentElement.getAttribute('data-theme')
+    state.themeSet = t === 'dark' || t === 'light' ? t : 'system'
+    dirty = true; syncUI()
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+
+  syncUI()
+  syncDeco()
+})()
+</script>

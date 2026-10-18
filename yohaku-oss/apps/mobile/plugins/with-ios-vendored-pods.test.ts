@@ -37,6 +37,18 @@ describe('vendoredPods', () => {
 })
 
 describe('patchPodfile', () => {
+  it('removes the replaced Mermaid pods without touching other pods', () => {
+    const old = bare.replace(
+      '  use_react_native!(',
+      `  pod 'BeautifulMermaid', :podspec => 'old'\n  pod 'ElkSwift', :podspec => 'old'\n  pod 'SwiftMath', :podspec => 'math'\n  use_react_native!(`,
+    )
+    const next = patchPodfile(old, pods)
+    expect(next).not.toContain("pod 'BeautifulMermaid'")
+    expect(next).not.toContain("pod 'ElkSwift'")
+    expect(next).toContain("pod 'SwiftMath', :podspec => 'math'")
+    expect(patchPodfile(next, pods)).toBe(next)
+  })
+
   it('adds every vendored pod after use_react_native!', () => {
     const src = patchPodfile(bare, pods)
     for (const [name, path] of pods) {

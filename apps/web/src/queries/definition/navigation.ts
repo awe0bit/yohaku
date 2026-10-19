@@ -1,3 +1,4 @@
+import { DROPDOWN_INDEX_ROWS } from '~/components/layout/header/internal/dropdown/rows'
 import type {
   HeaderCategoryNavItem,
   HeaderPageNavItem,
@@ -24,7 +25,10 @@ export const buildNavPostsPayload = ({
 
   return {
     categories,
-    recentPosts: (selectedCategory?.children || []).slice(0, 4),
+    recentPosts: (selectedCategory?.children || []).slice(
+      0,
+      DROPDOWN_INDEX_ROWS,
+    ),
     selectedSlug,
   }
 }

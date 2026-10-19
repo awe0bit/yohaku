@@ -13,6 +13,7 @@ import { Collapse } from '~/components/ui/collapse'
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -169,7 +170,9 @@ const DropdownDemo: FC = () => (
         </StyledButton>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={6}>
-        <DropdownMenuLabel>条目</DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>条目</DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuItem
           icon={<i className="i-mingcute-edit-line text-icon-sm" />}
         >

@@ -23,6 +23,7 @@ import { useIsDark } from '~/hooks/common/use-is-dark'
 import { getPopoverAnimationConfig } from '../float-popover/animation'
 import { popoverPanelClassNames } from '../float-popover/styles'
 import { useModalStack } from '../modal'
+import { PaperPanelSurface } from '../paper-panel'
 import { RootPortal } from '../portal'
 import { unionBounds } from './map-block-export'
 import {
@@ -966,6 +967,7 @@ function MapMarkerPopover({
             visibility: isPositioned && x !== null ? 'visible' : 'hidden',
           }}
         >
+          <PaperPanelSurface />
           {children}
         </m.div>
       </m.div>

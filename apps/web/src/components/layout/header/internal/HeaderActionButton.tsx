@@ -15,8 +15,7 @@ export const HeaderActionButton = ({
       role="button"
       tabIndex={1}
       className={clsx(
-        'group size-10 rounded-full bg-white dark:bg-neutral-1',
-        'px-3 text-copy-13 ring-1 ring-neutral-9/5 transition',
+        'group size-10 rounded-full bg-neutral-2 text-neutral-7 transition-colors hover:text-neutral-10',
 
         'center flex',
       )}

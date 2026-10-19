@@ -37,7 +37,7 @@ describe('mapNavigationPages', () => {
 })
 
 describe('buildNavPostsPayload', () => {
-  it('uses requested slug and trims recent posts to four items', () => {
+  it('uses requested slug and trims recent posts to the five dropdown rows', () => {
     expect(
       buildNavPostsPayload({
         categories: [
@@ -50,7 +50,7 @@ describe('buildNavPostsPayload', () => {
         ],
         requestedSlug: 'dev',
         selectedCategory: {
-          children: Array.from({ length: 5 }, (_, index) => ({
+          children: Array.from({ length: 6 }, (_, index) => ({
             category: {
               name: 'Dev',
               slug: 'dev',
@@ -76,6 +76,7 @@ describe('buildNavPostsPayload', () => {
         expect.objectContaining({ id: 'post-1' }),
         expect.objectContaining({ id: 'post-2' }),
         expect.objectContaining({ id: 'post-3' }),
+        expect.objectContaining({ id: 'post-4' }),
       ],
       selectedSlug: 'dev',
     })

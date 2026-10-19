@@ -7,6 +7,12 @@ import * as React from 'react'
 
 import { cn } from '~/lib/helper'
 
+import {
+  InkTick,
+  paperPanelHostClassName,
+  PaperPanelSurface,
+} from '../paper-panel'
+
 const DropdownMenu = MenuPrimitive.Root
 
 const DropdownMenuTrigger = ({
@@ -61,8 +67,8 @@ const DropdownMenuSubTrigger = ({
   <MenuPrimitive.SubmenuTrigger
     ref={ref}
     className={cn(
-      'flex cursor-default select-none items-center rounded-xs px-2 py-1.5 text-copy-13 outline-hidden',
-      'data-[highlighted]:bg-neutral-2/80 dark:data-[highlighted]:bg-neutral-3/80 data-[open]:bg-neutral-2 dark:data-[open]:bg-neutral-3',
+      'flex cursor-default select-none items-center px-3 py-[7px] text-copy-13 text-neutral-8 outline-hidden',
+      'data-[highlighted]:paper-wash data-[open]:paper-wash data-[highlighted]:text-neutral-10',
       inset && 'pl-8',
       className,
     )}
@@ -117,12 +123,15 @@ const DropdownMenuContent = ({
       <MenuPrimitive.Popup
         ref={ref}
         className={cn(
-          'dropdown-menu-popup min-w-32 overflow-hidden rounded-xl border border-black/5 bg-paper p-1 text-neutral-9 dark:border-white/8',
-          'shadow-[0_2px_12px_rgba(0,0,0,0.04),0_0_0_0.5px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3),0_0_0_0.5px_rgba(255,255,255,0.04)]',
+          'dropdown-menu-popup min-w-32 px-1.5 py-2 text-neutral-9 outline-hidden',
+          paperPanelHostClassName,
           className,
         )}
         {...props}
-      />
+      >
+        <PaperPanelSurface />
+        {props.children}
+      </MenuPrimitive.Popup>
     </MenuPrimitive.Positioner>
   </MenuPrimitive.Portal>
 )
@@ -142,16 +151,17 @@ const DropdownMenuItem = ({
   <MenuPrimitive.Item
     ref={ref}
     className={cn(
-      'relative flex cursor-default select-none items-center rounded-md px-2 py-1.5 text-copy-13 outline-hidden transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
-      'data-[highlighted]:bg-neutral-2 dark:data-[highlighted]:bg-neutral-3',
+      'group/item relative flex cursor-default select-none items-center px-3 py-[7px] text-copy-13 text-neutral-8 outline-hidden transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      'data-[highlighted]:paper-wash data-[highlighted]:text-neutral-10',
       inset && 'pl-8',
       'focus-within:!outline-transparent',
       className,
     )}
     {...props}
   >
+    <InkTick className="hidden group-data-[highlighted]/item:block" />
     {props.icon && (
-      <span className="mr-1.5 inline-flex size-4 items-center justify-center">
+      <span className="mr-2.5 inline-flex size-4 items-center justify-center text-neutral-6 group-data-[highlighted]/item:text-neutral-8">
         {props.icon}
       </span>
     )}
@@ -177,7 +187,7 @@ const DropdownMenuLabel = ({
   <MenuPrimitive.GroupLabel
     ref={ref}
     className={cn(
-      'px-2 py-1.5 text-copy-13 font-semibold',
+      'px-3 pb-2 pt-1 text-label-12 font-normal tracking-[3px] text-neutral-6',
       inset && 'pl-8',
       className,
     )}
@@ -194,7 +204,7 @@ const DropdownMenuSeparator = ({
   ref?: React.RefObject<React.ElementRef<typeof MenuPrimitive.Separator> | null>
 }) => (
   <MenuPrimitive.Separator
-    className={cn('-mx-1 my-1 h-px bg-black/5 dark:bg-white/8', className)}
+    className={cn('paper-hairline mx-1.5 my-1 h-0 border-t-[0.5px]', className)}
     ref={ref}
     {...props}
   />

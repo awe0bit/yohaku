@@ -28,7 +28,7 @@ import {
   LiveDeskInkMeter,
   mediaFallbackIconClass,
   PaperSlipIcon,
-} from './LiveDeskActivity'
+} from './LiveDeskPrimitives'
 import { useFlip, usePrefersReducedMotion } from './use-flip'
 
 const hiddenPresentation: LiveDeskPresentation = { visible: false }
@@ -61,7 +61,7 @@ const resolvePrimaryIcon = (
   const { application, media } = presentation
   if (media) {
     return {
-      fallbackIconClass: mediaFallbackIconClass[media.kind],
+      fallbackIconClass: mediaFallbackIconClass,
       url:
         media.artworkURL ??
         resolveActivityAppIconURL(
@@ -72,7 +72,7 @@ const resolvePrimaryIcon = (
     }
   }
   return {
-    fallbackIconClass: 'i-mingcute-window-line',
+    fallbackIconClass: 'i-mingcute-computer-line',
     url: application
       ? resolveActivityAppIconURL(
           application.displayName,

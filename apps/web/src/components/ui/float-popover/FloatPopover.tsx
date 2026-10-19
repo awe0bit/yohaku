@@ -27,6 +27,7 @@ import { useEventCallback } from '~/hooks/common/use-event-callback'
 import { stopPropagation } from '~/lib/dom'
 import { clsxm } from '~/lib/helper'
 
+import { PaperPanelSurface } from '../paper-panel'
 import { RootPortal } from '../portal'
 import type { PresentSheetProps } from '../sheet'
 import { PresentSheet } from '../sheet'
@@ -343,13 +344,14 @@ const RealFloatPopover = function FloatPopover<T extends {}>(
                 role={type === 'tooltip' ? 'tooltip' : 'dialog'}
                 tabIndex={-1}
                 className={clsxm(
-                  !headless && [popoverPanelClassNames, 'p-4'],
+                  !headless && [
+                    popoverPanelClassNames,
+                    type === 'tooltip'
+                      ? 'max-w-[25rem] break-all px-[9px] py-[5px] text-label-12 text-neutral-8'
+                      : 'p-4',
+                  ],
 
                   'relative z-[2]',
-
-                  type === 'tooltip'
-                    ? `max-w-[25rem] break-all rounded-xl px-4 py-2`
-                    : '',
 
                   popoverClassNames,
                 )}
@@ -362,6 +364,11 @@ const RealFloatPopover = function FloatPopover<T extends {}>(
                 }}
                 onKeyDown={handlePopoverKeyDown}
               >
+                {!headless && (
+                  <PaperPanelSurface
+                    variant={type === 'tooltip' ? 'slip' : 'panel'}
+                  />
+                )}
                 <PopoverActionContext value={actionCtxValue}>
                   {props.children}
                 </PopoverActionContext>

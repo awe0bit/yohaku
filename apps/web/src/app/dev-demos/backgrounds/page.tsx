@@ -11,6 +11,8 @@ import { localHour } from '~/lib/paper/light'
 import { SOLAR_TERMS } from '~/lib/paper/season'
 import { solarTermForLocalDay } from '~/lib/paper/solar-term'
 
+import { PaperDyeDemo } from './PaperDyeDemo'
+
 const TERM_OPTIONS = Object.fromEntries(
   SOLAR_TERMS.map((name, i) => [`${i + 1} ${name}`, i]),
 )
@@ -99,6 +101,7 @@ export default function BackgroundsDevPage() {
           </p>
         ))}
       </article>
+      <PaperDyeDemo />
       <div className="fixed right-4 top-20 z-50 w-64" ref={paneHostRef} />
     </>
   )

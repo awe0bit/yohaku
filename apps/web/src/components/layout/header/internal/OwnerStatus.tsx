@@ -26,7 +26,7 @@ const EmojiPicker = dynamic(
   { loading: () => <div className="h-[400px] w-[400px]" /> },
 )
 
-export const OwnerStatus = () => {
+export const OwnerStatus = ({ compact = false }: { compact?: boolean }) => {
   const t = useTranslations('common')
   const pageIsActive = usePageIsActive()
   const { data: statusFromRequest, isLoading: statusLoading } = useQuery({
@@ -57,9 +57,12 @@ export const OwnerStatus = () => {
       role={isLogged ? 'button' : 'img'}
       tabIndex={isLogged ? 0 : -1}
       className={clsx(
-        'pointer-events-auto absolute bottom-0 right-0 z-10 flex size-4 cursor-default items-center justify-center rounded-full text-accent duration-200',
+        'pointer-events-auto absolute bottom-0 right-0 z-10 flex cursor-default items-center justify-center rounded-full text-accent duration-200',
+        compact ? '-bottom-0.5 -right-0.5 size-3 text-[9px]' : 'size-4',
         isLogged && mouseEnter && !ownerStatus
-          ? 'size-6 rounded-full bg-neutral-1'
+          ? compact
+            ? 'size-5 bg-neutral-1'
+            : 'size-6 bg-neutral-1'
           : '',
         isLogged && mouseEnter && 'cursor-pointer',
       )}

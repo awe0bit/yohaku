@@ -120,6 +120,20 @@ export const devDemos: DevDemo[] = [
   },
   {
     group: 'ambient',
+    href: '/dev-demos/account-menu',
+    name: 'Account menu',
+    meta: '真实 header 用户菜单 · 赞助者 / 读者 / 站长 / 站长 + 会话',
+    tags: ['account', 'header', 'dropdown', 'membership'],
+  },
+  {
+    group: 'ambient',
+    href: '/dev-demos/live-desk',
+    name: 'Live Desk',
+    meta: '真实 header ticket + 逐场景浮层 · 播放 / 暂停 / 无封面 / 长标题 / 仅应用',
+    tags: ['live-desk', 'header', 'popover', 'stamp'],
+  },
+  {
+    group: 'ambient',
     href: '/dev-demos/slot-text',
     name: 'SlotText',
     meta: '数字翻牌 · numericText 风与原版并排 · 计数 / 价格 / 时钟 / 标签',

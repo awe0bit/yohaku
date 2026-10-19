@@ -1,17 +1,13 @@
-import './internal/grid.css'
-
 import { memo } from 'react'
 
 import { ErrorBoundary } from '~/components/common/ErrorBoundary'
 import { LocaleSuggestionPill } from '~/components/modules/locale-suggestion/LocaleSuggestionPill'
-import { clsxm } from '~/lib/helper'
 
-import { AnimatedLogo } from './internal/AnimatedLogo'
-import { HeaderLogoArea } from './internal/HeaderArea'
-import { HeaderContent } from './internal/HeaderContent'
+import { DesktopHeader } from './internal/DesktopHeader'
 import { HeaderDataConfigureProvider } from './internal/HeaderDataConfigureProvider'
+import { HeaderStrip } from './internal/HeaderStrip'
 import { MobileHeader } from './internal/MobileHeader'
-import { UserAuth } from './internal/UserAuth'
+import { useHeaderScrollState } from './internal/useHeaderScrollState'
 
 export const Header = () => (
   <ErrorBoundary>
@@ -20,34 +16,20 @@ export const Header = () => (
     </HeaderDataConfigureProvider>
   </ErrorBoundary>
 )
+
 const MemoedHeader = memo(() => {
+  const { phase, topOpacity, topShift, topVisibility } = useHeaderScrollState()
+
   return (
     <>
       <MobileHeader />
-      <HeaderContent />
+      <DesktopHeader
+        opacity={topOpacity}
+        shift={topShift}
+        visibility={topVisibility}
+      />
+      <HeaderStrip visible={phase === 'strip'} />
       <LocaleSuggestionPill />
-
-      <div
-        data-hide-print
-        className="yohaku-page-right-inset fixed top-0 z-[9] hidden h-[4.5rem] lg:inset-x-0 lg:block"
-      >
-        <div
-          className={clsxm(
-            'relative mx-auto grid h-full min-h-0 max-w-7xl grid-cols-[4.5rem_1fr_4.5rem] px-8',
-            'header--grid',
-          )}
-        >
-          <HeaderLogoArea>
-            <AnimatedLogo />
-          </HeaderLogoArea>
-
-          <div />
-
-          <div className="flex size-full items-center">
-            <UserAuth />
-          </div>
-        </div>
-      </div>
     </>
   )
 })

@@ -9,6 +9,7 @@ import { ErrorBoundary } from '~/components/common/ErrorBoundary'
 import { MiSansLoader } from '~/components/common/MiSansLoader'
 import { ProviderComposer } from '~/components/common/ProviderComposer'
 import { ModalStackProvider } from '~/components/ui/modal'
+import { PaperPanelFilters } from '~/components/ui/paper-panel'
 import { Toaster } from '~/components/ui/toast'
 import { Spring } from '~/constants/spring'
 import { defaultTimeZone } from '~/i18n/config'
@@ -45,6 +46,7 @@ export const DevShell = ({ children }: PropsWithChildren) => (
           </div>
         </MotionConfig>
 
+        <PaperPanelFilters />
         <ModalStackProvider />
         <EventProvider />
         <PageScrollInfoProvider />

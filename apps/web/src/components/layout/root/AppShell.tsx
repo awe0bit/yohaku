@@ -15,6 +15,7 @@ import { SyncServerTime } from '~/components/common/SyncServerTime'
 import { Root } from '~/components/layout/root/Root'
 import { SearchPanelWithHotKey } from '~/components/modules/shared/SearchPanel'
 import { BackgroundTexture } from '~/components/ui/background/BackgroundTexture'
+import { PaperPanelFilters } from '~/components/ui/paper-panel'
 import { RootPortal } from '~/components/ui/portal'
 import type { Locale } from '~/i18n/config'
 import { defaultTimeZone } from '~/i18n/config'
@@ -48,6 +49,7 @@ export const AppShell = ({
       <Global />
       <HydrationEndDetector />
       <SafariDetector />
+      <PaperPanelFilters />
       <MiSansLoader locale={locale} />
       <ErrorBoundary>
         <WebAppProviders>

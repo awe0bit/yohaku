@@ -1,24 +1,23 @@
 'use client'
 
-import { m } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import { useCallback } from 'react'
 
 import { isOwnerLogged } from '~/atoms/hooks/owner'
 import { useResolveAdminUrl } from '~/atoms/hooks/url'
-import { useViewport } from '~/atoms/hooks/viewport'
-import { useIsClient } from '~/hooks/common/use-is-client'
 import { useSingleAndDoubleClick } from '~/hooks/common/use-single-double-click'
 import { useRouter } from '~/i18n/navigation'
 import { noopObj } from '~/lib/noop'
 import { Routes } from '~/lib/route-builder'
 import { useAppConfigSelector } from '~/providers/root/aggregation-data-provider'
 
-import { Activity } from './Activity'
 import { SiteOwnerAvatar } from './SiteOwnerAvatar'
 import { useLiveQuery } from './useLiveQuery'
 
-const TapableLogo = () => {
+export const TapableLogo: Component<{ size?: number }> = ({
+  className,
+  size = 40,
+}) => {
   const router = useRouter()
   const t = useTranslations('common')
 
@@ -52,36 +51,9 @@ const TapableLogo = () => {
   )
 
   return (
-    <button onClick={fn}>
-      <SiteOwnerAvatar className="cursor-pointer" />
+    <button className={className} type="button" onClick={fn}>
+      <SiteOwnerAvatar className="cursor-pointer" size={size} />
       <span className="sr-only">{t('aria_site_owner_avatar')}</span>
     </button>
-  )
-}
-export const AnimatedLogo = () => {
-  const isDesktop = useViewport(($) => $.lg && $.w !== 0)
-
-  const isClient = useIsClient()
-  if (!isClient) return null
-
-  if (isDesktop)
-    return (
-      <>
-        <TapableLogo />
-        <Activity />
-      </>
-    )
-
-  return (
-    <m.div
-      layout
-      animate={{ opacity: 1 }}
-      className="flex items-center will-change-[unset]!"
-      exit={{ opacity: 0 }}
-      initial={{ opacity: 0 }}
-    >
-      <Activity />
-      <TapableLogo />
-    </m.div>
   )
 }

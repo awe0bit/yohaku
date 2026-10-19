@@ -7,6 +7,7 @@ import { cloneElement, useMemo, useRef, useState } from 'react'
 import { clsxm } from '~/lib/helper'
 
 import { getPopoverAnimationConfig } from '../float-popover/animation'
+import { paperPanelHostClassName,PaperPanelSurface } from '../paper-panel'
 import { RootPortal } from '../portal'
 
 interface FloatPanelProps {
@@ -67,10 +68,9 @@ export const FloatPanel: FC<FloatPanelProps & PropsWithChildren> = (props) => {
               {...getPopoverAnimationConfig(resolvedPlacement)}
               ref={refs.setFloating}
               className={clsxm(
-                'rounded-xl border border-black/5 p-4 outline-hidden dark:border-white/8',
-                'bg-paper',
-                'shadow-[0_2px_12px_rgba(0,0,0,0.04),0_0_0_0.5px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3),0_0_0_0.5px_rgba(255,255,255,0.04)]',
-                'relative z-[2]',
+                paperPanelHostClassName,
+                'p-4 outline-hidden',
+                'z-[2]',
               )}
               style={{
                 ...getPopoverAnimationConfig(resolvedPlacement).style,
@@ -80,6 +80,7 @@ export const FloatPanel: FC<FloatPanelProps & PropsWithChildren> = (props) => {
                 visibility: isPositioned && x !== null ? 'visible' : 'hidden',
               }}
             >
+              <PaperPanelSurface />
               {children}
             </m.div>
           )}

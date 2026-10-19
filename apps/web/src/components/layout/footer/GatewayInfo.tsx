@@ -121,7 +121,7 @@ export const Heartbeat = () => {
           </span>
         }
       >
-        <div className="w-72 space-y-2 text-copy-13 leading-relaxed text-neutral-7">
+        <div className="w-128 space-y-2 text-copy-13 leading-relaxed text-neutral-7">
           <p className="flex items-center justify-between">
             <span>{connected ? t('connected') : t('disconnected')}</span>
             <Pulse className="size-1.5" connected={connected} />

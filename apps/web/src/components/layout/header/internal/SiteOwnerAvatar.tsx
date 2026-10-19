@@ -10,7 +10,10 @@ import { useAggregationSelector } from '~/providers/root/aggregation-data-provid
 import { OwnerStatus } from './OwnerStatus'
 import { useLiveQuery } from './useLiveQuery'
 
-export const SiteOwnerAvatar: Component = ({ className }) => {
+export const SiteOwnerAvatar: Component<{ size?: number }> = ({
+  className,
+  size = 40,
+}) => {
   const t = useTranslations('common')
   const avatar = useAggregationSelector((data) => data.user.avatar)
 
@@ -22,42 +25,35 @@ export const SiteOwnerAvatar: Component = ({ className }) => {
   return (
     <div
       role={isLiving ? 'button' : 'img'}
+      style={{ width: size, height: size }}
       className={clsxm(
-        'pointer-events-none relative z-[9] size-[40px] select-none',
-        isLiving ? 'cursor-pointer rounded-full' : '',
+        'pointer-events-none relative z-[9] select-none',
+        isLiving ? 'cursor-pointer' : '',
         className,
       )}
     >
-      <div
-        className={clsxm(
-          isLiving ? 'rounded-full' : 'mask mask-squircle',
-          'overflow-hidden',
-        )}
-      >
+      <div className="mask mask-squircle overflow-hidden">
         <Image
           alt={t('aria_site_owner_avatar')}
           className="ring-2 ring-neutral-3"
-          height={40}
+          height={size}
           src={avatar}
-          width={40}
+          width={size}
           style={
-            ownerStatus
+            ownerStatus && !isLiving
               ? {
+                  maskSize: '100% 100%',
                   maskImage: `url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZmlsbC1ydWxlPSJldmVub2RkIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0wIDBINDBWMjcuMzQyN0MzOC4zNSAyNS4zMDM3IDM1LjgyNzMgMjQgMzMgMjRDMjguMDI5NCAyNCAyNCAyOC4wMjk0IDI0IDMzQzI0IDM1LjgyNzMgMjUuMzAzNyAzOC4zNSAyNy4zNDI3IDQwSDBWMFoiIGZpbGw9IiNEOUQ5RDkiLz4KPC9zdmc+Cg==")`,
                 }
               : undefined
           }
         />
       </div>
-      {!isLiving && <OwnerStatus />}
+      {!isLiving && <OwnerStatus compact={size < 40} />}
       {isLiving && (
-        <>
-          <p className="absolute bottom-0 right-0 z-[1] rounded-md bg-red-400 p-1 font-[system-ui] text-caption-10 text-white dark:bg-orange-700">
-            LIVE
-          </p>
-
-          <div className="absolute inset-0 scale-100 animate-ping rounded-full ring-2 ring-red-500/80" />
-        </>
+        <span className="absolute -bottom-1.5 left-1/2 z-[1] -translate-x-1/2 text-[8px] font-semibold leading-none tracking-[1.5px] text-error">
+          LIVE
+        </span>
       )}
     </div>
   )

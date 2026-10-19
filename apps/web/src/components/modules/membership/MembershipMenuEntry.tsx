@@ -6,9 +6,9 @@ import { Fragment } from 'react'
 import {
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '~/components/ui/dropdown-menu'
+import { InkStroke } from '~/components/ui/paper-panel'
 
 import { useCheckoutModal } from './CheckoutModal'
 import { useSponsorArchiveModal } from './SponsorArchiveModal'
@@ -40,19 +40,23 @@ export const MembershipMenuEntry = () => {
         : undefined
     return (
       <Fragment>
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className="flex items-center gap-2 text-label-12">
-            <i className="i-mingcute-vip-1-line size-4 text-accent" />
-            <span>{t('badge_member')}</span>
-            {end ? (
-              <span className="text-neutral-9/60">
-                {t('expire_at', { date: end })}
-              </span>
-            ) : null}
-          </DropdownMenuLabel>
-          {archiveItem}
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownMenuSeparator className="mx-0.5 my-0" />
+        <div className="flex items-baseline justify-between gap-3 px-2.5 pb-3.5 pt-3">
+          <span className="relative inline-flex items-center gap-1.5 text-[var(--yohaku-accent-deep)]">
+            <i className="i-mingcute-vip-1-line size-[13px] self-center" />
+            <span className="[font-family:var(--font-logo-latin)] text-[16px] italic leading-none">
+              {t('badge_member')}
+            </span>
+            <InkStroke className="absolute -bottom-[7px] left-[17px] h-1.5 w-[58px] opacity-80" />
+          </span>
+          {end ? (
+            <span className="whitespace-nowrap text-[11.5px] tabular-nums text-neutral-6">
+              {t('expire_at', { date: end })}
+            </span>
+          ) : null}
+        </div>
+        <DropdownMenuSeparator className="mx-0.5 my-0" />
+        <DropdownMenuGroup className="py-1">{archiveItem}</DropdownMenuGroup>
       </Fragment>
     )
   }
@@ -61,8 +65,10 @@ export const MembershipMenuEntry = () => {
 
   return (
     <Fragment>
-      <DropdownMenuGroup>
+      <DropdownMenuSeparator className="mx-0.5 my-0" />
+      <DropdownMenuGroup className="py-1">
         <DropdownMenuItem
+          className="font-medium text-[var(--yohaku-accent-deep)] data-[highlighted]:text-[var(--yohaku-accent-deep)]"
           icon={<i className="i-mingcute-vip-1-line size-4" />}
           onClick={() => presentCheckout()}
         >
@@ -70,7 +76,6 @@ export const MembershipMenuEntry = () => {
         </DropdownMenuItem>
         {archiveItem}
       </DropdownMenuGroup>
-      <DropdownMenuSeparator />
     </Fragment>
   )
 }

@@ -1,6 +1,11 @@
 import type { CSSProperties, FC } from 'react'
 
+import {
+  paperPanelHostClassName,
+  PaperPanelSurface,
+} from '~/components/ui/paper-panel'
 import { Favicon } from '~/components/ui/rich-link/Favicon'
+import { clsxm } from '~/lib/helper'
 import type { EnrichmentResult } from '~/models/enrichment'
 
 import { WideOgMedia } from './variants/atoms/WideOgMedia'
@@ -10,28 +15,6 @@ interface Props {
 }
 
 const HEX_RE = /^#[\da-f]{6}$/i
-const DECKLE_ID = 'hover-link-card-deckle'
-
-const WashiDeckle = () => (
-  <svg aria-hidden className="absolute" height="0" width="0">
-    <filter height="110%" id={DECKLE_ID} width="110%" x="-5%" y="-5%">
-      <feTurbulence
-        baseFrequency="0.06"
-        numOctaves={3}
-        result="t"
-        seed={9}
-        type="fractalNoise"
-      />
-      <feDisplacementMap
-        in="SourceGraphic"
-        in2="t"
-        scale={5}
-        xChannelSelector="R"
-        yChannelSelector="G"
-      />
-    </filter>
-  </svg>
-)
 
 function hostOf(url: string): string {
   try {
@@ -60,17 +43,16 @@ export const HoverLinkCard: FC<Props> = ({ data }) => {
 
   return (
     <a
-      className="relative isolate block w-[360px] max-w-[400px]"
       href={data.url}
       rel="noopener"
       style={anchorStyle}
       target="_blank"
+      className={clsxm(
+        paperPanelHostClassName,
+        'block w-[360px] max-w-[400px]',
+      )}
     >
-      <WashiDeckle />
-      <span
-        aria-hidden
-        className="hover-link-card-paper absolute inset-0 -z-10 bg-[color-mix(in_oklab,var(--color-accent)_3%,white)] shadow-paper-contact [filter:url(#hover-link-card-deckle)] dark:bg-[color-mix(in_oklab,var(--color-accent)_3%,var(--surface-paper))]"
-      />
+      <PaperPanelSurface />
       <div className="overflow-hidden">
         <WideOgMedia
           alt={mediaAlt}

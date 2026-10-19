@@ -29,7 +29,7 @@ export const CompanionMomentContext = ({
         <div className="flex min-w-0 items-start gap-3 text-neutral-7">
           <i
             aria-hidden
-            className="i-mingcute-window-line mt-0.5 shrink-0 text-copy-16 text-neutral-5"
+            className="i-mingcute-computer-line mt-0.5 shrink-0 text-copy-16 text-neutral-5"
           />
           <div className="min-w-0">
             <div

@@ -21,7 +21,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
@@ -37,7 +36,7 @@ import { HeaderActionButton } from './HeaderActionButton'
 import { useMenuOpacity } from './hooks'
 import { UserAuthFromIcon } from './UserAuthFromIcon'
 
-const OwnerAvatar = () => {
+const OwnerAvatar = ({ size }: { size: number }) => {
   const t = useTranslations('common')
   const ownerAvatar = useAggregationSelector((s) => s.user.avatar)!
 
@@ -46,15 +45,15 @@ const OwnerAvatar = () => {
       <Image
         alt={t('aria_site_owner_avatar')}
         className="rounded-full"
-        height={36}
+        height={size}
         src={ownerAvatar}
-        width={36}
+        width={size}
       />
       <UserAuthFromIcon className="absolute -bottom-1 right-0" />
     </div>
   )
 }
-export function UserAuth() {
+export function UserAuth({ size = 28 }: { size?: number }) {
   const t = useTranslations('common')
   const isOwner = useIsOwnerLogged()
   const isClient = useIsClient()
@@ -82,13 +81,14 @@ export function UserAuth() {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger nativeButton={false} openOnHover={hoverOnly}>
             {isOwner ? (
-              <OwnerAvatar />
+              <OwnerAvatar size={size} />
             ) : session ? (
-              <ReaderAvatar />
+              <ReaderAvatar size={size} />
             ) : (
               hasProviders && (
                 <HeaderActionButton
                   aria-label={t('aria_login')}
+                  style={{ width: size, height: size }}
                   onClick={() => {
                     presentOauthModal()
                   }}
@@ -103,60 +103,40 @@ export function UserAuth() {
             <DropdownMenuContent
               keepMounted
               align="end"
-              className="relative flex max-w-[30ch] flex-col"
+              className="relative flex w-[264px] flex-col px-2 pb-2 pt-4"
               positionMethod="fixed"
               sideOffset={8}
             >
-              {session && (
-                <Fragment>
-                  <DropdownMenuGroup>
-                    <DropdownMenuLabel className="text-label-12 text-neutral-9/60">
-                      {t('auth_account')}
-                    </DropdownMenuLabel>
-                    <DropdownMenuLabel className="min-w-0">
-                      <div className="-mt-1 flex min-w-0 items-center gap-2">
-                        <img
-                          alt=""
-                          className="size-8 rounded-full"
-                          src={session.image}
-                        />
-                        <div className="min-w-0 max-w-40 leading-none">
-                          <div className="truncate">{session.name}</div>
-                          <EllipsisHorizontalTextWithTooltip className="min-w-0 truncate text-label-12 text-neutral-9/60">
-                            {session?.handle
-                              ? `@${session.handle}`
-                              : session?.email}
-                          </EllipsisHorizontalTextWithTooltip>
-                        </div>
-                      </div>
-                    </DropdownMenuLabel>
-                  </DropdownMenuGroup>
-                  <DropdownMenuSeparator />
-                  <MembershipMenuEntry />
-                </Fragment>
-              )}
+              <AccountCard />
+              {session && !isOwner && <MembershipMenuEntry />}
 
               {isOwner && (
                 <Fragment>
-                  <DropdownMenuItem
-                    icon={<i className="i-mingcute-dashboard-2-line size-4" />}
-                    onClick={async () => {
-                      let adminUrl = getAdminUrl()
-                      if (!adminUrl) {
-                        const data = await fetchAppUrl().catch(() => null)
-                        adminUrl = data?.adminUrl ?? getAdminUrl()
+                  <DropdownMenuSeparator className="mx-0.5 my-0" />
+                  <DropdownMenuGroup className="py-1">
+                    <DropdownMenuItem
+                      icon={
+                        <i className="i-mingcute-dashboard-2-line size-4" />
                       }
-                      if (adminUrl) {
-                        window.open(adminUrl, '_blank')
-                      }
-                    }}
-                  >
-                    {t('auth_console')}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                      onClick={async () => {
+                        let adminUrl = getAdminUrl()
+                        if (!adminUrl) {
+                          const data = await fetchAppUrl().catch(() => null)
+                          adminUrl = data?.adminUrl ?? getAdminUrl()
+                        }
+                        if (adminUrl) {
+                          window.open(adminUrl, '_blank')
+                        }
+                      }}
+                    >
+                      {t('auth_console')}
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
                 </Fragment>
               )}
+              <DropdownMenuSeparator className="mx-0.5 mb-1 mt-0" />
               <DropdownMenuItem
+                className="text-neutral-6"
                 icon={<i className="i-mingcute-exit-line size-4" />}
                 onClick={async () => {
                   await apiClient.owner.logout().catch(() => {})
@@ -175,7 +155,42 @@ export function UserAuth() {
   )
 }
 
-const ReaderAvatar = () => {
+const AccountCard = () => {
+  const session = useSessionReader()
+  const owner = useAggregationSelector((s) => s.user)
+  const isOwner = useIsOwnerLogged()
+  const image = session?.image ?? (isOwner ? owner?.avatar : undefined)
+  const name = session?.name ?? (isOwner ? owner?.name : undefined)
+  const handle = session
+    ? session.handle
+      ? `@${session.handle}`
+      : session.email
+    : isOwner && owner?.username
+      ? `@${owner.username}`
+      : null
+
+  if (!name) return null
+
+  return (
+    <div className="flex min-w-0 items-center gap-3 px-2.5 pb-3.5">
+      {image ? (
+        <img alt="" className="size-9 shrink-0 rounded-full" src={image} />
+      ) : null}
+      <div className="flex min-w-0 flex-col gap-[3px]">
+        <span className="truncate [font-family:var(--font-logo-latin)] text-[18px] leading-[1.15] text-neutral-10">
+          {name}
+        </span>
+        {handle ? (
+          <EllipsisHorizontalTextWithTooltip className="min-w-0 truncate text-label-12 leading-[1.2] text-neutral-6">
+            {handle}
+          </EllipsisHorizontalTextWithTooltip>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
+const ReaderAvatar = ({ size }: { size: number }) => {
   const session = useSessionReader()!
   const isMember = useIsActiveMember()
 
@@ -184,9 +199,9 @@ const ReaderAvatar = () => {
       <Image
         alt={session.name}
         className={clsxm('rounded-full', isMember && 'ring-2 ring-accent/70')}
-        height={36}
+        height={size}
         src={session.image}
-        width={36}
+        width={size}
       />
       <UserAuthFromIcon className="absolute -bottom-1 right-0" />
     </div>

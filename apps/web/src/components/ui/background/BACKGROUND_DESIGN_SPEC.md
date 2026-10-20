@@ -30,16 +30,20 @@ shadow.
 
 | Layer | browse | read | immersive |
 |---|---|---|---|
-| Fibers | moving | still | 60% |
-| 漉き込み | moving | 50% | hidden |
-| 砂子 | glinting | no glint | hidden |
+| Paper color | 100% | 50% toward root bg | 30% |
+| Fibers | moving | 70%, still | 45% |
+| 漉き込み | moving | 30% | hidden |
+| 砂子 | glinting | 50%, no glint | hidden |
 | Petals / leaves | moving | hidden | hidden |
-| ぼかし | flowing | still | 50% |
+| ぼかし | flowing | 60%, still | 35% |
 | 小口染め | where figures exist | on | 60% |
 | 按压 | on | on | on |
 
 Solar-term changes transition over ~10 s, staggered across the sheet, keeping
-anything shared by both terms in place. The background owns `--color-accent`.
+anything shared by both terms in place; leaving petals/leaves wither in place
+(dry to 枯茶, then erode from the edge), snow melts, never a plain fade.
+小口染め is a ≤32 px strip only beside the current figure, never a wide
+full-height band. The background owns `--color-accent`.
 Not rendered on phones, with reduced motion it renders statically.
 
 Entering and leaving are layered (`paper/presence.ts`): the first frame equals

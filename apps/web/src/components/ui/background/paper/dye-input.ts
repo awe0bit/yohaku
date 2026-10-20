@@ -7,6 +7,8 @@ export const dyeInput: DyeInput = {
   weight: 0,
 }
 
+export const dyeBands = new Map<string, [top: number, bottom: number]>()
+
 export const PAPER_DYE_SCOPE_CLASS = 'yohaku-paper-dye-scope'
 
 export const resetDyeInput = () => {
@@ -14,4 +16,5 @@ export const resetDyeInput = () => {
   dyeInput.labs = null
   dyeInput.velocity = 0
   dyeInput.weight = 0
+  dyeBands.clear()
 }

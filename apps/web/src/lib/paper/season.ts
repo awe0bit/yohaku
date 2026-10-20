@@ -38,15 +38,15 @@ export const lerp3 = <T extends Rgb | Lab>(a: T, b: T, t: number) =>
 
 const PAPER: Record<'light' | 'dark', Rgb[]> = {
   light: [
-    [0.962, 0.946, 0.94],
-    [0.938, 0.951, 0.944],
-    [0.958, 0.941, 0.906],
-    [0.944, 0.947, 0.952],
+    [0.972, 0.956, 0.95],
+    [0.949, 0.962, 0.955],
+    [0.967, 0.955, 0.929],
+    [0.955, 0.958, 0.963],
   ],
   dark: [
     [0.112, 0.103, 0.106],
     [0.093, 0.106, 0.103],
-    [0.116, 0.104, 0.088],
+    [0.114, 0.104, 0.091],
     [0.095, 0.099, 0.111],
   ],
 }
@@ -104,6 +104,8 @@ export type ElemType =
   | 'maple:red'
   | 'ginkgo'
   | 'ginkgo:fallen'
+  | 'ginkgo:turning'
+  | 'lycoris'
   | 'ajisai'
   | 'snow'
 
@@ -126,6 +128,8 @@ export const ELEM_COLORS: Record<ElemType, string[]> = {
   'maple:red': ['#c4493a', '#d0653a', '#b03a32', '#d9883e'],
   ginkgo: ['#e2bf4e', '#d8ae3a', '#ead07a'],
   'ginkgo:fallen': ['#c79a45', '#b88a3c', '#d2a958'],
+  'ginkgo:turning': ['#b9bf5a', '#cdbf4e', '#a9b55c'],
+  lycoris: ['#c23b3b', '#d04a44', '#b83236'],
   ajisai: ['#9db0d8', '#b3a5d6', '#8aa6cc', '#d3a9c9'],
   snow: ['#a9b6c8', '#bcc7d6'],
 }
@@ -149,6 +153,8 @@ export const ELEM_SIZE: Record<ElemType, [number, number]> = {
   'maple:red': [24, 38],
   ginkgo: [18, 28],
   'ginkgo:fallen': [18, 26],
+  'ginkgo:turning': [18, 28],
+  lycoris: [20, 30],
   ajisai: [10, 15],
   snow: [10, 18],
 }
@@ -209,7 +215,14 @@ export const ELEM_GROUPS: ElemGroup[] = [
       ['maple:green', 1],
     ],
   },
-  { at: [7], accent: '#5b8a55', mix: [['maple:green', 1]] },
+  {
+    at: [7],
+    accent: '#5b8a55',
+    mix: [
+      ['maple:green', 1],
+      ['ajisai', 0.5],
+    ],
+  },
   {
     at: [8, 9],
     accent: '#5f74b0',
@@ -234,7 +247,22 @@ export const ELEM_GROUPS: ElemGroup[] = [
       ['lotus', 0.4],
     ],
   },
-  { at: [14, 15], accent: '#c0852a', mix: [['osmanthus', 1]] },
+  {
+    at: [14],
+    accent: '#b8434a',
+    mix: [
+      ['lycoris', 1],
+      ['maple:green', 0.8],
+    ],
+  },
+  {
+    at: [15],
+    accent: '#c0852a',
+    mix: [
+      ['osmanthus', 1],
+      ['lycoris', 0.3],
+    ],
+  },
   {
     at: [16, 17],
     accent: '#b56a35',
@@ -244,7 +272,15 @@ export const ELEM_GROUPS: ElemGroup[] = [
     ],
   },
   {
-    at: [18, 19],
+    at: [18],
+    accent: '#b07a3a',
+    mix: [
+      ['maple:turning', 1.2],
+      ['ginkgo:turning', 1],
+    ],
+  },
+  {
+    at: [19],
     accent: '#b4452f',
     mix: [
       ['maple:red', 1.2],
@@ -259,7 +295,16 @@ export const ELEM_GROUPS: ElemGroup[] = [
       ['maple:red', 0.6],
     ],
   },
-  { at: [21], accent: '#5f7690', mix: [['snow', 1]] },
+  {
+    at: [21],
+    accent: '#a07a3c',
+    mix: [
+      ['ginkgo:fallen', 1.2],
+      ['maple:red', 0.4],
+      ['wintersweet', 0.5],
+      ['snow', 0.3],
+    ],
+  },
   {
     at: [22, 23],
     accent: '#b08a2a',

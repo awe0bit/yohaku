@@ -121,54 +121,18 @@
   }
 
   mark {
-    @apply bg-accent;
-    --lightness: 0.3;
-    --highlighted: 1;
-    --highlight: oklch(from var(--color-accent) l c h / var(--lightness));
+    --hl-band: color-mix(in oklab, var(--color-accent) 34%, transparent);
+    padding: 0 0.22em 0 0.04em;
+    margin: 0 -0.22em 0 -0.04em;
+    background: linear-gradient(var(--hl-band), var(--hl-band)) 0.22em 92% /
+      100% 0.56em no-repeat;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
     color: var(--tw-prose-body);
   }
 
-  @supports (animation-timeline: view()) {
-    mark {
-      --highlighted: 0;
-      background: transparent;
-      animation: highlight steps(1) both;
-      animation-timeline: view();
-      animation-range: entry 100% cover 10%;
-    }
-  }
-
   [data-theme='dark'] mark {
-    --lightness: 0.35;
-  }
-
-  mark span {
-    background: linear-gradient(
-        120deg,
-        var(--highlight, lightblue) 50%,
-        transparent 50%
-      )
-      110% 0 / 200% 100% no-repeat;
-    background-position: calc((1 - var(--highlighted)) * 110%) 0;
-    transition: background-position 1s;
-  }
-
-  /* data-mark-ink is set by attachMarkInk once @highlighters/core paints a
-     pen-stroke overlay; the CSS sweep must yield to it. Without JS the
-     attribute never appears and the sweep stays. */
-  mark[data-mark-ink] {
-    background: none;
-    animation: none;
-  }
-
-  mark[data-mark-ink] span {
-    background: none;
-  }
-}
-
-@keyframes highlight {
-  to {
-    --highlighted: 1;
+    --hl-band: color-mix(in oklab, var(--color-accent) 28%, transparent);
   }
 }
 

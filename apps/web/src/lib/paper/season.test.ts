@@ -34,9 +34,9 @@ describe('season tables', () => {
 
   it('anchors the light paper color at 秋分', () => {
     const [r, g, b] = paperColor(15, false)
-    expect(r).toBeCloseTo(0.958, 3)
-    expect(g).toBeCloseTo(0.941, 3)
-    expect(b).toBeCloseTo(0.906, 3)
+    expect(r).toBeCloseTo(0.967, 3)
+    expect(g).toBeCloseTo(0.955, 3)
+    expect(b).toBeCloseTo(0.929, 3)
   })
 
   it('keeps accent lightness constant across seasons', () => {

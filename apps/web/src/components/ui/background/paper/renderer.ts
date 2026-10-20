@@ -18,6 +18,7 @@ import {
   makeFibers,
   makeSeasonal,
   makeSeasonalAsync,
+  makeWitherMask,
   yieldToMain,
 } from './textures'
 
@@ -53,6 +54,8 @@ const UNIFORMS = [
   'uIn',
   'uIn2',
   'uLeaf',
+  'uPaperK',
+  'uDyeBand',
 ] as const
 
 const SAMPLERS = [
@@ -63,6 +66,7 @@ const SAMPLERS = [
   'tFlakeB',
   'tSukiB',
   'tElemB',
+  'tWither',
 ] as const
 type Sampler = (typeof SAMPLERS)[number]
 
@@ -75,7 +79,13 @@ export interface Press {
 export interface FrameInput {
   bokT: number
   dark: boolean
-  dye: { amount: number; from: Rgb; mix: number; to: Rgb }
+  dye: {
+    amount: number
+    band: [top: number, bottom: number]
+    from: Rgb
+    mix: number
+    to: Rgb
+  }
   leafClock: number
   light: Light
   presence: Presence
@@ -160,6 +170,17 @@ export class PaperRenderer {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        null,
+      )
       gl.uniform1i(gl.getUniformLocation(program, name), unit)
       this.textures[name] = texture
     })
@@ -171,7 +192,9 @@ export class PaperRenderer {
     gl.bindTexture(gl.TEXTURE_2D, this.textures[name])
     gl.pixelStorei(
       gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL,
-      name.startsWith('tSuki') || name.startsWith('tElem'),
+      name.startsWith('tSuki') ||
+        name.startsWith('tElem') ||
+        name === 'tWither',
     )
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source)
   }
@@ -233,6 +256,7 @@ export class PaperRenderer {
       this.incoming = null
       this.commit()
       this.uploadSeasonal('B', textures)
+      this.upload('tWither', makeWitherMask(surface, this.term, term))
       this.transition = { start: performance.now() / 1000, term }
     })
   }
@@ -293,6 +317,7 @@ export class PaperRenderer {
       lerp3(paperColor(from, dark), paperColor(to, dark), mix),
     )
     gl.uniform1f(u.uDark, dark ? 1 : 0)
+    gl.uniform1f(u.uPaperK, vis.paper)
     gl.uniform4f(u.uLayers, vis.fiber, vis.sunago, vis.suki, vis.elem)
     gl.uniform4f(u.uMotion, move.fiber, move.suki, move.sunago, move.bok)
     const bok = dark
@@ -328,6 +353,7 @@ export class PaperRenderer {
     gl.uniform3fv(u.uDyeA, input.dye.from)
     gl.uniform3fv(u.uDyeB, input.dye.to)
     gl.uniform1f(u.uDyeMix, input.dye.mix)
+    gl.uniform2f(u.uDyeBand, input.dye.band[0], input.dye.band[1])
     const decoIn = Math.sqrt(pv.deco)
     gl.uniform4f(
       u.uDeco,

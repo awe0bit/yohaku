@@ -18,7 +18,8 @@ uniform vec3 uAccent; uniform vec3 uDyeA; uniform vec3 uDyeB; uniform float uDye
 uniform vec4 uDeco; uniform float uFootAmt;
 uniform vec4 uSheets[${MAX_SHEETS}]; uniform vec4 uPress[${MAX_PRESSES}];
 uniform sampler2D tFiber; uniform sampler2D tFlake; uniform sampler2D tSuki; uniform sampler2D tElem;
-uniform sampler2D tFlakeB; uniform sampler2D tSukiB; uniform sampler2D tElemB;
+uniform sampler2D tFlakeB; uniform sampler2D tSukiB; uniform sampler2D tElemB; uniform sampler2D tWither;
+uniform float uPaperK; uniform vec2 uDyeBand;
 uniform vec3 uRoot; uniform vec4 uIn; uniform vec4 uIn2; uniform vec4 uLeaf;
 
 float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
@@ -85,6 +86,25 @@ vec3 tone(vec4 t, bool dark, float desat, float darkMul){
   return dark ? r * darkMul : mix(r, vec3(dot(r, vec3(0.299, 0.587, 0.114))), desat);
 }
 
+vec4 wither(vec2 css, vec2 euv, vec2 size, float a0, vec3 base, float f, float p, bool melt, bool dark){
+  float lum = dot(base, vec3(0.299, 0.587, 0.114));
+  float dc = smoothstep(0.0, 0.45, p);
+  if (melt) return vec4(mix(base, vec3(lum), dc * 0.5), a0 * (1.0 - smoothstep(0.05, 0.85, p)));
+  vec3 dry = dark ? vec3(0.46, 0.36, 0.27) : vec3(0.60, 0.47, 0.34);
+  vec3 dried = mix(vec3(lum), dry, 0.65) * (dark ? 1.0 : 0.94);
+  float er = smoothstep(0.35, 1.0, p);
+  float R = er * 7.0 * (0.6 + 0.8 * vnoise(css / 6.0 + 1.9));
+  float a = a0;
+  for (int i = 0; i < 8; i++) {
+    float ang = float(i) * 0.7854;
+    a = min(a, texture2D(tElem, euv + vec2(cos(ang), sin(ang)) * R / size).a);
+  }
+  float n = 0.08 + 0.92 * clamp(vnoise(css / 2.5 + 4.1) * 0.7 + 0.3 - abs(f) * 1.2, 0.0, 1.0);
+  a *= smoothstep(er * 1.05 - 0.06, er * 1.05 + 0.06, n);
+  a *= 1.0 - smoothstep(0.85, 1.0, p);
+  return vec4(mix(base, dried, dc), a);
+}
+
 vec3 flakeLayer(vec3 col, vec4 fl, float w, float gold, bool dark, float mask, float ang, float spinOff){
   float a = fl.a * uLayers.y * w;
   vec3 leaf = dark ? mix(vec3(0.42, 0.42, 0.43), vec3(0.50, 0.40, 0.22), gold)
@@ -106,8 +126,8 @@ void main(){
   vec2 css = px / uDpr;
   bool dark = uDark > 0.5;
   float wk = uv.y * 0.55 + (fbm(css / 140.0 + 2.1) - 0.5) * 0.5 + 0.15;
-  vec3 col = mix(uRoot, uPaper, wash(uIn.x, wk));
-  col *= 1.0 + (fbm(css / 220.0) - 0.5) * 0.07 * uIn.y;
+  vec3 col = mix(uRoot, mix(uRoot, uPaper, uPaperK), wash(uIn.x, wk));
+  col *= 1.0 + (fbm(css / 220.0) - 0.5) * 0.07 * uIn.y * uPaperK;
 
   vec2 ld = (uSrc - uv) * uRes;
   vec2 ldir = ld / max(length(ld), 0.001);
@@ -156,12 +176,22 @@ void main(){
   vec4 elB = texture2D(tElemB, euv);
   float occ = 1.0 - clamp(abs(f) * 1.5, 0.0, 0.45);
   float kE = uLayers.w * occ * (dark ? 0.4 : 0.45) * keep * aE * uLeaf.z;
-  col = mix(col, tone(el, dark, 0.2, 0.85), el.a * kE * (1.0 - ms));
+  vec3 oc = tone(el, dark, 0.2, 0.85);
+  float oa = el.a * (1.0 - ms);
+  if (uMix > 0.0001) {
+    vec4 wm = texture2D(tWither, euv);
+    if (wm.a > 0.01) {
+      vec4 w = wither(css, euv, size, el.a, oc, f, ms, wm.r / wm.a < 0.3, dark);
+      oc = mix(oc, w.rgb, wm.a);
+      oa = mix(oa, w.a, wm.a);
+    }
+  }
+  col = mix(col, oc, oa * kE);
   col = mix(col, tone(elB, dark, 0.2, 0.85), elB.a * kE * ms);
 
   col += f * (dark ? 0.22 : 0.24) * uLayers.x * aF;
   col += rp.z * 0.025;
-  col += uLC * mask * (dark ? 0.03 : 0.014) * uIn.y;
+  col += uLC * mask * (dark ? 0.03 : 0.014) * uIn.y * uPaperK;
 
   vec2 dA = drift(css, 320.0, uT * 0.06, vec2(11.3, 4.2)) * 10.0 * uMotion.z;
   float fIn = arrive(uIn2.x, css, 8.7);
@@ -173,14 +203,16 @@ void main(){
   col = flakeLayer(col, texture2D(tFlakeB, fuv), ms * keep, uGoldB, dark, mask, ang, rp.w);
 
   if (uDeco.x > 0.001) {
-    float D = clamp(size.x * 0.18, 140.0, 300.0);
+    float D = clamp(size.x * 0.025, 20.0, 32.0);
     float dx = min(css.x, size.x - css.x);
-    float jag = (fbm(css / 40.0 + 3.3) - 0.5) * D * 0.5;
+    float jag = (fbm(css / 16.0 + 3.3) - 0.5) * D * 0.5;
     float wick = 1.0 - smoothstep(0.0, D * max(uIn2.z, 0.02), dx + jag * uIn2.z);
     float body = pow(wick, 1.5) * (0.5 + 0.5 * clamp(abs(f) * 5.0 + sk.a, 0.0, 1.0));
+    float outside = max(uDyeBand.x - css.y, css.y - uDyeBand.y);
+    body *= 1.0 - smoothstep(0.0, 90.0, outside + (fbm(css / 30.0 + 6.1) - 0.5) * 40.0);
     float front = uDyeMix * D * 1.25;
-    float inB = 1.0 - smoothstep(front - 30.0, front, dx + jag);
-    float kD = (dark ? 0.34 : 0.32) * uDeco.x;
+    float inB = 1.0 - smoothstep(front - D * 0.3, front, dx + jag);
+    float kD = (dark ? 0.22 : 0.2) * uDeco.x;
     col = mix(col, uDyeA, body * kD * (1.0 - uDyeMix));
     col = mix(col, uDyeB, body * kD * inB);
   }

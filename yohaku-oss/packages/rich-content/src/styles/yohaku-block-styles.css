@@ -640,21 +640,24 @@
   font-size: var(--text-label-12, 12px);
 }
 
-/* ─── mark ink ──────────────────────────────────────────────────────────────── */
+/* ─── mark · 套色 ───────────────────────────────────────────────────────────── */
 
-/* data-mark-ink is set by useMarkInk once @highlighters/core paints pen-stroke
-   overlays over the highlight spans; the upstream CSS gradient must yield to
-   them. Without JS the attribute never appears and the gradient stays. */
-[data-mark-ink] .rich-text-highlight {
-  background: none;
+/* A flat accent plate printed slightly off register: the band starts late and
+   runs past the last glyph. Padding and margin cancel so text never shifts. */
+.rich-content .rich-text-highlight {
+  --hl-band: color-mix(in oklab, var(--rc-accent) 34%, transparent);
+  padding: 0 0.22em 0 0.04em;
+  margin: 0 -0.22em 0 -0.04em;
+  background: linear-gradient(var(--hl-band), var(--hl-band)) 0.22em 92% /
+    100% 0.56em no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: none;
+  transition: none;
 }
 
-/* The selection overlay mounts as a trailing child of the nearest positioned
-   ancestor. `.rich-quote` is positioned, so the appended node knocks the closing
-   paragraph out of the upstream `:last-child` margin collapse and grows the
-   quote for as long as text stays selected. */
-.rich-quote > .rich-paragraph:nth-last-child(1 of :not([data-highlighters-overlay])) {
-  margin-bottom: 0;
+.rich-content[data-theme='dark'] .rich-text-highlight {
+  --hl-band: color-mix(in oklab, var(--rc-accent) 28%, transparent);
 }
 
 /* ─── link card · poster wash ───────────────────────────────────────────────── */

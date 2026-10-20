@@ -6,6 +6,7 @@ export interface LayerVisibility {
   elem: number
   fiber: number
   foot: number
+  paper: number
   sheet: number
   suki: number
   sunago: number
@@ -29,6 +30,7 @@ const STILL: LayerMotion = { fiber: 0, suki: 0, sunago: 0, bok: 0 }
 export const PAGE_PROFILES: Record<PageState, Profile> = {
   browse: {
     vis: {
+      paper: 1,
       fiber: 1,
       suki: 1,
       sunago: 1,
@@ -43,11 +45,12 @@ export const PAGE_PROFILES: Record<PageState, Profile> = {
   },
   read: {
     vis: {
-      fiber: 1,
-      suki: 0.5,
-      sunago: 1,
+      paper: 0.5,
+      fiber: 0.7,
+      suki: 0.3,
+      sunago: 0.5,
       elem: 0,
-      bok: 1,
+      bok: 0.6,
       dye: 1,
       foot: 1,
       sheet: 1,
@@ -57,11 +60,12 @@ export const PAGE_PROFILES: Record<PageState, Profile> = {
   },
   immersive: {
     vis: {
-      fiber: 0.6,
+      paper: 0.3,
+      fiber: 0.45,
       suki: 0,
       sunago: 0,
       elem: 0,
-      bok: 0.5,
+      bok: 0.35,
       dye: 0.6,
       foot: 0.5,
       sheet: 1,

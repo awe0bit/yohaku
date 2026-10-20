@@ -177,6 +177,16 @@ export const makeElements = (surface: Surface, term: number) => {
   return canvas
 }
 
+export const makeWitherMask = (surface: Surface, from: number, to: number) => {
+  const { canvas, ctx } = canvasFor(surface)
+  const next = layoutElements(surface.width, surface.height, to)
+  const leaving = layoutElements(surface.width, surface.height, from).filter(
+    (item, slot) => item.family !== next[slot]?.family,
+  )
+  paintElements(ctx, leaving, true)
+  return canvas
+}
+
 export interface SeasonalTextures {
   elements: HTMLCanvasElement
   flakes: HTMLCanvasElement

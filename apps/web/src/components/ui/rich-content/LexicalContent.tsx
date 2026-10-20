@@ -13,7 +13,6 @@ import {
   nestedDocExpandHolder,
   REGISTERED_NODE_TYPES,
 } from '@yohaku/rich-content/lexical'
-import { useMarkInk } from '@yohaku/rich-content/src/lexical/portable/ink.ts'
 import { sanitizeEditorState } from '@yohaku/rich-content/src/lexical/sanitize.ts'
 import {
   baseFontVarStyle,
@@ -22,7 +21,7 @@ import {
 import clsx from 'clsx'
 import type { SerializedEditorState } from 'lexical'
 import type { ReactNode } from 'react'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { useIsMobile } from '~/atoms/hooks/viewport'
 import { Paper } from '~/components/layout/container/Paper'
@@ -33,7 +32,6 @@ import { InlineLinkAnchor } from '~/components/ui/link-card/InlineLinkAnchor'
 import { BlockLinkRenderer } from '~/components/ui/markdown/renderers/LinkRenderer'
 import { useModalStack } from '~/components/ui/modal/stacked/provider'
 import { Favicon } from '~/components/ui/rich-link/Favicon'
-import { useSelectionInk } from '~/hooks/common/use-selection-ink'
 import {
   setLastImageClickTarget,
   useWebHost,
@@ -95,7 +93,6 @@ export interface LexicalContentProps {
 interface RichContentBodyProps {
   baseVarStyle: React.CSSProperties
   className?: string
-  content: string
   editorOverrideStyle: React.CSSProperties
   editorState: SerializedEditorState
   pollAdapter: PollDataAdapter
@@ -105,7 +102,6 @@ interface RichContentBodyProps {
 
 function RichContentBody({
   className,
-  content,
   editorState,
   editorOverrideStyle,
   baseVarStyle,
@@ -113,21 +109,15 @@ function RichContentBody({
   theme,
   variant,
 }: RichContentBodyProps) {
-  const inkContainerRef = useRef<HTMLDivElement>(null)
-  useMarkInk(inkContainerRef, content)
-  useSelectionInk(inkContainerRef)
-
   return (
     <PollDataProvider adapter={pollAdapter}>
-      <div ref={inkContainerRef} style={{ display: 'contents' }}>
-        <RichContent
-          className={clsx(className, 'bg-transparent!')}
-          style={{ ...baseVarStyle, ...editorOverrideStyle }}
-          theme={theme}
-          value={editorState}
-          variant={variant}
-        />
-      </div>
+      <RichContent
+        className={clsx(className, 'bg-transparent!')}
+        style={{ ...baseVarStyle, ...editorOverrideStyle }}
+        theme={theme}
+        value={editorState}
+        variant={variant}
+      />
     </PollDataProvider>
   )
 }
@@ -206,7 +196,6 @@ export function LexicalContent({
       <RichContentBody
         baseVarStyle={baseFontVarStyle}
         className={className}
-        content={content}
         editorOverrideStyle={editorOverrideStyle}
         editorState={editorState}
         pollAdapter={pollAdapter}

@@ -293,6 +293,23 @@ const ajisai = (x: Ctx, s: number) => {
   }
 }
 
+const lycoris = (x: Ctx, s: number, r: Rand) => {
+  for (let k = 0; k < 6; k++) {
+    x.save()
+    x.rotate((k * Math.PI) / 3 + (r() - 0.5) * 0.3)
+    x.beginPath()
+    x.ellipse(0, -s * 0.17, s * 0.045, s * 0.17, 0, 0, TAU)
+    x.fill()
+    x.strokeStyle = x.fillStyle
+    x.lineWidth = Math.max(0.5, s * 0.015)
+    x.beginPath()
+    x.moveTo(0, 0)
+    x.quadraticCurveTo(s * 0.12, -s * 0.3, s * 0.06, -s * 0.5)
+    x.stroke()
+    x.restore()
+  }
+}
+
 const snow = (x: Ctx, s: number) => {
   x.strokeStyle = x.fillStyle
   x.lineWidth = Math.max(0.8, s * 0.05)
@@ -340,19 +357,30 @@ const DRAW: Record<ElemType, (x: Ctx, s: number, r: Rand) => void> = {
   'maple:red': maple,
   ginkgo,
   'ginkgo:fallen': ginkgo,
+  'ginkgo:turning': ginkgo,
+  lycoris,
   ajisai,
   snow,
 }
 
-export const paintElements = (x: Ctx, items: ElementPlacement[]) => {
+export const paintElements = (
+  x: Ctx,
+  items: ElementPlacement[],
+  mask = false,
+) => {
   for (const item of items) {
     const colors = ELEM_COLORS[item.type]
     x.save()
     x.translate(item.x, item.y)
     x.rotate(item.rotation)
     if (item.flip) x.scale(-1, 1)
-    x.globalAlpha = item.alpha
-    x.fillStyle = colors[Math.floor(item.colorIndex * colors.length)]
+    x.globalAlpha = mask ? 1 : item.alpha
+    // The wither mask encodes melt vs. wither in red: snow is black, the rest white; drawers' own sub-part colors all keep red above 0.4.
+    x.fillStyle = mask
+      ? item.type === 'snow'
+        ? '#000'
+        : '#fff'
+      : colors[Math.floor(item.colorIndex * colors.length)]
     DRAW[item.type](x, item.size, rng(item.seed ^ 0x9E3779B9))
     x.restore()
   }

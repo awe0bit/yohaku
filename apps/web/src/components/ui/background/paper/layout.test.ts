@@ -17,8 +17,8 @@ describe('layoutElements', () => {
   })
 
   it('keeps a family in place and only recolors it when the variant changes', () => {
-    const before = layoutElements(W, H, 17)
-    const after = layoutElements(W, H, 18)
+    const before = layoutElements(W, H, 18)
+    const after = layoutElements(W, H, 19)
     const turning = before.filter((e) => e.type === 'maple:turning')
     expect(turning.length).toBeGreaterThan(0)
     const recolored = turning.filter((e) => {

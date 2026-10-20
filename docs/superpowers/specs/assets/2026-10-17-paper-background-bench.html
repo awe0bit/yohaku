@@ -1,3 +1,4 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>余白の紙</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -160,6 +161,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
 .swatches button[aria-pressed="true"] { border-color: var(--fg); }
 .accent-chip { display: inline-flex; align-items: center; gap: 8px; font: 12px var(--mono); color: var(--muted); }
 .accent-chip i { width: 16px; height: 16px; border-radius: 4px; background: var(--paper-accent); display: inline-block; }
+.split-tag { position: absolute; top: 64px; left: 0; right: 0; z-index: 3; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; font: 11.5px/1 var(--mono); letter-spacing: 0.08em; color: var(--ink-soft); text-align: center; }
+.strip { display: flex; flex-direction: column; gap: 5px; background: var(--mock-root); padding: 8px; border-radius: 6px; border: 1px solid var(--line); }
+.strip .k { font: 10.5px/1 var(--sans); color: var(--muted); margin-top: 3px; }
+.strip .r { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2px; }
+.strip .r i { height: 20px; border-radius: 2px; cursor: pointer; }
+.strip .r i.on { box-shadow: inset 0 0 0 1.5px var(--fg); }
 
 @media (max-width: 820px) {
   html, body { height: auto; }
@@ -223,12 +230,14 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     <header class="mock-header"><b>Yohaku</b><nav><span class="on">文章</span><span>日记</span><span>思考</span><span>关于</span></nav></header>
     <footer class="mock-footer" id="mockFooter"><span>© 2026 Innei · 页脚示例</span></footer>
     <div class="cap" id="cap"></div>
+    <div class="split-tag" id="splitTag"><span>现状</span><span>建议</span></div>
   </main>
 
   <aside class="panel">
     <header class="ph">
       <h2>余白の紙</h2>
       <p>纸还浮在纸槽里，没有完全定型：纤维轻轻晃，碎屑悬着漂，箔片慢慢翻，顶边的刷痕在流。强度 1.0、速度 3× 是打算上线的值。</p>
+      <p style="margin-top:8px">这一版改了三处：花叶换季改成凋谢出场（节气）、阅读态纸色和纹理一起压淡（页面状态）、小口染め定为随配图的细条（小口染め）。</p>
     </header>
 
     <section class="grp">
@@ -256,6 +265,10 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       </div>
       <label class="chk"><input type="checkbox" id="autoImm" checked> 阅读时鼠标移入正文自动沉浸</label>
       <p class="desc" id="pageDesc"></p>
+      <div class="row"><label for="readK" class="lbl">阅读态纹理浓度</label><span class="val" id="readKLabel"></span></div>
+      <input type="range" id="readK" min="0.3" max="1.5" step="0.05" value="1">
+      <label class="chk"><input type="checkbox" id="readOld"> 换回旧的阅读态数值对比</label>
+      <p class="desc">只作用于阅读和沉浸：纸色、纤维、碎屑、砂子、ぼかし 一起乘这个系数。纸色变淡是往页面底色退，纸的厚薄和时刻光跟着退，颗粒不动。旧值是纸色 100%、纤维 100%、碎屑 50%、砂子 100%、ぼかし 100%。</p>
     </section>
 
     <section class="grp">
@@ -263,7 +276,24 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       <input type="range" id="jq" min="0" max="23" step="1" value="16">
       <div class="row"><span class="meta" id="jqDate"></span><button type="button" class="link" id="jqToday">回到今天</button></div>
       <div class="row"><button type="button" class="link" id="jqNext">▶ 过渡到下一个节气</button><label class="chk"><input type="checkbox" id="jqAuto"> 自动连播</label></div>
+      <div class="row"><button type="button" class="link" id="jqGroup">▶ 跳到下一组花叶</button></div>
+      <div class="seg" role="group" aria-label="花叶出场">
+        <button type="button" data-wither="1" aria-pressed="true">凋谢</button>
+        <button type="button" data-wither="0" aria-pressed="false">淡出（现状）</button>
+      </div>
+      <p class="desc">离场的花叶原地不动：先褪成枯茶色，再从叶缘往里被纤维吃掉，融进纸里。六花不枯，是慢慢化掉。同科叶子仍原地转色。上面的「慢放」也作用于节气过渡，¼ 慢放最容易看清。</p>
       <p class="info" id="jqInfo"></p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">纸色方案</div>
+      <div class="seg" role="group" aria-label="纸色方案">
+        <button type="button" data-paper="split" aria-pressed="true">左右对照</button>
+        <button type="button" data-paper="now" aria-pressed="false">现状</button>
+        <button type="button" data-paper="new" aria-pressed="false">建议</button>
+      </div>
+      <p class="desc">建议（第二版，取现状和上一版建议的中点）：彩度超出 0.006 的部分减半，秋天从 0.013 降到约 0.009；浅色下纸色比页面底色暗约 3%（现状约 4%）。深色只动彩度。左右对照时纸面左半是现状、右半是建议，其它图层两边相同。下面色条点任意一格可跳到那个节气。</p>
+      <div class="strip" id="paperStrip"></div>
     </section>
 
     <section class="grp">
@@ -306,7 +336,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       <label class="layer"><input type="checkbox" id="L_fiber" checked><span><span class="t">楮纤维<em>楮</em></span><span class="d">长短纤维、树皮碎点、纸的厚薄不匀。全年都在，只有纸色随节气变。</span></span></label>
       <label class="layer"><input type="checkbox" id="L_sunago" checked><span><span class="t">砂子<em>すなご</em></span><span class="d">稀疏的金银箔碎，冬密夏疏。</span></span></label>
       <label class="layer"><input type="checkbox" id="L_suki" checked><span><span class="t">漉き込み<em>すきこみ</em></span><span class="d">抄进纸里的极小碎屑，小到认不出是什么。冬天没有。</span></span></label>
-      <label class="layer"><input type="checkbox" id="L_elem" checked><span><span class="t">季节花叶<em>花入り</em></span><span class="d">抄进纸里的整片花瓣和叶子，被纤维压着、半透。梅、樱、紫阳花、青枫、红叶、银杏、六花按节气轮换。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_elem" checked><span><span class="t">季节花叶<em>花入り</em></span><span class="d">抄进纸里的整片花瓣和叶子，被纤维压着、半透。梅、桃、樱、牡丹、紫阳花、荷、石蒜、桂、红叶、银杏、蜡梅、六花，按江南物候随节气轮换。</span></span></label>
       <label class="layer"><input type="checkbox" id="L_bok" checked><span><span class="t">ぼかし<em>一文字</em></span><span class="d">页面顶边一道刷出来的渐层，晨昏最明显。</span></span></label>
     </section>
 
@@ -319,6 +349,12 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     <section class="grp">
       <div class="lbl">小口染め · 配图染色</div>
       <label class="layer"><input type="checkbox" id="L_dye" checked><span><span class="t">小口染め</span><span class="d">替代 AmbientImageSides。在左边纸面上往下滚动文章：哪张配图经过视口中央，左右书口就被它的颜色染上，染料沿纤维往里渗。没有配图在视野里时褪掉，快速滚动时也会淡下去。</span></span></label>
+      <div class="seg" role="group" aria-label="小口染め形态">
+        <button type="button" data-dyeshape="1" aria-pressed="true">A 细条全高</button>
+        <button type="button" data-dyeshape="2" aria-pressed="false">B 随配图 · 选定</button>
+        <button type="button" data-dyeshape="0" aria-pressed="false">旧版</button>
+      </div>
+      <p class="desc" id="dyeShapeDesc"></p>
       <p class="info" id="dyeInfo"></p>
     </section>
 
@@ -386,6 +422,8 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     'maple:red': ['#c4493a', '#d0653a', '#b03a32', '#d9883e'],
     ginkgo: ['#e2bf4e', '#d8ae3a', '#ead07a'],
     'ginkgo:fallen': ['#c79a45', '#b88a3c', '#d2a958'],
+    'ginkgo:turning': ['#b9bf5a', '#cdbf4e', '#a9b55c'],
+    lycoris: ['#c23b3b', '#d04a44', '#b83236'],
     ajisai: ['#9db0d8', '#b3a5d6', '#8aa6cc', '#d3a9c9'],
     snow: ['#a9b6c8', '#bcc7d6'],
   }
@@ -394,7 +432,7 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     pear: [16, 22], pearPetal: [9, 13], peony: [16, 26], wisteria: [9, 13], lotus: [16, 26],
     osmanthus: [8, 13], wintersweet: [13, 18],
     'maple:green': [24, 38], 'maple:turning': [24, 38], 'maple:red': [24, 38],
-    ginkgo: [18, 28], 'ginkgo:fallen': [18, 26], ajisai: [10, 15], snow: [10, 18],
+    ginkgo: [18, 28], 'ginkgo:fallen': [18, 26], 'ginkgo:turning': [18, 28], lycoris: [20, 30], ajisai: [10, 15], snow: [10, 18],
   }
   const ELEM_GROUPS = [
     { at: [0, 1], label: '梅', mix: [['ume', 1], ['roundPetal', 2]] },
@@ -403,15 +441,17 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     { at: [4], label: '梨花，夹几片落樱', mix: [['pearPetal', 3], ['pear', 1.2], ['petal', 0.6]] },
     { at: [5], label: '牡丹与藤', mix: [['peony', 1.4], ['wisteria', 2]] },
     { at: [6], label: '藤与青枫', mix: [['wisteria', 1.5], ['maple:green', 1]] },
-    { at: [7], label: '青枫', mix: [['maple:green', 1]] },
+    { at: [7], label: '青枫，紫阳花初开', mix: [['maple:green', 1], ['ajisai', 0.5]] },
     { at: [8, 9], label: '紫阳花与青枫', mix: [['ajisai', 3], ['maple:green', 0.5]] },
     { at: [10, 11], label: '荷与青枫', mix: [['lotus', 1.4], ['maple:green', 1]] },
     { at: [12, 13], label: '青枫，夹几片落荷', mix: [['maple:green', 1.5], ['lotus', 0.4]] },
-    { at: [14, 15], label: '桂花', mix: [['osmanthus', 1]] },
+    { at: [14], label: '石蒜与青枫', mix: [['lycoris', 1], ['maple:green', 0.8]] },
+    { at: [15], label: '桂花，夹几簇石蒜', mix: [['osmanthus', 1], ['lycoris', 0.3]] },
     { at: [16, 17], label: '落桂与转色的枫', mix: [['osmanthus', 1.2], ['maple:turning', 1]] },
-    { at: [18, 19], label: '红叶与银杏', mix: [['maple:red', 1.2], ['ginkgo', 1]] },
+    { at: [18], label: '转色的枫与初黄的银杏', mix: [['maple:turning', 1.2], ['ginkgo:turning', 1]] },
+    { at: [19], label: '红叶与银杏', mix: [['maple:red', 1.2], ['ginkgo', 1]] },
     { at: [20], label: '落银杏与晚红叶', mix: [['ginkgo:fallen', 1.2], ['maple:red', 0.6]] },
-    { at: [21], label: '六花', mix: [['snow', 1]] },
+    { at: [21], label: '落银杏、残红与初开的蜡梅，偶见六花', mix: [['ginkgo:fallen', 1.2], ['maple:red', 0.4], ['wintersweet', 0.5], ['snow', 0.3]] },
     { at: [22, 23], label: '蜡梅与六花', mix: [['wintersweet', 1.4], ['snow', 1]] },
   ]
   const elemGroup = (i) => ELEM_GROUPS.find((g) => g.at.includes(i))
@@ -460,8 +500,19 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
   }
 
   const seasonOf = (i) => Math.floor(i / 6)
-  function paperColor(i, dark) {
-    const a = dark ? PAPER.dark : PAPER.light
+  const PAPER_CAP = { C: 0.006, dL: 0.02 }
+  let paperNew = null
+  function makePaperNew() {
+    const rootL = rgbToOklab([254 / 255, 254 / 255, 251 / 255])[0]
+    const shape = (rgb, dark) => {
+      const [L, a, b] = rgbToOklab(rgb), C = Math.hypot(a, b), k = (1 + (C > PAPER_CAP.C ? PAPER_CAP.C / C : 1)) / 2
+      return oklabToRgb([dark ? L : (L + rootL - PAPER_CAP.dL) / 2, a * k, b * k])
+    }
+    return { light: PAPER.light.map((c) => shape(c, false)), dark: PAPER.dark.map((c) => shape(c, true)) }
+  }
+  function paperColor(i, dark, plan = 'now') {
+    const src = plan === 'new' ? (paperNew ||= makePaperNew()) : PAPER
+    const a = dark ? src.dark : src.light
     const t = ((i - 3 + 24) % 24) / 6, s = Math.floor(t), f = smooth(t - s)
     return lerpArr(a[s % 4], a[(s + 1) % 4], f)
   }
@@ -685,6 +736,16 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       x.save(); x.fillStyle = '#7a4a3a'; x.beginPath(); x.arc(0, 0, s * 0.11, 0, Math.PI * 2); x.fill(); x.restore()
       return true
     }
+    if (type === 'lycoris') {
+      for (let k = 0; k < 6; k++) {
+        x.save(); x.rotate((k * Math.PI) / 3 + (r() - 0.5) * 0.3)
+        x.beginPath(); x.ellipse(0, -s * 0.17, s * 0.045, s * 0.17, 0, 0, Math.PI * 2); x.fill()
+        x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.5, s * 0.015)
+        x.beginPath(); x.moveTo(0, 0); x.quadraticCurveTo(s * 0.12, -s * 0.3, s * 0.06, -s * 0.5); x.stroke()
+        x.restore()
+      }
+      return true
+    }
     return false
   }
   function drawElem(x, type, s, r) {
@@ -731,10 +792,19 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
     }
   }
   const strHash = (str) => { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0 }
-  function makeElems(W, H, dpr, i) {
+  const elemType = (group, k) => {
+    let type = group.mix[0][0], best = -1
+    for (const [t, w] of group.mix) {
+      const score = Math.pow(rng(strHash(t) ^ Math.imul(k + 1, 2654435761))(), 1 / w)
+      if (score > best) { best = score; type = t }
+    }
+    return type
+  }
+  function makeElems(W, H, dpr, i, leaveTo) {
     const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
     x.setTransform(dpr, 0, 0, dpr, 0, 0)
     const group = elemGroup(i), r = rng(211)
+    const next = leaveTo === undefined ? null : elemGroup(leaveTo)
     const n = Math.round((W * H) / 40000), placed = []
     for (let tries = 0; placed.length < n && tries < n * 20; tries++) {
       const px = r() * W, py = r() * H
@@ -742,17 +812,16 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); ou
       placed.push([px, py])
     }
     placed.forEach(([px, py], k) => {
-      let type = group.mix[0][0], best = -1
-      for (const [t, w] of group.mix) {
-        const score = Math.pow(rng(strHash(t) ^ Math.imul(k + 1, 2654435761))(), 1 / w)
-        if (score > best) { best = score; type = t }
-      }
+      const type = elemType(group, k)
       const family = type.split(':')[0], g = rng(strHash(family) + k * 7919)
+      if (next && elemType(next, k).split(':')[0] === family) return
       const [s0, s1] = ELEM_SIZE[type], colors = ELEM_COLORS[type]
       x.save(); x.translate(px + (g() - 0.5) * 50, py + (g() - 0.5) * 50); x.rotate(g() * Math.PI * 2)
       if (g() < 0.5) x.scale(-1, 1)
       x.globalAlpha = 0.82 + g() * 0.15
       x.fillStyle = colors[Math.floor(g() * colors.length)]
+      // The mask encodes melt vs. wither in red (snow black, others white); drawElem's own sub-part colors all keep red above 0.4.
+      if (next) { x.globalAlpha = 1; x.fillStyle = type === 'snow' ? '#000' : '#fff' }
       drawElem(x, type, s0 + g() * (s1 - s0), g)
       x.restore()
     })
@@ -772,6 +841,7 @@ uniform vec2 uSrc; uniform float uRadius; uniform vec3 uLC; uniform float uGold;
 uniform sampler2D tFiber; uniform sampler2D tFlake; uniform sampler2D tSuki; uniform sampler2D tElem;
 uniform vec4 uRip[4]; uniform float uClick; uniform sampler2D tSeal;
 uniform vec3 uRoot; uniform vec4 uIn; uniform vec4 uIn2; uniform vec2 uLeaf;
+uniform sampler2D tWither; uniform float uWither; uniform vec3 uDyeShape; uniform float uPaperK; uniform vec3 uPaperB; uniform float uSplit;
 
 float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
 float vnoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);
@@ -872,6 +942,26 @@ vec3 tone(vec4 t, bool dark, float desat, float darkMul){
   vec3 r = t.rgb / max(t.a, 0.001);
   return dark ? r * darkMul : mix(r, vec3(dot(r, vec3(0.299, 0.587, 0.114))), desat);
 }
+vec4 wither(vec2 css, vec2 euv, vec2 size, float a0, vec3 base, float f, float p, bool melt, bool dark){
+  float lum = dot(base, vec3(0.299, 0.587, 0.114));
+  float dc = smoothstep(0.0, 0.45, p);
+  if (melt) {
+    return vec4(mix(base, vec3(lum), dc * 0.5), a0 * (1.0 - smoothstep(0.05, 0.85, p)));
+  }
+  vec3 dry = dark ? vec3(0.46, 0.36, 0.27) : vec3(0.60, 0.47, 0.34);
+  vec3 dried = mix(vec3(lum), dry, 0.65) * (dark ? 1.0 : 0.94);
+  float er = smoothstep(0.35, 1.0, p);
+  float R = er * 7.0 * (0.6 + 0.8 * vnoise(css / 6.0 + 1.9));
+  float a = a0;
+  for (int i = 0; i < 8; i++) {
+    float ang = float(i) * 0.7854;
+    a = min(a, texture2D(tElem, euv + vec2(cos(ang), sin(ang)) * R / size).a);
+  }
+  float n = 0.08 + 0.92 * clamp(vnoise(css / 2.5 + 4.1) * 0.7 + 0.3 - abs(f) * 1.2, 0.0, 1.0);
+  a *= smoothstep(er * 1.05 - 0.06, er * 1.05 + 0.06, n);
+  a *= 1.0 - smoothstep(0.85, 1.0, p);
+  return vec4(mix(base, dried, dc), a);
+}
 vec3 flakeLayer(vec3 col, vec4 fl, float w, float gold, bool dark, float mask, float ang, float spinOff, float g){
   float a = fl.a * uLayers.y * w;
   vec3 leaf = dark ? mix(vec3(0.42, 0.42, 0.43), vec3(0.50, 0.40, 0.22), gold)
@@ -894,8 +984,9 @@ void main(){
   float g = uGain;
   bool dark = uDark > 0.5;
   float wk = uv.y * 0.55 + (fbm(css / 140.0 + 2.1) - 0.5) * 0.5 + 0.15;
-  vec3 col = mix(uRoot, uPaper, wash(uIn.x, wk));
-  col *= 1.0 + (fbm(css / 220.0) - 0.5) * 0.07 * g * uIn.y;
+  vec3 paper = uSplit > 0.0 && css.x > uSplit ? uPaperB : uPaper;
+  vec3 col = mix(uRoot, mix(uRoot, paper, uPaperK), wash(uIn.x, wk));
+  col *= 1.0 + (fbm(css / 220.0) - 0.5) * 0.07 * g * uIn.y * uPaperK;
 
   vec2 ld = (uSrc - uv) * uRes;
   vec2 ldir = ld / max(length(ld), 0.001);
@@ -952,14 +1043,24 @@ void main(){
   vec4 elB = texture2D(tElemB, euv);
   float occ = 1.0 - clamp(abs(f) * 1.5, 0.0, 0.45);
   float kE = uLayers.w * occ * (dark ? 0.4 : 0.45) * min(g, 1.6) * (1.0 - avoid) * aE;
-  col = mix(col, tone(el, dark, 0.2, 0.85), el.a * kE * (1.0 - ms));
+  vec3 oc = tone(el, dark, 0.2, 0.85);
+  float oa = el.a * (1.0 - ms);
+  if (uWither > 0.5 && uMix > 0.0001) {
+    vec4 wm = texture2D(tWither, euv);
+    if (wm.a > 0.01) {
+      vec4 w = wither(css, euv, size, el.a, oc, f, ms, wm.r / wm.a < 0.3, dark);
+      oc = mix(oc, w.rgb, wm.a);
+      oa = mix(oa, w.a, wm.a);
+    }
+  }
+  col = mix(col, oc, oa * kE);
   col = mix(col, tone(elB, dark, 0.2, 0.85), elB.a * kE * ms);
 
   col += f * (dark ? 0.22 : 0.24) * uLayers.x * g * aF;
   col += rp.z * 0.025 * g;
   if (uClick > 3.5) col = mix(col, dark ? vec3(0.74, 0.33, 0.27) : vec3(0.70, 0.25, 0.20), sealInk(css) * occ * (dark ? 0.42 : 0.5));
 
-  col += uLC * mask * (dark ? 0.03 : 0.014) * uIn.y;
+  col += uLC * mask * (dark ? 0.03 : 0.014) * uIn.y * uPaperK;
 
   vec2 dA = drift(css, 320.0, uT * 0.06, vec2(11.3, 4.2)) * 10.0 * uMotion.z;
   float fIn = arrive(uIn2.x, css, 8.7);
@@ -971,14 +1072,20 @@ void main(){
   col = flakeLayer(col, texture2D(tFlakeB, fuv), ms * (1.0 - avoid), uGoldB, dark, mask, ang, rp.w, g);
 
   if (uDeco.x > 0.001) {
-    float D = clamp(size.x * 0.18, 140.0, 300.0);
+    bool legacy = uDyeShape.x < 0.5;
+    float D = legacy ? clamp(size.x * 0.18, 140.0, 300.0) : clamp(size.x * 0.025, 20.0, 32.0);
     float dx = min(css.x, size.x - css.x);
-    float jag = (fbm(css / 40.0 + 3.3) - 0.5) * D * 0.5;
+    float jag = (fbm(css / (legacy ? 40.0 : 16.0) + 3.3) - 0.5) * D * 0.5;
     float wick = 1.0 - smoothstep(0.0, D * max(uIn2.z, 0.02), dx + jag * uIn2.z);
     float body = pow(wick, 1.5) * (0.5 + 0.5 * clamp(abs(f) * 5.0 + sk.a, 0.0, 1.0));
+    if (uDyeShape.x > 1.5) {
+      float outside = max(uDyeShape.y - css.y, css.y - uDyeShape.z);
+      body *= 1.0 - smoothstep(0.0, 90.0, outside + (fbm(css / 30.0 + 6.1) - 0.5) * 40.0);
+    }
     float front = uDyeMix * D * 1.25;
-    float inB = 1.0 - smoothstep(front - 30.0, front, dx + jag);
-    float kD = (dark ? 0.34 : 0.32) * uDeco.x * g;
+    float soft = min(30.0, D * 0.3);
+    float inB = 1.0 - smoothstep(front - soft, front, dx + jag);
+    float kD = (legacy ? (dark ? 0.34 : 0.32) : (dark ? 0.22 : 0.2)) * uDeco.x * g;
     col = mix(col, uDyeA, body * kD * (1.0 - uDyeMix));
     col = mix(col, uDyeB, body * kD * inB);
   }
@@ -1009,6 +1116,7 @@ void main(){
   }
 
   col += (hash(px + 0.37) - 0.5) * 0.03 * g * uIn.y;
+  if (uSplit > 0.0) col = mix(col, dark ? vec3(1.0) : vec3(0.0), (1.0 - smoothstep(0.0, 0.8, abs(css.x - uSplit))) * 0.14);
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`
 
@@ -1027,9 +1135,9 @@ void main(){
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
   const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
   const U = {}
-  for (const n of ['uRes', 'uDpr', 'uT', 'uPaper', 'uDark', 'uGain', 'uLayers', 'uMotion', 'uBok', 'uGlint', 'uSpinT', 'uBokT', 'uSrc', 'uRadius', 'uLC', 'uGold', 'uRip', 'uClick', 'tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB', 'uMix', 'uGoldB', 'uAccent', 'uDyeA', 'uDyeB', 'uDyeMix', 'uDeco', 'uSheet', 'uRule', 'uFootAmt', 'uRoot', 'uIn', 'uIn2', 'uLeaf']) U[n] = gl.getUniformLocation(prog, n)
+  for (const n of ['uRes', 'uDpr', 'uT', 'uPaper', 'uDark', 'uGain', 'uLayers', 'uMotion', 'uBok', 'uGlint', 'uSpinT', 'uBokT', 'uSrc', 'uRadius', 'uLC', 'uGold', 'uRip', 'uClick', 'tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB', 'uMix', 'uGoldB', 'uAccent', 'uDyeA', 'uDyeB', 'uDyeMix', 'uDeco', 'uSheet', 'uRule', 'uFootAmt', 'uRoot', 'uIn', 'uIn2', 'uLeaf', 'tWither', 'uWither', 'uDyeShape', 'uPaperK', 'uPaperB', 'uSplit']) U[n] = gl.getUniformLocation(prog, n)
   const TEX = {}
-  ;['tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB'].forEach((n, unit) => {
+  ;['tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB', 'tWither'].forEach((n, unit) => {
     const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
@@ -1058,7 +1166,7 @@ void main(){
     }
     return c
   }
-  const GROUP_ACCENT = ['#b5536b', '#c25a77', '#b56a7f', '#7c8f5c', '#8463ad', '#7a68a8', '#5b8a55', '#5f74b0', '#b85f7c', '#5f8a5a', '#c0852a', '#b56a35', '#b4452f', '#a87b34', '#5f7690', '#b08a2a']
+  const GROUP_ACCENT = ['#b5536b', '#c25a77', '#b56a7f', '#7c8f5c', '#8463ad', '#7a68a8', '#5b8a55', '#5f74b0', '#b85f7c', '#5f8a5a', '#b8434a', '#c0852a', '#b56a35', '#b07a3a', '#b4452f', '#a87b34', '#a07a3c', '#b08a2a']
   const FIXED_ACCENT = '#3f7f8f'
   const DYES = [['青瓦', '#5d7a8c'], ['柿色', '#c47a3c'], ['苔绿', '#6d8a4f'], ['藤紫', '#8a6fae']]
   const toLin = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
@@ -1086,16 +1194,24 @@ void main(){
   const PAGE = {
     browse: {
       name: '浏览', desc: '首页、列表等。所有图层都在，花叶、碎屑、砂子都在动，点击按压。',
-      vis: { fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1, click: true,
+      vis: { paper: 1, fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1, click: true,
     },
     read: {
-      name: '阅读', desc: '文章、页面、日记。花叶隐藏，碎屑压到一半，砂子不再闪，所有微动停下。点击仍是按压。',
-      vis: { fiber: 1, suki: 0.5, sunago: 1, elem: 0, bok: 1, dye: 1, foot: 1, rule: 1, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
+      name: '阅读', desc: '文章、页面、日记。花叶隐藏，纸色往页面底色退一半，纹理整体压淡（系数 1.0× 时）：纤维 70%、碎屑 30%、砂子 50% 且不闪、ぼかし 60%，所有微动停下。点击仍是按压。',
+      vis: { paper: 0.5, fiber: 0.7, suki: 0.3, sunago: 0.5, elem: 0, bok: 0.6, dye: 1, foot: 1, rule: 1, sheet: 1 },
+      visOld: { paper: 1, fiber: 1, suki: 0.5, sunago: 1, elem: 0, bok: 1, dye: 1, foot: 1, rule: 1, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
     },
     immersive: {
-      name: '沉浸', desc: '鼠标停在正文里（只有文章和页面）。只剩纸色、颗粒，以及压淡的纤维和ぼかし。点击仍是按压。',
-      vis: { fiber: 0.6, suki: 0, sunago: 0, elem: 0, bok: 0.5, dye: 0.6, foot: 0.5, rule: 0, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
+      name: '沉浸', desc: '鼠标停在正文里（只有文章和页面）。纸色只留 30%，此外只剩颗粒，以及更淡的纤维（45%）和ぼかし（35%）。点击仍是按压。',
+      vis: { paper: 0.3, fiber: 0.45, suki: 0, sunago: 0, elem: 0, bok: 0.35, dye: 0.6, foot: 0.5, rule: 0, sheet: 1 },
+      visOld: { paper: 1, fiber: 0.6, suki: 0, sunago: 0, elem: 0, bok: 0.5, dye: 0.6, foot: 0.5, rule: 0, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
     },
+  }
+  const READ_SCALED = new Set(['paper', 'fiber', 'suki', 'sunago', 'bok'])
+  const DYE_SHAPE_DESC = {
+    1: 'A：书口只染约 20–32px 宽的一条，贴着左右边缘，从上到下都有；位置固定，滚动时只有颜色在变。浓度比旧版低约 40%。',
+    2: 'B：同样的细条，但只染在当前配图的上下范围里（上下再各晕开约 90px），跟着配图一起滚走。',
+    0: '旧版：140–300px 宽、整屏高，留作对照。',
   }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)')
   const mqDark = matchMedia('(prefers-color-scheme: dark)')
@@ -1104,14 +1220,15 @@ void main(){
   const state = {
     jq: todayIndex(now), hour: now.getHours() + Math.round(now.getMinutes() / 15) / 4,
     follow: false, pointer: null, light: null, gain: 1, speed: 3, themeSet: 'system', T: 0,
-    layers: { fiber: true, sunago: true, suki: true, bok: true, elem: true, dye: true, foot: true, rule: false, sheet: true },
+    layers: { paper: true, fiber: true, sunago: true, suki: true, bok: true, elem: true, dye: true, foot: true, rule: false, sheet: true },
     accentDrive: true, dye: 0, dyePrev: 0, dyeStart: -1e9, dyeFrom: null, dyeTo: null, cand: -1, candSince: 0, dyeAmp: 0, dyeGate: 1, dyeVel: 0, lastScroll: 0,
     motion: { fiber: true, suki: true, sunago: true, bok: true },
     click: 'press',
     W: 0, H: 0, dpr: 1, ripples: [],
     trans: null, mix: 0, jqAuto: false, autoNext: 0, hrPlay: false, lastSync: 0,
+    wither: true, dyeShape: 2, paperPlan: 'split', readK: 1, readOld: false,
     page: 'browse', autoImm: true, hoverText: false, spinT: 0, bokT: 0,
-    anim: { vis: { fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1 },
+    anim: { vis: { paper: 1, fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1 },
   }
   let dirty = true
 
@@ -1219,18 +1336,21 @@ void main(){
     if (state.trans) commitTransition()
     const c = seasonalCanvases(to)
     upload('tFlakeB', c.flake); upload('tSukiB', c.suki); upload('tElemB', c.elem)
+    upload('tWither', makeElems(state.W, state.H, state.dpr, state.jq, to))
     state.trans = { to, start: performance.now(), c }
     syncUI()
   }
   function commitTransition() {
     const { to, c } = state.trans
     upload('tFlake', c.flake); upload('tSuki', c.suki); upload('tElem', c.elem)
+    upload('tWither', EMPTY)
     state.jq = to; state.trans = null; state.mix = 0; dirty = true
     syncUI()
   }
   function regenSeasonal() {
     if (!state.W) return
     state.trans = null; state.mix = 0
+    upload('tWither', EMPTY)
     upload('tFlake', makeFlakes(state.W, state.H, state.dpr, state.jq))
     upload('tSuki', makeSuki(state.W, state.H, state.dpr, state.jq))
     upload('tElem', makeElems(state.W, state.H, state.dpr, state.jq))
@@ -1244,6 +1364,8 @@ void main(){
     upload('tFiber', makeFibers(state.W, state.H, state.dpr))
     regenSeasonal()
   }
+  const EMPTY = makeCanvas(1, 1, 1)
+  upload('tWither', EMPTY)
   upload('tSeal', makeSeal())
   if (document.fonts) document.fonts.load('600 46px "Noto Serif SC"', '余白').then(() => upload('tSeal', makeSeal())).catch(() => {})
   let rT = 0
@@ -1261,7 +1383,10 @@ void main(){
     gl.uniform2f(U.uRes, canvas.width, canvas.height); gl.uniform1f(U.uDpr, state.dpr)
     gl.uniform1f(U.uT, state.T)
     const toJq = state.trans ? state.trans.to : state.jq
-    gl.uniform3fv(U.uPaper, lerpArr(paperColor(state.jq, dark), paperColor(toJq, dark), state.mix))
+    const planA = state.paperPlan === 'new' ? 'new' : 'now'
+    gl.uniform3fv(U.uPaper, lerpArr(paperColor(state.jq, dark, planA), paperColor(toJq, dark, planA), state.mix))
+    gl.uniform3fv(U.uPaperB, lerpArr(paperColor(state.jq, dark, 'new'), paperColor(toJq, dark, 'new'), state.mix))
+    gl.uniform1f(U.uSplit, state.paperPlan === 'split' ? state.W / 2 : -1)
     const accLab = state.accentDrive
       ? lerpArr(accentLab(state.jq, dark), accentLab(toJq, dark), state.mix)
       : rgbToOklab(hexRgb(FIXED_ACCENT))
@@ -1297,6 +1422,14 @@ void main(){
     gl.uniform2fv(U.uSrc, src); gl.uniform1f(U.uRadius, radius)
     gl.uniform3fv(U.uLC, dark ? L.color.map((v) => v * 0.9) : L.color)
     gl.uniform1f(U.uGold, goldness(state.jq))
+    gl.uniform1f(U.uWither, state.wither ? 1 : 0)
+    gl.uniform1f(U.uPaperK, av.paper)
+    let band = [0, 0]
+    if (state.dyeShape === 2) {
+      const fr = $('fig' + state.dye).getBoundingClientRect()
+      band = [fr.top - sr.top, fr.bottom - sr.top]
+    }
+    gl.uniform3f(U.uDyeShape, state.dyeShape, band[0], band[1])
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 
@@ -1307,7 +1440,7 @@ void main(){
     last = t
     if (!reduce.matches) state.T += dt * state.speed
     if (state.trans) {
-      const m = Math.min(1, (t - state.trans.start) / 10000)
+      const m = Math.min(1, (t - state.trans.start) / (10000 / pres.slow))
       state.mix = reduce.matches ? 1 : smooth(m)
       dirty = true
       if (m >= 1 || reduce.matches) commitTransition()
@@ -1349,8 +1482,10 @@ void main(){
     const prof = PAGE[effectivePage()]
     const k = reduce.matches ? 1 : 1 - Math.exp(-dt / 0.2)
     let moving = false
+    const pvis = state.readOld && prof.visOld ? prof.visOld : prof.vis
     for (const key of Object.keys(state.anim.vis)) {
-      const target = prof.vis[key] * (state.layers[key] ? 1 : 0)
+      const scale = prof.visOld && !state.readOld && READ_SCALED.has(key) ? state.readK : 1
+      const target = Math.min(1, pvis[key] * scale) * (state.layers[key] ? 1 : 0)
       const d = target - state.anim.vis[key]
       if (Math.abs(d) > 0.001) { state.anim.vis[key] += d * k; moving = true } else state.anim.vis[key] = target
     }
@@ -1421,7 +1556,7 @@ void main(){
     $('jqLabel').textContent = state.trans ? `${name} → ${JIEQI[state.trans.to][0]}` : `${name} · ${SEASON_NAME[season]}`
     $('jqDate').textContent = `${m} 月 ${d} 日起`
     $('jqInfo').innerHTML = [
-      `纸色 ${toHex(paperColor(state.jq, isDark()))}`,
+      `纸色 ${toHex(paperColor(state.jq, isDark()))} → 建议 ${toHex(paperColor(state.jq, isDark(), 'new'))}`,
       `砂子 ${dens < 0.7 ? '疏' : dens < 1.3 ? '中' : '密'} · ${gold > 0.5 ? '金' : '银'}`,
       `漉き込み ${SUKI[season].label}`,
       `花叶 ${elemGroup(state.jq).label}`,
@@ -1431,6 +1566,15 @@ void main(){
     $('cap').textContent = `${name} · ${m}月${d}日起 · ${fmtHour(state.hour)} ${hourWord(state.hour)} · 动态 ${reduce.matches ? '已按系统设置暂停' : state.speed + '×'}${state.follow ? ' · 光随鼠标' : ''} · ${PAGE[ep].name}${ep !== state.page ? '（自动）' : ''} · 点击 ${PAGE[ep].click ? CLICK_NAME[state.click] : '关'}`
     document.querySelectorAll('[data-speed]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.speed === state.speed)))
     document.querySelectorAll('[data-th]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.th === state.themeSet)))
+    document.querySelectorAll('[data-wither]').forEach((b) => b.setAttribute('aria-pressed', String(!!+b.dataset.wither === state.wither)))
+    document.querySelectorAll('[data-dyeshape]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.dyeshape === state.dyeShape)))
+    $('dyeShapeDesc').textContent = DYE_SHAPE_DESC[state.dyeShape]
+    document.querySelectorAll('[data-paper]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.paper === state.paperPlan)))
+    $('splitTag').hidden = state.paperPlan !== 'split'
+    const dk = isDark(), cell = (plan) => JIEQI.map(([n], k) => `<i data-i="${k}" title="${n} ${toHex(paperColor(k, dk, plan))}" class="${k === state.jq ? 'on' : ''}" style="background:${toHex(paperColor(k, dk, plan))}"></i>`).join('')
+    $('paperStrip').innerHTML = `<span class="k">现状（立春 → 大寒）</span><div class="r">${cell('now')}</div><span class="k">建议</span><div class="r">${cell('new')}</div>`
+    $('readKLabel').textContent = state.readOld ? '旧值' : `${state.readK.toFixed(2)}×${Math.abs(state.readK - 1) < 0.01 ? ' 推荐' : ''}`
+    $('readK').disabled = state.readOld
     $('jq').value = state.jq; $('hr').value = Math.round(state.hour * 4) / 4; $('gain').value = state.gain
   }
 
@@ -1443,6 +1587,22 @@ void main(){
   }))
   $('jq').addEventListener('input', (e) => { state.jq = +e.target.value; regenSeasonal(); syncUI() })
   $('jqNext').addEventListener('click', () => startTransition((state.jq + 1) % 24))
+  document.querySelectorAll('[data-paper]').forEach((b) => b.addEventListener('click', () => { state.paperPlan = b.dataset.paper; dirty = true; syncUI() }))
+  $('paperStrip').addEventListener('click', (e) => {
+    const i = e.target.dataset?.i
+    if (i === undefined) return
+    state.jq = +i; regenSeasonal(); syncUI()
+  })
+  $('jqGroup').addEventListener('click', () => {
+    const from = state.trans ? state.trans.to : state.jq, gi = groupIndex(from)
+    let j = (from + 1) % 24
+    while (groupIndex(j) === gi) j = (j + 1) % 24
+    startTransition(j)
+  })
+  document.querySelectorAll('[data-wither]').forEach((b) => b.addEventListener('click', () => { state.wither = !!+b.dataset.wither; dirty = true; syncUI() }))
+  document.querySelectorAll('[data-dyeshape]').forEach((b) => b.addEventListener('click', () => { state.dyeShape = +b.dataset.dyeshape; dirty = true; syncUI() }))
+  $('readK').addEventListener('input', (e) => { state.readK = +e.target.value; syncUI() })
+  $('readOld').addEventListener('change', (e) => { state.readOld = e.target.checked; syncUI() })
   $('jqAuto').addEventListener('change', (e) => { state.jqAuto = e.target.checked; state.autoNext = 0 })
   $('hrPlay').addEventListener('change', (e) => { state.hrPlay = e.target.checked })
   $('jqToday').addEventListener('click', () => { state.jq = todayIndex(); regenSeasonal(); syncUI() })
@@ -1525,3 +1685,5 @@ void main(){
   syncDeco()
 })()
 </script>
+
+</body></html>

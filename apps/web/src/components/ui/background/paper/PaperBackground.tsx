@@ -7,7 +7,7 @@ import { lightAt, localHour } from '~/lib/paper/light'
 import { labToRgb } from '~/lib/paper/oklab'
 
 import { createDye, dyeProgress, stepDye } from './dye'
-import { dyeInput } from './dye-input'
+import { dyeBands, dyeInput } from './dye-input'
 import { createPressTracker, createSheetTracker } from './inputs'
 import type { PageState } from './page-state'
 import {
@@ -110,6 +110,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
     const presses = createPressTracker()
     const sheets = createSheetTracker()
     const dye = createDye()
+    let dyeBand: [number, number] = [0, 0]
     let profile = PAGE_PROFILES[propsRef.current.page]
     let t = 0
     let spinT = 0
@@ -159,6 +160,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
       const rects = sheets.read(nowMs)
       const dyeAmount = dye.amp * dye.gate
       const dyeMix = dyeProgress(dye, now)
+      dyeBand = (dye.key && dyeBands.get(dye.key)) || dyeBand
       const key = [
         theme,
         canvas.width,
@@ -168,6 +170,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
         light.src[1].toFixed(3),
         dyeAmount.toFixed(3),
         dyeMix.toFixed(3),
+        ...dyeBand.map(Math.round),
         ...rects.flatMap((r) =>
           [r.left, r.top, r.right, r.bottom].map(Math.round),
         ),
@@ -195,6 +198,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
           sheets: rects,
           dye: {
             amount: dyeAmount,
+            band: dyeBand,
             from: labToRgb(dye.from[theme]),
             to: labToRgb(dye.to[theme]),
             mix: dyeMix,

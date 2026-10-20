@@ -115,13 +115,6 @@ a {
   }
 }
 
-/* @highlighters/core mounts its selection overlay as a trailing child of the
-   nearest positioned ancestor, which would knock the closing paragraph out of
-   `:last-child` and reflow the sheet for as long as text stays selected. */
-.prose p:nth-last-child(1 of :not([data-highlighters-overlay])) {
-  margin-bottom: 0;
-}
-
 .prose
   :where(blockquote):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
   @apply relative border-0;

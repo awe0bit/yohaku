@@ -87,6 +87,11 @@ including its `@media print` rule) is never activated (no code adds the
 
 - Paper color: four anchors (light / dark) at 春分, 夏至, 秋分, 冬至,
   smoothstep-interpolated across the 24 terms (`PAPER`, `paperColor`).
+  Revised 2026-10-19 because autumn read too warm and the whole sheet too
+  deep: the anchors are the midpoint between the original values and a
+  "chroma ≤ 0.006, 2% below the root background" target. Chroma above 0.006
+  is halved (秋分 0.013 → ~0.009) and light paper sits ~3% below the root
+  background (was 4%); dark anchors only lose chroma.
 - Sunago density peaks at 冬至 and is sparsest at 夏至 (`sunagoDensity`);
   gold ratio peaks at 霜降, silver near 清明 (`goldness`).
 - Suki per season (`SUKI`, `sukiDensity`).
@@ -100,15 +105,17 @@ including its `@media print` rule) is never activated (no code adds the
 | 清明 | 梨花 + a few fallen cherry petals |
 | 谷雨 | 牡丹 petals + 藤 |
 | 立夏 | 藤 + green maple |
-| 小满 | green maple |
+| 小满 | green maple + a few early 紫阳花 |
 | 芒种, 夏至 | 紫阳花 + green maple |
 | 小暑, 大暑 | 荷 petals + green maple |
 | 立秋, 处暑 | green maple + a few lotus petals |
-| 白露, 秋分 | 桂花 (osmanthus clusters) |
+| 白露 | 石蒜 (red spider lily) + green maple |
+| 秋分 | 桂花 (osmanthus clusters) + a few 石蒜 |
 | 寒露, 霜降 | fallen osmanthus + turning maple |
-| 立冬, 小雪 | red maple + ginkgo |
+| 立冬 | turning maple + turning (green-yellow) ginkgo |
+| 小雪 | red maple + ginkgo |
 | 大雪 | fallen ginkgo + late red maple |
-| 冬至 | 六花 (snow crystals) |
+| 冬至 | fallen ginkgo + last red maple + early 蜡梅, an occasional 六花 |
 | 小寒, 大寒 | 蜡梅 (wintersweet) + 六花 |
 
 Shapes and palettes are in `ELEM_COLORS`, `ELEM_SIZE`, and the `draw*`
@@ -149,10 +156,13 @@ the image: light L 0.62, dark L 0.46, C 0.075); the dye fades when no figure
 is in view and when scrolling fast.
 
 New look (bench `uDeco.x` block): the left and right viewport edges are dyed
-like a book's fore-edge. Depth `clamp(width*0.18, 140, 300)` px; the wicking
-front is ragged (`fbm(css/40)`, ±25% of depth); amount `wick^1.5 *
-(0.5 + 0.5*fiberness)` × 0.32 (light) / 0.34 (dark), so it soaks along fibers
-and fragments. A color change re-dyes from the edge inward over 3 s
+like a book's fore-edge, as a thin strip only beside the current figure
+(revised 2026-10-19: the old 140–300 px full-height band distracted while
+reading). Depth `clamp(width*0.025, 20, 32)` px; the wicking front is ragged
+(`fbm(css/16)`, ±25% of depth); vertically the dye covers the figure's
+top–bottom and feathers out over ~90 px with a ragged edge (`uDyeBand`, fed
+per figure by `dyeBands`); amount `wick^1.5 * (0.5 + 0.5*fiberness)` × 0.2
+(light) / 0.22 (dark), so it soaks along fibers and fragments. A color change re-dyes from the edge inward over 3 s
 (`uDyeMix`, new color inside a moving front, old color fading).
 
 Timing (approved after tuning; do not shorten):
@@ -203,8 +213,13 @@ the transition continuous. No user control.
   - Elements live on one stable pool of positions (fixed seed, Poisson
     spacing 90 px). Each position picks its type for the current term with
     weighted rendezvous hashing over the group's mix, so a type that
-    continues keeps its positions; only positions whose type changes fade
-    out / in. Geometry (jitter, rotation, flip, size, alpha, color index) is
+    continues keeps its positions; only positions whose family changes
+    leave / arrive. Arrivals fade in. Leavers wither in place instead of
+    fading (`makeWitherMask` → `tWither`, `wither` in the shader): over the
+    first 45% of the local progress they dry toward 枯茶, then the leaf edge
+    erodes inward (8-tap min of the old alpha, ragged radius up to ~7 px) and
+    fibers eat holes through it until it is gone. Snow does not wither; it
+    melts (desaturates and fades). Geometry (jitter, rotation, flip, size, alpha, color index) is
     seeded by position + family (`maple`, `ginkgo`, …), so a leaf of the same
     family turns color in place (green → turning → red maple, ginkgo →
     fallen ginkgo), and a different family appears up to ±25 px away rather
@@ -263,13 +278,14 @@ Derived from existing atoms in `apps/web/src/atoms/reading.ts`:
 
 | Layer | browse | read | immersive |
 |---|---|---|---|
-| Paper base, thickness, grain | on | on | on |
-| Fibers | on, moving | on, still | 60%, still |
-| Suki | on, moving | 50%, still | hidden |
-| Sunago | on, glinting, moving | on, no glint, still | hidden |
+| Paper color (toward root background) | 100% | 50% | 30% |
+| Thickness, time-of-day light | follow paper color | follow paper color | follow paper color |
+| Grain | on | on | on |
+| Fibers | on, moving | 70%, still | 45%, still |
+| Suki | on, moving | 30%, still | hidden |
+| Sunago | on, glinting, moving | 50%, no glint, still | hidden |
 | Elements | on, moving | hidden | hidden |
-| Bokashi | on, flowing | on, still | 50%, still |
-| Time-of-day light | on | on | on |
+| Bokashi | on, flowing | 60%, still | 35%, still |
 | Press click | on | on | on |
 | 小口染め | where figures exist | on | 60% |
 | Footer 地ぼかし | on | on | 50% |

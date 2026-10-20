@@ -12,7 +12,12 @@ import { useLexicalImageList } from '~/providers/article/LexicalImageRecordProvi
 import { useMarkdownImageList } from '~/providers/article/MarkdownImageRecordProvider'
 
 import type { LabPair } from './dye'
-import { dyeInput, PAPER_DYE_SCOPE_CLASS, resetDyeInput } from './dye-input'
+import {
+  dyeBands,
+  dyeInput,
+  PAPER_DYE_SCOPE_CLASS,
+  resetDyeInput,
+} from './dye-input'
 import { pickFigure } from './figure-pick'
 
 const FIGURE_REFRESH_MS = 500
@@ -95,10 +100,12 @@ export const PaperDyeSource: FC = () => {
       lastY = y
       lastAt = now
       if (!refresh && velocity === 0 && dyeInput.velocity === 0) return
-      const { index, weight } = pickFigure(
-        figures.map((f) => f.el.getBoundingClientRect()),
-        window.innerHeight,
+      const rects = figures.map((f) => f.el.getBoundingClientRect())
+      dyeBands.clear()
+      rects.forEach((r, i) =>
+        dyeBands.set(String(figures[i].image), [r.top, r.bottom]),
       )
+      const { index, weight } = pickFigure(rects, window.innerHeight)
       const known = index >= 0
       const image = known ? figures[index].image : -1
       dyeInput.key = known ? String(image) : null

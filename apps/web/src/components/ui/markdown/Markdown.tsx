@@ -20,7 +20,6 @@ import { CodeBlockRender } from '~/components/modules/shared/CodeBlock'
 import { FloatPopover } from '~/components/ui/float-popover'
 import { MAIN_CONTENT_ID } from '~/constants/dom-id'
 import { useHashAnchorScroll } from '~/hooks/common/use-hash-anchor-scroll'
-import { useSelectionInk } from '~/hooks/common/use-selection-ink'
 import { useWebHost } from '~/hooks/common/use-web-host'
 import { isDev } from '~/lib/env'
 import { noopObj } from '~/lib/noop'
@@ -424,7 +423,6 @@ export const MainMarkdown: FC<
   useHashAnchorScroll(containerRef, props.value, {
     fallback: markdownHeadingHashFallback,
   })
-  useSelectionInk(containerRef)
 
   return (
     <Markdown

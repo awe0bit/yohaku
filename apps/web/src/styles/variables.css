@@ -113,16 +113,6 @@ details summary {
   text-shadow: none;
 }
 
-/* SelectionInk paints the live selection on fine pointers inside containers
-   that opted in via attachSelectionInk. Elsewhere — and on coarse pointers —
-   the native accent tint must stay. */
-@media (pointer: fine) {
-  [data-selection-ink] ::selection,
-  [data-selection-ink]::selection {
-    background-color: transparent;
-  }
-}
-
 html[data-vt-root]::view-transition-new(root) {
   animation: turnOff 800ms ease-in-out;
 }

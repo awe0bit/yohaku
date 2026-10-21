@@ -5,7 +5,6 @@ export interface LayerVisibility {
   dye: number
   elem: number
   fiber: number
-  foot: number
   paper: number
   sheet: number
   suki: number
@@ -37,7 +36,6 @@ export const PAGE_PROFILES: Record<PageState, Profile> = {
       elem: 1,
       bok: 1,
       dye: 1,
-      foot: 1,
       sheet: 1,
     },
     move: { fiber: 1, suki: 1, sunago: 1, bok: 1 },
@@ -52,7 +50,6 @@ export const PAGE_PROFILES: Record<PageState, Profile> = {
       elem: 0,
       bok: 0.6,
       dye: 1,
-      foot: 1,
       sheet: 1,
     },
     move: STILL,
@@ -67,7 +64,6 @@ export const PAGE_PROFILES: Record<PageState, Profile> = {
       elem: 0,
       bok: 0.35,
       dye: 0.6,
-      foot: 0.5,
       sheet: 1,
     },
     move: STILL,

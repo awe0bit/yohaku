@@ -19,14 +19,24 @@ sheet were still floating in the papermaking vat.
 - Blurry bokeh light spots; softness comes from grain, not blur.
 - Water ripples on click; the only click effect is 按压 (a shallow dent).
 - Footer seal, ruled 版心 lines, pinned hover cards.
+- A footer 地ぼかし band along the bottom edge of the viewport, painted by
+  the background layer.
 - Syncing other surfaces to the paper color; surfaces follow the accent.
+
+## Footer surface
+
+The footer owns a surface, and it is accent, not paper: `footer-wash` dyes the
+sheet with a 5% accent wash that fades in over 96 px (6% in dark), and the
+colophon sits in a 1 px `paper-hairline` frame. The wash is translucent — the
+fibers, sunago and pressed petals still read through it — which is what keeps
+it different from the rejected viewport-edge band: a feathered, content-bound
+surface rather than a fixed line at the bottom of the screen.
 
 ## Layers and states
 
 Layers: paper color + thickness + grain, 楮 fibers, 漉き込み fragments,
 seasonal pressed petals/leaves (江南 phenology), 砂子 leaf flakes, top ぼかし,
-小口染め fore-edge dye from article figures, footer 地ぼかし, PaperSheet contact
-shadow.
+小口染め fore-edge dye from article figures, PaperSheet contact shadow.
 
 | Layer | browse | read | immersive |
 |---|---|---|---|

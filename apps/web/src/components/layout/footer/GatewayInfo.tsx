@@ -110,7 +110,7 @@ export const Heartbeat = () => {
         placement="top-end"
         trigger="both"
         triggerElement={
-          <span className="inline-flex cursor-pointer items-baseline gap-1.5 md:col-start-2 md:row-start-1 md:justify-self-end">
+          <span className="inline-flex cursor-pointer items-baseline gap-1.5 md:col-start-2 md:row-start-3 md:justify-self-end">
             <Pulse className="self-center" connected={connected} />
             <SlotText
               className="text-neutral-8"
@@ -160,7 +160,7 @@ export const Heartbeat = () => {
         </div>
       </FloatPopover>
 
-      <span className="block h-[1.6em] truncate text-neutral-8 md:col-span-2 md:row-start-2 md:min-w-0 md:max-w-full md:justify-self-end">
+      <span className="hidden h-[1.6em] truncate text-neutral-8 md:col-span-2 md:row-start-4 md:block md:min-w-0 md:max-w-full md:justify-self-end md:mt-0.5">
         {reading && <SlotText text={reading.title} />}
       </span>
     </div>

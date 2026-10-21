@@ -31,9 +31,8 @@ the papermaking vat.
    the season.
 6. Replace `AmbientImageSides` with a 小口染め (fore-edge dye) layer inside
    the background.
-7. Two UI decorations tied to the paper: the footer 地ぼかし, and a washi-piece
-   `HoverLinkCard`; plus a contact shadow where `PaperSheet` sits on the
-   paper.
+7. One UI decoration tied to the paper: a washi-piece `HoverLinkCard`; plus a
+   contact shadow where `PaperSheet` sits on the paper.
 
 ## Non-goals
 
@@ -73,11 +72,10 @@ textures, in this order (bench `FS` string):
 | 6 | 砂子 (sunago) | Sparse gold/silver leaf flakes in loose clusters; glint when oriented toward the light |
 | 7 | ぼかし (bokashi) | Brushed gradient along the top edge (~24% of height), colored by time of day, streaky edge from noise |
 | 8 | 小口染め (dye) | Fore-edge dye from the current figure's color, see below |
-| 9 | 地ぼかし (footer) | Brushed gradient along the bottom edge (~16% of height), color = mix(time-of-day bokashi color, accent, 0.45), amount = bokashi amount + 0.04; edge flows the opposite way to the top |
-| 10 | Sheet contact shadow | Around on-screen `PaperSheet` rects: suki/elements/sunago fade out within 26 px of the edge (`avoid`); outside the edge a soft shadow `exp(-d/7)`, stronger below the sheet (×0.07 light, ×0.12 dark) |
-| 11 | Grain | Per-pixel static hash noise ±1.5% |
+| 9 | Sheet contact shadow | Around on-screen `PaperSheet` rects: suki/elements/sunago fade out within 26 px of the edge (`avoid`); outside the edge a soft shadow `exp(-d/7)`, stronger below the sheet (×0.07 light, ×0.12 dark) |
+| 10 | Grain | Per-pixel static hash noise ±1.5% |
 
-Layer 1–7 and 11 are the paper; 8–10 are the integrations (bench `uDeco`).
+Layer 1–7 and 10 are the paper; 8–9 are the integrations (bench `uDeco`).
 
 The `html.noise` block in `apps/web/src/styles/theme.css` (lines 1–~96,
 including its `@media print` rule) is never activated (no code adds the
@@ -174,15 +172,12 @@ Timing (approved after tuning; do not shorten):
 
 ## UI decorations
 
-- **Footer 地ぼかし:** delete the accent gradient band in
-  `components/layout/footer/Footer.tsx`; the footer sits directly on the
-  paper and the shader draws the bottom bokashi (layer 9).
 - **Washi `HoverLinkCard`:** replace the rounded white card
   (`components/ui/link-card/HoverLinkCard.tsx`) with a paper piece: deckled
   edge (displacement filter, like the existing deckle filters), faint fiber
   texture, background `color-mix(accent 3%, sheet color)`, soft contact
   shadow instead of the large drop shadow. Hover-only, as today.
-- **PaperSheet contact shadow:** layer 10. The renderer needs the on-screen
+- **PaperSheet contact shadow:** layer 9. The renderer needs the on-screen
   rects of mounted `PaperSheet`s (thinking lists can have many; only the
   visible ones matter).
 
@@ -288,7 +283,6 @@ Derived from existing atoms in `apps/web/src/atoms/reading.ts`:
 | Bokashi | on, flowing | 60%, still | 35%, still |
 | Press click | on | on | on |
 | 小口染め | where figures exist | on | 60% |
-| Footer 地ぼかし | on | on | 50% |
 | Sheet contact shadow | on | on | on |
 
 Visibility and motion amounts ease toward their targets with a 0.2 s time
@@ -310,7 +304,7 @@ Each layer then arrives with its own motion, coarse to fine
 | 漉き込み | 700–1800 | sink ~22 px into place | 200–750 |
 | 砂子 | 1000–2000 | sprinkle down ~30 px; each flake flashes once as it lands | 100–650, no flash |
 | Petals / leaves | 1150–4000 | each falls ~96 px with a decaying sway on a critically damped spring (ω 3.2), staggered up to 0.9 s | 0–1250, lifted away with growing sway |
-| 小口染め · footer · sheet shadow | 1500–2500 | dye wicks in from the edges, footer ぼかし rises, shadow grows as the sheet settles | 0–600 |
+| 小口染め · sheet shadow | 1500–2500 | dye wicks in from the edges, shadow grows as the sheet settles | 0–600 |
 
 Exit runs when the background switch turns off or the viewport becomes
 mobile; the canvas unmounts only after the paper has dried back to the root

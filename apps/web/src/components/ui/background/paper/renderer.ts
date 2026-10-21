@@ -42,12 +42,10 @@ const UNIFORMS = [
   'uGold',
   'uGoldB',
   'uMix',
-  'uAccent',
   'uDyeA',
   'uDyeB',
   'uDyeMix',
   'uDeco',
-  'uFootAmt',
   'uSheets',
   'uPress',
   'uRoot',
@@ -339,7 +337,6 @@ export class PaperRenderer {
     gl.uniform1f(u.uGold, goldness(from))
     gl.uniform1f(u.uGoldB, goldness(to))
     gl.uniform1f(u.uMix, mix)
-    gl.uniform3fv(u.uAccent, accent)
     gl.uniform3fv(u.uRoot, rootBgRgb(accent, dark))
     gl.uniform4f(u.uIn, pv.base, pv.tone, pv.fiber, pv.suki)
     gl.uniform4f(u.uIn2, pv.sunago, pv.elem, pv.deco, entering)
@@ -355,14 +352,7 @@ export class PaperRenderer {
     gl.uniform1f(u.uDyeMix, input.dye.mix)
     gl.uniform2f(u.uDyeBand, input.dye.band[0], input.dye.band[1])
     const decoIn = Math.sqrt(pv.deco)
-    gl.uniform4f(
-      u.uDeco,
-      vis.dye * input.dye.amount * decoIn,
-      vis.foot * decoIn,
-      0,
-      vis.sheet,
-    )
-    gl.uniform1f(u.uFootAmt, light.amount + 0.04)
+    gl.uniform2f(u.uDeco, vis.dye * input.dye.amount * decoIn, vis.sheet)
     const sheets = new Float32Array(MAX_SHEETS * 4)
     input.sheets
       .slice(0, MAX_SHEETS)

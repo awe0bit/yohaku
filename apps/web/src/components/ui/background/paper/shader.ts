@@ -14,8 +14,8 @@ uniform vec4 uLayers; uniform vec4 uMotion; uniform vec4 uBok;
 uniform float uGlint; uniform float uSpinT; uniform float uBokT;
 uniform vec2 uSrc; uniform float uRadius; uniform vec3 uLC;
 uniform float uGold; uniform float uGoldB; uniform float uMix;
-uniform vec3 uAccent; uniform vec3 uDyeA; uniform vec3 uDyeB; uniform float uDyeMix;
-uniform vec4 uDeco; uniform float uFootAmt;
+uniform vec3 uDyeA; uniform vec3 uDyeB; uniform float uDyeMix;
+uniform vec2 uDeco;
 uniform vec4 uSheets[${MAX_SHEETS}]; uniform vec4 uPress[${MAX_PRESSES}];
 uniform sampler2D tFiber; uniform sampler2D tFlake; uniform sampler2D tSuki; uniform sampler2D tElem;
 uniform sampler2D tFlakeB; uniform sampler2D tSukiB; uniform sampler2D tElemB; uniform sampler2D tWither;
@@ -74,7 +74,7 @@ vec2 sheetField(vec2 css){
     avoid = max(avoid, 1.0 - smoothstep(0.0, 26.0, sd));
     if (sd > 0.0) shadow = max(shadow, exp(-sd / (7.0 * max(uIn2.z, 0.04))) * (0.55 + 0.45 * smoothstep(-20.0, 20.0, css.y - c.y)));
   }
-  return vec2(avoid, shadow) * uDeco.w * uIn2.z;
+  return vec2(avoid, shadow) * uDeco.y * uIn2.z;
 }
 
 float stagger(vec2 css){
@@ -217,13 +217,6 @@ void main(){
     col = mix(col, uDyeB, body * kD * inB);
   }
 
-  if (uDeco.y > 0.001) {
-    float eN = fbm(vec2(css.x / 90.0 - uBokT * 0.1, css.y / 30.0 + 4.0));
-    float yb = (1.0 - uv.y) + (eN - 0.5) * 0.05;
-    float tf = 1.0 - smoothstep(0.0, 0.16 * max(uIn2.z, 0.02), yb);
-    tf *= 0.7 + 0.3 * vnoise(vec2(css.x / 260.0 - uBokT * 0.05, css.y / 2.2 + 9.0));
-    col = mix(col, mix(uBok.rgb, uAccent, 0.45), tf * uFootAmt * uDeco.y);
-  }
   col *= 1.0 - sheet.y * (dark ? 0.12 : 0.07);
 
   if (uBok.a > 0.0) {

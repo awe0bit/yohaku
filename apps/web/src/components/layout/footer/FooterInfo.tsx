@@ -40,20 +40,72 @@ export const FooterInfo = ({
 
   return (
     <>
-      <div>
-        <div className="font-serif text-copy-16 tracking-[0.1em] text-neutral-9">
-          <a href="/">
-            <OwnerName />
-          </a>
+      <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline md:gap-x-8">
+        <div className="flex items-baseline justify-between gap-3 md:contents">
+          <div className="font-serif text-copy-16 tracking-[0.1em] text-neutral-9 md:col-start-1 md:row-start-1">
+            <a href="/">
+              <OwnerName />
+            </a>
+          </div>
+          <Heartbeat />
         </div>
-        <div className="mt-1 text-copy-13 italic text-neutral-7">
+
+        <div className="mt-1 text-copy-13 italic text-neutral-7 md:col-start-1 md:row-start-2">
           {t('footer_motto')}
+        </div>
+
+        <div className="order-last mt-5 md:order-none md:col-start-1 md:row-start-3 md:mt-[18px]">
+          <Colophon copyrightDate={copyrightDate} icp={icp} />
+        </div>
+
+        <div className="md:hidden">
+          <div className="mt-4 border-t border-black/5 dark:border-white/8" />
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-6">
+            {linkSections.map((section) => (
+              <div key={section.name}>
+                <div className="text-caption-10 tracking-[0.12em] text-neutral-6">
+                  {section.name}
+                </div>
+                <div className="mt-1.5 flex flex-col">
+                  {section.links.map((link) => (
+                    <StyledLink
+                      className="py-1 text-copy-13 leading-5 text-neutral-8"
+                      external={link.external}
+                      href={link.href}
+                      key={link.href}
+                    >
+                      {link.name}
+                    </StyledLink>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-baseline text-copy-13 text-neutral-8">
+            <a href="/feed" rel="noreferrer" target="_blank">
+              {t('rss_subscribe')}
+            </a>
+            <DotSep />
+            <a href="/sitemap.xml" rel="noreferrer" target="_blank">
+              {t('sitemap')}
+            </a>
+            <SubscribeTextButton>
+              <DotSep />
+            </SubscribeTextButton>
+          </div>
+
+          <div className="mt-4 border-t border-black/5 dark:border-white/8" />
+
+          <div className="mt-3 flex flex-col items-start gap-y-1.5 text-copy-13 text-neutral-6">
+            {themeSwitcher}
+            {localeSwitcher}
+            {backgroundSwitcher}
+          </div>
         </div>
       </div>
 
-      <Colophon copyrightDate={copyrightDate} icp={icp} />
-
-      <div className="mt-3 flex flex-wrap items-center gap-x-0 gap-y-1.5 border-t border-black/4 pt-3 text-copy-13 text-neutral-6 dark:border-white/4">
+      <div className="mt-3 hidden flex-wrap items-center gap-x-0 gap-y-1.5 border-t border-black/4 pt-3 text-copy-13 text-neutral-6 md:flex dark:border-white/4">
         <Group>
           {linkSections.flatMap((section, si) =>
             section.links.map((link, li) => (
@@ -118,8 +170,8 @@ const Colophon = ({
   const buildTime = process.env.BUILD_TIME
 
   return (
-    <div className="mt-5 flex flex-col gap-2 font-sans text-label-12 text-neutral-6 md:grid md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline md:gap-x-8 md:gap-y-0.5">
-      <div className="flex flex-wrap items-baseline md:col-start-1 md:row-start-1">
+    <div className="flex flex-wrap items-baseline font-sans text-label-12 text-neutral-6">
+      <span className="flex basis-full flex-wrap items-baseline md:basis-auto">
         <span>
           © {copyrightDate} <OwnerName />
         </span>
@@ -135,25 +187,33 @@ const Colophon = ({
             </StyledLink>
           </>
         )}
-        {buildTime && (
-          <>
+      </span>
+
+      {buildTime && (
+        <span className="flex basis-full flex-wrap items-baseline md:basis-auto">
+          <span className="hidden md:inline">
             <DotSep />
-            <span>
-              {t('colophon_printed_at', {
-                time: new Date(buildTime).toLocaleDateString(),
-              })}
-            </span>
-          </>
-        )}
-        <DotSep />
-        <StyledLink
-          external
-          className={colophonLinkClass}
-          href="https://github.com/mx-space"
-        >
-          Mix Space
-        </StyledLink>
-        <DotSep />
+          </span>
+          <span>
+            {t('colophon_printed_at', {
+              time: new Date(buildTime).toLocaleDateString(),
+            })}
+          </span>
+          <DotSep />
+          <StyledLink
+            external
+            className={colophonLinkClass}
+            href="https://github.com/mx-space"
+          >
+            Mix Space
+          </StyledLink>
+        </span>
+      )}
+
+      <span className="flex basis-full flex-wrap items-baseline md:basis-auto">
+        <span className="hidden md:inline">
+          <DotSep />
+        </span>
         <YohakuLink />
         {icp && (
           <>
@@ -163,8 +223,7 @@ const Colophon = ({
             </StyledLink>
           </>
         )}
-      </div>
-      <Heartbeat />
+      </span>
     </div>
   )
 }

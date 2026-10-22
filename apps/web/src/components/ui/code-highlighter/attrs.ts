@@ -1,5 +1,3 @@
-// import { bundledLanguages } from 'shiki/langs'
-
 export const parseFilenameFromAttrs = (attrs: string) => {
   // filename=""
 

@@ -1,4 +1,5 @@
 import 'react-native-gesture-handler'
 import 'expo-asset'
 import './src/errors/install-global-error-handler'
+import './src/screens/dev/duo-spike/register'
 import 'expo-router/entry'

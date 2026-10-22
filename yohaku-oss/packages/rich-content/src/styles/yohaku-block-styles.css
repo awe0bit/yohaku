@@ -549,6 +549,7 @@
 .yohaku-code__scroll pre {
   margin: 0;
   padding: 0;
+  overflow: visible;
   background: transparent !important;
 }
 
@@ -566,14 +567,65 @@
   white-space: pre;
 }
 
-.yohaku-code .shiki,
-.yohaku-code .shiki span {
+.yohaku-code .highlights,
+.yohaku-code .highlights span {
   background-color: transparent !important;
 }
 
-.dark .yohaku-code .shiki,
-.dark .yohaku-code .shiki span {
-  color: var(--shiki-dark) !important;
+.dark .yohaku-code .highlights,
+.dark .yohaku-code .highlights span,
+[data-theme='dark'] .yohaku-code .highlights,
+[data-theme='dark'] .yohaku-code .highlights span {
+  color: var(--hls-dark) !important;
+}
+
+/* Lines reach back into the scroll padding so a band starts at the rule. */
+.yohaku-code .highlights .line {
+  position: relative;
+  display: inline-block;
+  box-sizing: border-box;
+  min-width: calc(100% + 18px);
+  margin-left: -18px;
+  padding-left: 18px;
+}
+
+.yohaku-code .highlights .line.highlighted {
+  background-color: color-mix(in srgb, var(--color-accent) 9%, transparent) !important;
+}
+
+.yohaku-code .highlights .line.diff.add {
+  background-color: color-mix(in srgb, var(--color-success) 10%, transparent) !important;
+}
+
+.yohaku-code .highlights .line.diff.remove {
+  background-color: color-mix(in srgb, var(--color-error) 9%, transparent) !important;
+}
+
+.yohaku-code .highlights .line.diff.remove > span {
+  opacity: 0.6;
+}
+
+.yohaku-code .highlights .line.diff::before {
+  position: absolute;
+  left: 5px;
+  font-family: var(--font-mono, monospace);
+  user-select: none;
+}
+
+.yohaku-code .highlights .line.diff.add::before {
+  content: '+';
+  color: var(--color-success);
+}
+
+.yohaku-code .highlights .line.diff.remove::before {
+  content: '−';
+  color: var(--color-error);
+}
+
+.yohaku-code .highlights .highlighted-word {
+  border-radius: 2px;
+  background-color: color-mix(in srgb, var(--color-accent) 18%, transparent) !important;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 

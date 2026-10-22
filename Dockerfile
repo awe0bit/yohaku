@@ -1,6 +1,8 @@
-FROM node:lts-alpine AS base
+FROM node:26-alpine AS base
 
 ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+# Node 25+ no longer ships corepack in the official image
+RUN npm install -g corepack@latest
 RUN corepack enable
 RUN npm install -g --arch=x64 --platform=linux sharp
 

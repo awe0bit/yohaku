@@ -1,17 +1,25 @@
 import { YohakuNative } from '@modules/yohaku'
+import { type DuoImageSource, isDuo } from '@modules/yohaku/duo-shell'
 import { accent, neutral } from '@yohaku/design-system/tokens'
 import * as Haptics from 'expo-haptics'
 import { useRouter } from 'expo-router'
 import Tabs from 'expo-router/js-tabs'
 import { NativeTabs } from 'expo-router/unstable-native-tabs'
-import { useEffect, useRef } from 'react'
-import { DynamicColorIOS, PixelRatio, useColorScheme } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import {
+  DynamicColorIOS,
+  Image,
+  type ImageSourcePropType,
+  PixelRatio,
+  useColorScheme,
+} from 'react-native'
 
 import {
   INITIAL_SECRET_TAP,
   nextSecretTap,
   type SecretTapState,
 } from '@/components/dev-tools/secret-tap'
+import { DuoTabs } from '@/components/navigation/duo/navigators'
 import { PaperTabBar } from '@/components/navigation/paper-tab-bar'
 import { PaperTabBarInsetProvider } from '@/components/navigation/paper-tab-bar-inset'
 import { useTranslations } from '@/i18n'
@@ -199,7 +207,104 @@ function PaperTabsLayout() {
   )
 }
 
+function duoIcon(source: ImageSourcePropType): DuoImageSource | undefined {
+  const resolved = Image.resolveAssetSource(source)
+  return resolved
+    ? {
+        height: resolved.height,
+        scale: resolved.scale,
+        uri: resolved.uri,
+        width: resolved.width,
+      }
+    : undefined
+}
+
+const duoTabIcons = {
+  notes: {
+    default: duoIcon(tabIcons.notes.default),
+    selected: duoIcon(tabIcons.notes.selected),
+  },
+  posts: {
+    default: duoIcon(tabIcons.posts.default),
+    selected: duoIcon(tabIcons.posts.selected),
+  },
+  thinking: {
+    default: duoIcon(tabIcons.thinking.default),
+    selected: duoIcon(tabIcons.thinking.selected),
+  },
+}
+
+function useDuoAvatarIcon(avatarUrl: string | null | undefined) {
+  const [icon, setIcon] = useState<{ source: DuoImageSource; url: string }>()
+  useEffect(() => {
+    if (!avatarUrl) return
+    let cancelled = false
+    void YohakuNative.circularImageUri(avatarUrl).then((source) => {
+      if (!cancelled) setIcon({ source, url: avatarUrl })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [avatarUrl])
+  return icon && icon.url === avatarUrl ? icon.source : undefined
+}
+
+function DuoTabsLayout() {
+  const colorScheme = useColorScheme()
+  const t = useTranslations('tabs')
+  const tStudy = useTranslations('study')
+  const owner = useOwner()
+  const studyLabel = tabAccessibilityLabel(owner, tStudy('tabFallback'))
+  const avatar = useDuoAvatarIcon(owner?.avatarUrl)
+  const dark = colorScheme === 'dark'
+
+  return (
+    <DuoTabs
+      activeTintColor={dark ? accent.dark : accent.light}
+      inactiveTintColor={dark ? neutral.dark[6] : neutral.light[6]}
+    >
+      <DuoTabs.Screen
+        name="(posts)"
+        options={{
+          icon: duoTabIcons.posts.default,
+          selectedIcon: duoTabIcons.posts.selected,
+          title: t('posts'),
+        }}
+      />
+      <DuoTabs.Screen
+        name="(notes)"
+        options={{
+          icon: duoTabIcons.notes.default,
+          selectedIcon: duoTabIcons.notes.selected,
+          title: t('notes'),
+        }}
+      />
+      <DuoTabs.Screen
+        name="(thinking)"
+        options={{
+          icon: duoTabIcons.thinking.default,
+          selectedIcon: duoTabIcons.thinking.selected,
+          title: t('thinking'),
+        }}
+      />
+      <DuoTabs.Screen
+        name="(study)"
+        options={
+          avatar
+            ? { icon: avatar, iconRenderingMode: 'original', title: studyLabel }
+            : {
+                selectedSystemImage: 'person.crop.circle.fill',
+                systemImage: 'person.crop.circle',
+                title: studyLabel,
+              }
+        }
+      />
+    </DuoTabs>
+  )
+}
+
 export default function TabsLayout() {
+  if (isDuo) return <DuoTabsLayout />
   return YohakuNative.liquidGlassAvailable ? (
     <NativeTabsLayout />
   ) : (

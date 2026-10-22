@@ -10,13 +10,14 @@ import {
 import type { ExcalidrawScene } from '@yohaku/rich-content/src/lexical/portable/excalidraw/types.ts'
 import { patch } from 'jsondiffpatch'
 import { useEffect, useState } from 'react'
-import { StyleSheet, useWindowDimensions, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import { apiBaseUrl } from '@/api/base-url'
 import { AppText, RemoteImage } from '@/components/ui'
 import { reactToSvg } from '@/rich/svg-markup'
 import { usePalette } from '@/theme/palette'
 
+import { useReadingColumnWidth } from '../reading-column'
 import { DiagramPlate } from './diagram-plate'
 import { useBoneColor } from './skeleton'
 import { type BlockProps, str } from './types'
@@ -44,10 +45,10 @@ async function loadScene(snapshot: string): Promise<ExcalidrawScene> {
 
 export function ExcalidrawBlock({ node }: BlockProps) {
   const palette = usePalette()
-  const { width: windowWidth } = useWindowDimensions()
+  const columnWidth = useReadingColumnWidth()
   const snapshot = str(node.snapshot)
   const [loaded, setLoaded] = useState<Loaded | null>(null)
-  const targetWidth = Math.round(Math.max(320, windowWidth - 40 - 16))
+  const targetWidth = Math.round(Math.max(320, columnWidth - 40 - 16))
   const bone = useBoneColor()
   const bg = palette.neutral[1]
   const theme = palette.theme

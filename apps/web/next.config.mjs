@@ -18,7 +18,6 @@ const env = config().parsed || {}
 const configDir = path.dirname(fileURLToPath(import.meta.url))
 const monorepoRoot = path.resolve(configDir, '../..')
 const isProd = process.env.NODE_ENV === 'production'
-const shikiTraceConfig = getShikiTraceConfig()
 const ogTraceConfig = getOgTraceConfig()
 
 let commitHash = ''
@@ -42,29 +41,6 @@ function buildTurbopackRules() {
     scoped['**/src/**/*.{jsx,tsx}'] = value
   }
   return scoped
-}
-
-function getShikiTraceConfig() {
-  const lockfile = readFileSync(
-    path.resolve(monorepoRoot, 'pnpm-lock.yaml'),
-    'utf8',
-  )
-  const packages = parsePnpmLock(lockfile)
-  const seedEntries = getShikiSeedEntries(packages)
-  const closure = getPnpmLockClosure(
-    packages,
-    seedEntries.map(({ key }) => key),
-  )
-
-  const outputFileTracingIncludes = toPnpmPackageGlobs(closure)
-  if (!outputFileTracingIncludes.length) {
-    throw new Error('No shiki packages found in pnpm-lock.yaml')
-  }
-
-  return {
-    packageNames: getUniquePackageNames(closure),
-    outputFileTracingIncludes,
-  }
 }
 
 // Only the two files invisible to require-graph tracing: the resvg wasm blob
@@ -93,26 +69,6 @@ function getOgTraceConfig() {
   ]
 
   return { outputFileTracingIncludes }
-}
-
-function getShikiSeedEntries(packages) {
-  const packageJson = JSON.parse(
-    readFileSync(path.resolve(configDir, 'package.json'), 'utf8'),
-  )
-  const dependencies = {
-    ...packageJson.dependencies,
-    ...packageJson.devDependencies,
-  }
-
-  return ['shiki', '@shikijs/transformers'].flatMap((name) => {
-    const specifier = dependencies[name]
-    const exactKey = `${name}@${specifier}`
-    const keys = packages[exactKey]
-      ? [exactKey]
-      : Object.keys(packages).filter((key) => getPackageName(key) === name)
-
-    return keys.map((key) => ({ key }))
-  })
 }
 
 function parsePnpmLock(text) {
@@ -231,40 +187,6 @@ function normalizePnpmLockVersion(version) {
   return normalized
 }
 
-function getPnpmLockClosure(packages, seedKeys) {
-  const visited = new Set()
-  const queue = [...seedKeys]
-
-  while (queue.length) {
-    const key = queue.shift()
-
-    if (visited.has(key) || !packages[key]) continue
-
-    visited.add(key)
-
-    for (const dependency of packages[key]) {
-      if (!visited.has(dependency) && packages[dependency]) {
-        queue.push(dependency)
-      }
-    }
-  }
-
-  return visited
-}
-
-function toPnpmPackageGlobs(packageKeys) {
-  return [...packageKeys]
-    .map(
-      (key) =>
-        `../../node_modules/.pnpm/${toPnpmPackageDir(key)}/node_modules/**/*.{js,mjs,cjs,json,wasm}`,
-    )
-    .sort()
-}
-
-function getUniquePackageNames(packageKeys) {
-  return [...new Set([...packageKeys].map((key) => getPackageName(key)))].sort()
-}
-
 function getPackageName(packageKey) {
   const versionSeparator = packageKey.lastIndexOf('@')
   return versionSeparator > 0
@@ -293,7 +215,6 @@ let nextConfig = {
     '@chenglou/pretext',
     '@mx-space/ws-client',
     '@yohaku/rich-content',
-    ...shikiTraceConfig.packageNames,
   ],
   // yohaku-oss/ ships its own pnpm-lock.yaml. Pin both roots to this
   // monorepo so Turbopack / standalone tracing keep the realpathed
@@ -305,10 +226,7 @@ let nextConfig = {
   output: 'standalone',
   outputFileTracingIncludes: {
     '/[locale]/og': ['./node_modules/next/dist/compiled/@vercel/og/**/*'],
-    '/**/*': [
-      ...shikiTraceConfig.outputFileTracingIncludes,
-      ...ogTraceConfig.outputFileTracingIncludes,
-    ],
+    '/**/*': [...ogTraceConfig.outputFileTracingIncludes],
   },
   assetPrefix: isProd ? env.ASSETPREFIX || undefined : undefined,
   typescript: {

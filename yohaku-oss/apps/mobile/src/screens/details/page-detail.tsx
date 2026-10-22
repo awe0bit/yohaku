@@ -2,13 +2,15 @@ import { useQuery } from '@tanstack/react-query'
 import { Stack, useRouter } from 'expo-router'
 import type { ReactNode } from 'react'
 import { useEffect, useMemo, useRef } from 'react'
-import type { ScrollViewInstance } from 'react-native'
+import type { ScrollViewInstance, StyleProp, ViewStyle } from 'react-native'
 import { Dimensions, StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
+import { duoArticleColumn } from '@/components/navigation/duo/readable'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText } from '@/components/ui'
 import { useLocale, useTranslations } from '@/i18n'
+import { estimateReadingMinutes } from '@/lib/article-reading-position'
 import { presentArticleToc, tocHref } from '@/lib/article-toc'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
@@ -26,6 +28,9 @@ import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
 import { useArticlePrint } from './article-print-host'
 import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
+import { ArticleAside } from './duo/article-aside'
+import { ArticleDuoFrame } from './duo/article-duo-frame'
+import { useDuoArticle } from './duo/reading-store'
 import { useCollapsingTitle } from './use-collapsing-title'
 
 export function PageDetailScreen({ slug }: { slug: string }) {
@@ -68,8 +73,9 @@ export function PageDetailScreen({ slug }: { slug: string }) {
     if (webOnly) void openExternalUrl(webUrl)
   }, [webOnly, webUrl])
 
+  const duo = useDuoArticle()
   const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
-    useCollapsingTitle(page?.title, page?.subtitle ?? '')
+    useCollapsingTitle(page?.title, page?.subtitle ?? '', duo.onScrollMetrics)
 
   const metaParts = page
     ? [
@@ -78,9 +84,13 @@ export function PageDetailScreen({ slug }: { slug: string }) {
       ]
     : []
 
-  const scroll = (children: ReactNode, bottomInset?: number) => (
+  const scroll = (
+    children: ReactNode,
+    bottomInset?: number,
+    column: StyleProp<ViewStyle> = duoArticleColumn,
+  ) => (
     <EdgeEffectScrollView
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, column]}
       contentInset={bottomInset ? { bottom: bottomInset } : undefined}
       headerTitleProgress={headerTitleProgress}
       ref={scrollRef}
@@ -98,7 +108,7 @@ export function PageDetailScreen({ slug }: { slug: string }) {
       <ArticleMore
         printAvailable={Boolean(body || markdown)}
         title={page?.title}
-        tocAvailable={headings.length > 0}
+        tocAvailable={headings.length > 0 && !duo.asideShown}
         url={webUrl}
         onPrint={
           page && (body || markdown)
@@ -121,52 +131,69 @@ export function PageDetailScreen({ slug }: { slug: string }) {
         }}
       />
       {page ? (
-        <CommentComposeHost
-          allowComment
-          refId={page.id}
-          refType="page"
-          scrollRef={scrollRef}
+        <ArticleDuoFrame
+          asideAvailable={headings.length > 0}
+          aside={(mode) => (
+            <ArticleAside
+              headings={headings}
+              mode={mode}
+              reading={duo.reading}
+              title={page.title}
+              totalMinutes={estimateReadingMinutes(page.text?.length ?? 0)}
+            />
+          )}
+          onLayoutChange={duo.onLayoutChange}
         >
-          {(compose) =>
-            scroll(
-              <>
-                <View style={styles.header} onLayout={onTitleLayout}>
-                  <AppText variant="largeTitleSans">{page.title}</AppText>
-                  {page.subtitle ? (
-                    <AppText variant="secondary">{page.subtitle}</AppText>
-                  ) : null}
-                  <ArticleMetaLine parts={metaParts} />
-                </View>
-                {webOnly || (markdownSource && !markdown) ? (
-                  <View style={{ minHeight: reservedBodyHeight }}>
-                    <AppText
-                      style={styles.placeholder}
-                      variant="secondary"
-                      onPress={() => void openExternalUrl(webUrl)}
-                    >
-                      {tc('openInBrowser')}
-                    </AppText>
-                  </View>
-                ) : body || markdown ? (
-                  <ArticleBody
-                    content={body ?? ''}
-                    enrichments={enrichments}
-                    markdown={markdown}
-                    refId={page.id}
-                    refType="page"
-                    scrollRef={scrollRef}
-                    variant="article"
-                    webUrl={webUrl}
-                  />
-                ) : (
-                  <BodyLoadingIndicator minHeight={reservedBodyHeight} />
-                )}
-                <CommentSection refId={page.id} refType="page" />
-              </>,
-              compose.composing ? compose.scrollBottomInset : undefined,
-            )
-          }
-        </CommentComposeHost>
+          {(column) => (
+            <CommentComposeHost
+              allowComment
+              refId={page.id}
+              refType="page"
+              scrollRef={scrollRef}
+            >
+              {(compose) =>
+                scroll(
+                  <>
+                    <View style={styles.header} onLayout={onTitleLayout}>
+                      <AppText variant="largeTitleSans">{page.title}</AppText>
+                      {page.subtitle ? (
+                        <AppText variant="secondary">{page.subtitle}</AppText>
+                      ) : null}
+                      <ArticleMetaLine parts={metaParts} />
+                    </View>
+                    {webOnly || (markdownSource && !markdown) ? (
+                      <View style={{ minHeight: reservedBodyHeight }}>
+                        <AppText
+                          style={styles.placeholder}
+                          variant="secondary"
+                          onPress={() => void openExternalUrl(webUrl)}
+                        >
+                          {tc('openInBrowser')}
+                        </AppText>
+                      </View>
+                    ) : body || markdown ? (
+                      <ArticleBody
+                        content={body ?? ''}
+                        enrichments={enrichments}
+                        markdown={markdown}
+                        refId={page.id}
+                        refType="page"
+                        scrollRef={scrollRef}
+                        variant="article"
+                        webUrl={webUrl}
+                      />
+                    ) : (
+                      <BodyLoadingIndicator minHeight={reservedBodyHeight} />
+                    )}
+                    <CommentSection refId={page.id} refType="page" />
+                  </>,
+                  compose.composing ? compose.scrollBottomInset : undefined,
+                  column,
+                )
+              }
+            </CommentComposeHost>
+          )}
+        </ArticleDuoFrame>
       ) : (
         scroll(
           <AppText

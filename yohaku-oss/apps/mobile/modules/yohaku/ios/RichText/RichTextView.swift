@@ -29,7 +29,7 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
   private var tabMarks: [RichTabMark] = []
   private let tabRail = RichTabRail()
   private var reportedHeight: CGFloat = -1
-  private var layoutWidth: CGFloat = -1
+  private var layoutSize = CGSize(width: -1, height: -1)
 
   required init(appContext: AppContext? = nil) {
     // An explicit TextKit 1 stack keeps layoutManager available for the
@@ -94,9 +94,16 @@ final class RichTextView: ExpoView, UITextViewDelegate, UIGestureRecognizerDeleg
     // Tabs hang off the screen edge, past the page gutter this view sits inside.
     let edge = window.map { convert(CGPoint(x: $0.bounds.maxX, y: 0), from: $0).x } ?? bounds.maxX
     tabRail.frame = CGRect(x: max(edge, bounds.maxX) - RichTabRail.width, y: 0, width: RichTabRail.width, height: bounds.height)
-    if bounds.width != layoutWidth {
-      layoutWidth = bounds.width
+    guard bounds.size != layoutSize else { return }
+    let widthChanged = bounds.width != layoutSize.width
+    layoutSize = bounds.size
+    if widthChanged {
       reportHeight()
+    } else {
+      // The container only lays out glyphs that fit its height; rects measured
+      // before Yoga applied the taller height come back empty for the overflow.
+      reportBlockRects()
+      placeTabs()
     }
   }
 

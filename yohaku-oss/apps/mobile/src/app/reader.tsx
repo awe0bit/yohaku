@@ -1,5 +1,6 @@
 import { Stack, useRouter } from 'expo-router'
 
+import { useDuoBarItems, useInDuoStack } from '@/components/navigation/duo/bar-items'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import { useTranslations } from '@/i18n'
@@ -11,13 +12,16 @@ export default function ReaderRoute() {
   const t = useTranslations('study')
   const tc = useTranslations('common')
   const palette = usePalette()
+  const inDuoStack = useInDuoStack()
 
   return (
     <>
       <Stack.Screen
         options={{ headerTitle: t('account'), title: t('account') }}
       />
-      {usesPaperNavigationControls ? (
+      {inDuoStack ? (
+        <DuoCloseItem label={tc('close')} onClose={() => router.back()} />
+      ) : usesPaperNavigationControls ? (
         <Stack.Toolbar asChild placement="right">
           <PaperNavigationControl
             accessibilityLabel={tc('close')}
@@ -39,4 +43,17 @@ export default function ReaderRoute() {
       <ReaderScreen />
     </>
   )
+}
+
+function DuoCloseItem({
+  label,
+  onClose,
+}: {
+  label: string
+  onClose: () => void
+}) {
+  useDuoBarItems([
+    { id: 'close', label, onPress: onClose, systemImage: 'xmark' },
+  ])
+  return null
 }

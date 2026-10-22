@@ -125,6 +125,9 @@ export const en = {
     fileDownloadFull: 'Download the full file',
     passwordProtected: 'This note is locked',
     passwordHint: 'Tap to open it in a browser and unlock',
+    readPercent: '{percent}% read',
+    minutesLeft: '{count} min left',
+    readFinished: 'Finished',
   },
   notice: {
     summary: 'Summary',

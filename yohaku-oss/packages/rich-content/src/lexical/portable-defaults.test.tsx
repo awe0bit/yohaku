@@ -10,9 +10,9 @@ import {
 } from './create-renderer'
 import { sanitizeEditorState } from './sanitize'
 
-vi.mock('./portable/shiki-highlighter', () => ({
-  highlightToHtml: async (code: string) =>
-    `<pre class="shiki"><code data-shiki-mock>${code}</code></pre>`,
+vi.mock('./portable/code-highlighter', () => ({
+  highlightToHtml: (code: string) =>
+    `<pre class="highlights"><code data-highlight-mock>${code}</code></pre>`,
 }))
 
 const chartStub = {
@@ -325,11 +325,11 @@ it('prints a long code block fully expanded', () => {
   expect(html).not.toContain('展开')
 })
 
-it('highlights code through shiki once the async bundle resolves', async () => {
+it('highlights code once the async highlighter resolves', async () => {
   await renderClient([codeNode], baseHost)
-  const shikiEl = mountEl.querySelector('.yohaku-code__scroll > div')
-  expect(shikiEl).not.toBeNull()
-  expect(shikiEl?.innerHTML).toContain('data-shiki-mock')
+  const highlightedEl = mountEl.querySelector('.yohaku-code__scroll > div')
+  expect(highlightedEl).not.toBeNull()
+  expect(highlightedEl?.innerHTML).toContain('data-highlight-mock')
 })
 
 const klineNode = {

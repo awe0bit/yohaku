@@ -1,15 +1,10 @@
-import {
-  Image,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-  type ViewStyle,
-} from 'react-native'
+import { Image, StyleSheet, View, type ViewStyle } from 'react-native'
 
 import { AppText, RemoteImage } from '@/components/ui'
 import { noteCoverPlaceholderUri } from '@/screens/lists/note-cover'
 import { usePalette } from '@/theme/palette'
 
+import { useReadingColumnWidth } from '../reading-column'
 import { UnsupportedBlock } from './card-blocks'
 import { galleryImages, type GridImage, gridRows } from './image-grid'
 import { MEDIA_RADIUS, MediaCaption } from './media-caption'
@@ -21,7 +16,7 @@ const PAIR_ROW_HEIGHT = 172
 const PORTRAIT_RATIO_CAP = 4 / 5
 
 function useContentWidth(): number {
-  const { width } = useWindowDimensions()
+  const width = useReadingColumnWidth()
   return Math.round(Math.max(280, width - 40 - 16))
 }
 

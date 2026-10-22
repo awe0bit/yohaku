@@ -1,5 +1,10 @@
+import { DuoReadableFrame } from '@/components/navigation/duo/readable'
 import { NotesListScreen } from '@/screens/lists/notes-list'
 
 export default function NotesScreen() {
-  return <NotesListScreen />
+  return (
+    <DuoReadableFrame>
+      <NotesListScreen />
+    </DuoReadableFrame>
+  )
 }

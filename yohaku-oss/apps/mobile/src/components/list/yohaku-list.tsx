@@ -1,7 +1,8 @@
 import type { YohakuNoteHeroSpec } from '@modules/yohaku'
 import { YohakuNoteHeroHost, YohakuScrollAttachment } from '@modules/yohaku'
+import { isDuo } from '@modules/yohaku/duo-shell'
 import { FlashList } from '@shopify/flash-list'
-import type { ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import type {
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -10,13 +11,31 @@ import type {
   ViewStyle,
 } from 'react-native'
 import { ScrollView, StyleSheet, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { ScrollViewMarker } from 'react-native-screens/experimental'
 
+import { useInDuoReadable } from '@/components/navigation/duo/readable'
 import { pageScrollEdgeEffects } from '@/components/navigation/scroll-edges'
 
 import { listPrefetchWindow } from './list-prefetch-window'
 
 const viewabilityConfig = { minimumViewTime: 0, itemVisiblePercentThreshold: 0 }
+const sidePadding = 20
+const duoReadableWidth = 560
+
+function useDuoSidePadding() {
+  const insets = useSafeAreaInsets()
+  const inReadable = useInDuoReadable()
+  const [width, setWidth] = useState(0)
+  const available = inReadable ? width : width - insets.left - insets.right
+  return {
+    onLayout: isDuo
+      ? (event: { nativeEvent: { layout: { width: number } } }) =>
+          setWidth(event.nativeEvent.layout.width)
+      : undefined,
+    padding: Math.max(sidePadding, (available - duoReadableWidth) / 2),
+  }
+}
 
 export type YohakuListItem = { id: string; type: string }
 
@@ -57,6 +76,7 @@ export function YohakuList({
   style?: StyleProp<ViewStyle>
   topEdgeEffectHidden?: boolean
 }) {
+  const side = useDuoSidePadding()
   const list = (
     <FlashList
       contentInset={{ bottom: contentInsetBottom }}
@@ -71,7 +91,7 @@ export function YohakuList({
       style={[styles.fill, style]}
       viewabilityConfig={viewabilityConfig}
       contentContainerStyle={{
-        paddingHorizontal: 20,
+        paddingHorizontal: side.padding,
         paddingTop: contentInsetTop,
         paddingBottom: 24,
       }}
@@ -80,6 +100,7 @@ export function YohakuList({
       }
       onEndReached={onEndReached}
       onEndReachedThreshold={0.5}
+      onLayout={side.onLayout}
       onRefresh={onRefresh}
       onScroll={onScroll}
       onViewableItemsChanged={({ viewableItems }) =>

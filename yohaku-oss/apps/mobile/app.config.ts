@@ -198,6 +198,7 @@ export function createAppConfig(): ExpoConfig {
       './plugins/with-wipe-www-bundle.cjs',
       './plugins/with-ios-keychain-signing.cjs',
       './plugins/with-ios-vendored-pods.cjs',
+      './plugins/with-duo-surfaces.cjs',
       [
         'expo-splash-screen',
         {

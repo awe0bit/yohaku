@@ -67,6 +67,21 @@ function NotesTrailingToolbar() {
     <ListSearchToolbar
       systemAdaptiveTint
       scope="notes"
+      trailingDuo={[
+        {
+          id: 'notes-more',
+          label: tc('more'),
+          menu: [
+            {
+              id: 'series',
+              onPress: openSeries,
+              systemImage: 'square.stack',
+              title: t('indexTitle'),
+            },
+          ],
+          systemImage: 'ellipsis',
+        },
+      ]}
       trailingPaper={
         <PaperNavigationControl
           accessibilityLabel={tc('more')}

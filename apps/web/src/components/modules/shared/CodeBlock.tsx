@@ -8,7 +8,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import {
   isRenderInShadowDOM,
   shouldInjectHostStyles,
-} from '~/components/ui/code-highlighter/shiki/utils'
+} from '~/components/ui/code-highlighter/attrs'
 import { ReactComponentRender } from '~/components/ui/react-component-render'
 
 import { BlockLoading } from './BlockLoading'
@@ -83,6 +83,7 @@ export const CodeBlockRender = (props: {
             code={formatCode(props.content)}
             fold={props.fold !== false}
             language={props.lang}
+            meta={props.attrs}
           />
         )
       }

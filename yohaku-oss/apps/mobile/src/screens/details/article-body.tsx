@@ -21,7 +21,11 @@ import type { ApiEnrichment, CommentRefType } from '@/api/types'
 import { extractBlockInfos } from '@/components/dom/anchor-utils'
 import { AppText } from '@/components/ui'
 import { useTranslations } from '@/i18n'
-import { registerTocOffsets, subscribeTocJump } from '@/lib/article-toc'
+import {
+  invalidateTocOffsets,
+  registerTocOffsets,
+  subscribeTocJump,
+} from '@/lib/article-toc'
 import { hrefForExternalUrl } from '@/lib/link-router'
 import { openExternalUrl } from '@/lib/open-external'
 import {
@@ -184,7 +188,6 @@ export function ArticleBody({
         const rect = rectForBlock(blockId)
         return rect ? bodyTopRef.current + rect.y : null
       }),
-     
     [],
   )
 
@@ -242,6 +245,7 @@ export function ArticleBody({
     onSelectionActive: handleSelectionActive,
     onBlockLayout: (blockId, y, height) => {
       blockRectsRef.current[blockId] = { y, height }
+      invalidateTocOffsets()
     },
     onSegments: (segments) => {
       footnoteSectionRef.current =
@@ -260,6 +264,7 @@ export function ArticleBody({
       onLayout={(e) => {
         const { y } = e.nativeEvent.layout
         bodyTopRef.current = y
+        invalidateTocOffsets()
         setSlotTop(y)
       }}
     >

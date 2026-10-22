@@ -1,5 +1,5 @@
 import { and, eq } from 'drizzle-orm'
-import { Stack, useIsPreview, useRouter } from 'expo-router'
+import { Stack, useIsPreview } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ScrollViewInstance } from 'react-native'
 import { StyleSheet, View } from 'react-native'
@@ -7,13 +7,15 @@ import { StyleSheet, View } from 'react-native'
 import { translatedBodyNeedsRefresh } from '@/api/article-meta'
 import { api } from '@/api/client'
 import { useSession } from '@/auth/session-store'
+import { duoArticleColumn } from '@/components/navigation/duo/readable'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
-import { AppText, NativePressable } from '@/components/ui'
+import { AppText } from '@/components/ui'
 import { db } from '@/db'
 import { posts } from '@/db/schema'
 import { useDatabaseSnapshot } from '@/db/use-database-snapshot'
 import { useLocale, useTranslations } from '@/i18n'
 import { recordReading } from '@/interactions/reading'
+import { estimateReadingMinutes } from '@/lib/article-reading-position'
 import { formatRelativeTime } from '@/lib/datetime'
 import { extractHeadings } from '@/lib/lexical-headings'
 import { openExternalUrl } from '@/lib/open-external'
@@ -40,13 +42,16 @@ import { TtsMiniBar } from '@/tts/tts-mini-bar'
 import { useTtsSession } from '@/tts/use-tts-session'
 
 import { ArticleBody } from './article-body'
-import { ArticleMetaLine } from './article-meta-line'
 import { ArticleMore } from './article-more'
 import { ArticleNotice } from './article-notice'
 import { useArticlePrint } from './article-print-host'
 import { ArticleTail } from './article-tail'
 import { BodyLoadingIndicator, useReservedBodyHeight } from './body-slot'
+import { ArticleAside } from './duo/article-aside'
+import { ArticleDuoFrame } from './duo/article-duo-frame'
+import { useDuoArticle } from './duo/reading-store'
 import { PaywallGate } from './paywall-gate'
+import { PostDetailHeader } from './post-detail-header'
 import { shouldUnlockPaywalledContent } from './should-unlock-paywall'
 import { useCollapsingTitle } from './use-collapsing-title'
 import { useOpenArticleToc } from './use-open-article-toc'
@@ -63,7 +68,6 @@ export function PostDetailScreen({
   slug: string
 }) {
   const isPreview = useIsPreview()
-  const router = useRouter()
   const locale = useLocale()
   const t = useTranslations('detail')
   const tc = useTranslations('common')
@@ -226,9 +230,10 @@ export function PostDetailScreen({
       openOnWeb: isPreview || webOnly,
     })
   const openToc = useOpenArticleToc(headings, presenceSnapshot)
+  const duo = useDuoArticle(onScrollMetrics)
   const headerSubtitle = post?.categoryName ?? post?.tags[0] ?? tt('posts')
   const { headerTitleProgress, headerOptions, onScroll, onTitleLayout } =
-    useCollapsingTitle(post?.title, headerSubtitle, onScrollMetrics, marks, {
+    useCollapsingTitle(post?.title, headerSubtitle, duo.onScrollMetrics, marks, {
       onTitlePress:
         headings.length > 0 || readerCount > 0 ? openToc : undefined,
       readerCount,
@@ -260,7 +265,7 @@ export function PostDetailScreen({
         listening={tts.isNarrating}
         printAvailable={Boolean(body || markdown) && !showPaywallGate}
         title={post?.title}
-        tocAvailable={headings.length > 0}
+        tocAvailable={headings.length > 0 && !duo.asideShown}
         url={webUrl}
         onListen={tts.start}
         onToc={openToc}
@@ -281,174 +286,151 @@ export function PostDetailScreen({
         }
       />
       {post ? (
-        <CommentComposeHost
-          allowComment
-          refId={post.id}
-          refType="post"
-          scrollRef={scrollRef}
-        >
-          {(compose) => (
-            <>
-              <EdgeEffectScrollView
-                automaticallyAdjustKeyboardInsets={!compose.composing}
-                headerTitleProgress={headerTitleProgress}
-                ref={scrollRef}
-                contentContainerStyle={[
-                  styles.content,
-                  tts.isNarrating && !compose.composing
-                    ? styles.narratingPad
-                    : null,
-                ]}
-                contentInset={
-                  compose.composing
-                    ? { bottom: compose.scrollBottomInset }
-                    : undefined
-                }
-                style={[
-                  styles.screen,
-                  { backgroundColor: palette.surface.desk },
-                ]}
-                onScroll={onScroll}
-                onScrollBeginDrag={tts.onScrollBeginDrag}
-              >
-                  <View style={styles.header} onLayout={onTitleLayout}>
-              {post.categoryName && post.categorySlug ? (
-                <NativePressable
-                  accessibilityRole="link"
-                  onPress={() =>
-                    router.push({
-                      pathname: '/categories/[slug]',
-                      params: { slug: post.categorySlug! },
-                    })
-                  }
-                >
-                  <AppText color={palette.accent} variant="eyebrow">
-                    {post.categoryName}
-                  </AppText>
-                </NativePressable>
-              ) : post.categoryName ? (
-                <AppText variant="eyebrow">{post.categoryName}</AppText>
-              ) : null}
-              <AppText variant="largeTitleSans">{post.title}</AppText>
-              <ArticleMetaLine
-                aiGen={post.articleMeta?.aiGen}
-                parts={metaParts}
-              />
-              {post.tags.length > 0 ? (
-                <View style={styles.tags}>
-                  {post.tags.map((tag) => (
-                    <NativePressable
-                      accessibilityRole="link"
-                      key={tag}
-                      style={[
-                        styles.tag,
-                        {
-                          backgroundColor: palette.surface.paper,
-                          borderColor: `${palette.neutral[10]}0f`,
-                        },
-                      ]}
-                      onPress={() =>
-                        router.push({
-                          pathname: '/posts/tag/[name]',
-                          params: { name: tag },
-                        })
-                      }
-                    >
-                      <AppText color={palette.accent} variant="meta">
-                        #{tag}
-                      </AppText>
-                    </NativePressable>
-                  ))}
-                </View>
-              ) : null}
-            </View>
-            <ArticleNotice
-              id={post.id}
-              kind="post"
-              meta={post.articleMeta}
-              webUrl={webUrl}
-              listen={{
-                available: tts.available,
-                current: tts.current,
-                elapsed: tts.elapsed,
-                status: tts.status,
-                total: tts.total,
-                onToggle: tts.toggle,
-              }}
+        <ArticleDuoFrame
+          asideAvailable={headings.length > 0}
+          aside={(mode) => (
+            <ArticleAside
+              eyebrow={post.categoryName}
+              headings={headings}
+              mode={mode}
+              reading={duo.reading}
+              summary={post.articleMeta?.summary}
+              title={post.title}
+              totalMinutes={estimateReadingMinutes(post.text?.length ?? 0)}
             />
-            {webOnly || (markdownSource && !markdown) ? (
-              <View style={{ minHeight: reservedBodyHeight }}>
-                <AppText
-                  style={styles.placeholder}
-                  variant="secondary"
-                  onPress={() => void openExternalUrl(webUrl)}
-                >
-                  {tc('openInBrowser')}
-                </AppText>
-              </View>
-            ) : body || markdown ? (
-              <ArticleBody
-                autoFollow={tts.autoFollow}
-                content={body ?? ''}
-                enrichments={post?.enrichments ?? null}
-                highlightBlockId={tts.activeBlockId}
-                markdown={markdown}
-                queriesEnabled={updatesEnabled}
-                refId={post.id}
-                refType="post"
-                scrollRef={scrollRef}
-                    variant="article"
-                webUrl={webUrl}
-              />
-            ) : showPaywallGate ? null : failed ? (
-              <View style={{ minHeight: reservedBodyHeight }}>
-                <AppText
-                  style={styles.placeholder}
-                  variant="secondary"
-                  onPress={() => setAttempt((n) => n + 1)}
-                >
-                  {t('bodyFailed')}
-                </AppText>
-              </View>
-            ) : (
-              <BodyLoadingIndicator minHeight={reservedBodyHeight} />
-            )}
-            <PaywallGate
-              appleIapEnabled={plans?.appleIap?.enabled === true}
-              loggedIn={Boolean(session)}
-              visible={showPaywallGate}
-            />
-                <ArticleTail
-                  kind="post"
-                  likeCount={post.likeCount}
-                  queriesEnabled={updatesEnabled}
-                  refId={post.id}
-                  title={post.title}
-                  url={webUrl}
-                />
-              </EdgeEffectScrollView>
-              {tts.isNarrating && !compose.composing ? (
-                <TtsMiniBar
-                  autoFollow={tts.autoFollow}
-                  current={tts.current}
-                  duration={tts.duration}
-                  elapsed={tts.elapsed}
-                  playbackRate={tts.playbackRate}
-                  stale={tts.stale}
-                  status={tts.status}
-                  total={tts.total}
-                  onRecenter={tts.recenter}
-                  onSelectRate={tts.setRate}
-                  onStop={tts.stop}
-                  onToggle={tts.toggle}
-                />
-              ) : null}
-            </>
           )}
-        </CommentComposeHost>
+          onLayoutChange={duo.onLayoutChange}
+        >
+          {(column) => (
+            <CommentComposeHost
+              allowComment
+              refId={post.id}
+              refType="post"
+              scrollRef={scrollRef}
+            >
+              {(compose) => (
+                <>
+                  <EdgeEffectScrollView
+                    automaticallyAdjustKeyboardInsets={!compose.composing}
+                    headerTitleProgress={headerTitleProgress}
+                    ref={scrollRef}
+                    contentContainerStyle={[
+                      styles.content,
+                      column,
+                      tts.isNarrating && !compose.composing
+                        ? styles.narratingPad
+                        : null,
+                    ]}
+                    contentInset={
+                      compose.composing
+                        ? { bottom: compose.scrollBottomInset }
+                        : undefined
+                    }
+                    style={[
+                      styles.screen,
+                      { backgroundColor: palette.surface.desk },
+                    ]}
+                    onScroll={onScroll}
+                    onScrollBeginDrag={tts.onScrollBeginDrag}
+                  >
+                    <PostDetailHeader
+                      aiGen={post.articleMeta?.aiGen}
+                      categoryName={post.categoryName}
+                      categorySlug={post.categorySlug}
+                      metaParts={metaParts}
+                      tags={post.tags}
+                      title={post.title}
+                      onLayout={onTitleLayout}
+                    />
+                <ArticleNotice
+                  id={post.id}
+                  kind="post"
+                  meta={post.articleMeta}
+                  webUrl={webUrl}
+                  listen={{
+                    available: tts.available,
+                    current: tts.current,
+                    elapsed: tts.elapsed,
+                    status: tts.status,
+                    total: tts.total,
+                    onToggle: tts.toggle,
+                  }}
+                />
+                {webOnly || (markdownSource && !markdown) ? (
+                  <View style={{ minHeight: reservedBodyHeight }}>
+                    <AppText
+                      style={styles.placeholder}
+                      variant="secondary"
+                      onPress={() => void openExternalUrl(webUrl)}
+                    >
+                      {tc('openInBrowser')}
+                    </AppText>
+                  </View>
+                ) : body || markdown ? (
+                  <ArticleBody
+                    autoFollow={tts.autoFollow}
+                    content={body ?? ''}
+                    enrichments={post?.enrichments ?? null}
+                    highlightBlockId={tts.activeBlockId}
+                    markdown={markdown}
+                    queriesEnabled={updatesEnabled}
+                    refId={post.id}
+                    refType="post"
+                    scrollRef={scrollRef}
+                        variant="article"
+                    webUrl={webUrl}
+                  />
+                ) : showPaywallGate ? null : failed ? (
+                  <View style={{ minHeight: reservedBodyHeight }}>
+                    <AppText
+                      style={styles.placeholder}
+                      variant="secondary"
+                      onPress={() => setAttempt((n) => n + 1)}
+                    >
+                      {t('bodyFailed')}
+                    </AppText>
+                  </View>
+                ) : (
+                  <BodyLoadingIndicator minHeight={reservedBodyHeight} />
+                )}
+                <PaywallGate
+                  appleIapEnabled={plans?.appleIap?.enabled === true}
+                  loggedIn={Boolean(session)}
+                  visible={showPaywallGate}
+                />
+                    <ArticleTail
+                      kind="post"
+                      likeCount={post.likeCount}
+                      queriesEnabled={updatesEnabled}
+                      refId={post.id}
+                      title={post.title}
+                      url={webUrl}
+                    />
+                  </EdgeEffectScrollView>
+                  {tts.isNarrating && !compose.composing ? (
+                    <TtsMiniBar
+                      autoFollow={tts.autoFollow}
+                      current={tts.current}
+                      duration={tts.duration}
+                      elapsed={tts.elapsed}
+                      playbackRate={tts.playbackRate}
+                      stale={tts.stale}
+                      status={tts.status}
+                      total={tts.total}
+                      onRecenter={tts.recenter}
+                      onSelectRate={tts.setRate}
+                      onStop={tts.stop}
+                      onToggle={tts.toggle}
+                    />
+                  ) : null}
+                </>
+              )}
+            </CommentComposeHost>
+          )}
+        </ArticleDuoFrame>
       ) : (
         <EdgeEffectScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, duoArticleColumn]}
           headerTitleProgress={headerTitleProgress}
           ref={scrollRef}
           style={[styles.screen, { backgroundColor: palette.surface.desk }]}
@@ -475,21 +457,6 @@ const styles = StyleSheet.create({
   },
   narratingPad: {
     paddingBottom: 108,
-  },
-  header: {
-    gap: 8,
-  },
-  tags: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 6,
-  },
-  tag: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 999,
-    borderCurve: 'continuous',
-    borderWidth: StyleSheet.hairlineWidth,
   },
   placeholder: {
     marginTop: 32,

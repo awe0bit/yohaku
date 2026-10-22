@@ -30,6 +30,8 @@ type TocOffset = (blockId: string) => number | null
 let session: TocSession | null = null
 const jumpListeners = new Set<TocJump>()
 const offsetProviders: TocOffset[] = []
+const offsetListeners = new Set<() => void>()
+let offsetsPending = false
 
 export function groupTocSections(headings: LexicalHeading[]): TocSection[] {
   const minLevel = headings.reduce(
@@ -66,7 +68,10 @@ export function estimateTocSheetDetents(
   const fraction = roundDetent(
     Math.min(
       TOC_SHEET.maxFirstFraction,
-      Math.max(TOC_SHEET.minFraction, estimateTocSheetHeight(headings) / height),
+      Math.max(
+        TOC_SHEET.minFraction,
+        estimateTocSheetHeight(headings) / height,
+      ),
     ),
   )
   const needsLarge = estimateTocSheetHeight(headings) / height > fraction + 0.04
@@ -87,9 +92,27 @@ export function presentArticleToc(
 
 export function registerTocOffsets(provider: TocOffset) {
   offsetProviders.push(provider)
+  invalidateTocOffsets()
   return () => {
     const index = offsetProviders.lastIndexOf(provider)
     if (index !== -1) offsetProviders.splice(index, 1)
+    invalidateTocOffsets()
+  }
+}
+
+export function invalidateTocOffsets() {
+  if (offsetsPending) return
+  offsetsPending = true
+  requestAnimationFrame(() => {
+    offsetsPending = false
+    for (const listener of offsetListeners) listener()
+  })
+}
+
+export function subscribeTocOffsets(listener: () => void) {
+  offsetListeners.add(listener)
+  return () => {
+    offsetListeners.delete(listener)
   }
 }
 

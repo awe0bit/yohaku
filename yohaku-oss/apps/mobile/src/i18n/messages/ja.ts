@@ -125,6 +125,9 @@ export const ja = {
     fileDownloadFull: 'ファイル全体をダウンロード',
     passwordProtected: 'この手記にはパスワードがあります',
     passwordHint: 'タップしてブラウザで開き、解除してください',
+    readPercent: '{percent}% 読了',
+    minutesLeft: '残り {count} 分',
+    readFinished: '読了',
   },
   notice: {
     summary: '要約',

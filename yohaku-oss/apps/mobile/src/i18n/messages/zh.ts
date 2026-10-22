@@ -124,6 +124,9 @@ export const zh = {
     fileDownloadFull: '下载完整文件',
     passwordProtected: '这篇手记有密码',
     passwordHint: '点此在网页中打开以解锁',
+    readPercent: '已读 {percent}%',
+    minutesLeft: '还剩 {count} 分钟',
+    readFinished: '已读完',
   },
   notice: {
     summary: '摘要',

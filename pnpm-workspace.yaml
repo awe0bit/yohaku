@@ -88,6 +88,7 @@ minimumReleaseAgeExclude:
   - expo-updates@58.0.17
   - expo@58.0.13
   - pele@1.6.0 || 1.7.0
+  - '@pierre/highlights@0.2.0'
 
 overrides:
   react-tweet: 'npm:@innei/react-tweet@4.0.0'
@@ -111,8 +112,6 @@ overrides:
   object.hasown: 'npm:@nolyfill/object.hasown@^1.0.44'
   object.values: 'npm:@nolyfill/object.values@^1.0.44'
   string.prototype.matchall: 'npm:@nolyfill/string.prototype.matchall@^1.0.44'
-  # Keep the Markdown code plugin and editor on one Shiki runtime.
-  shiki: ^4.5.0
   # apps/mobile pins react/react-dom exactly to match react-native's
   # embedded renderer; force the same copy repo-wide so
   # packages/rich-content (consumed inside the mobile WebView) never
@@ -156,7 +155,7 @@ overrides:
   expo-file-system: '-'
 
 # pnpm 12.8.1 and 12.8.2 treat a cycle-collapsed peer of a patched package
-# (`expo-router@58.0.22`, no patch hash) as ERR_PNPM_INCONSISTENT_PATCH_HASH.
+# (`expo-router@58.0.24`, no patch hash) as ERR_PNPM_INCONSISTENT_PATCH_HASH.
 # The check is `body.len() > peersSuffixMaxLength`, and that id is 19 chars,
 # so 18 hashes every suffix that can contain it. Drop once pnpm includes
 # https://github.com/pnpm/pnpm/pull/16419.
@@ -165,8 +164,8 @@ peersSuffixMaxLength: 18
 patchedDependencies:
   '@innei/markdown-to-jsx-yet': patches/@innei__markdown-to-jsx-yet.patch
   '@react-native-menu/menu@2.0.0': yohaku-oss/patches/@react-native-menu__menu@2.0.0.patch
-  expo-image@58.0.15: yohaku-oss/patches/expo-image@58.0.15.patch
-  expo-router@58.0.22: patches/expo-router@58.0.22.patch
+  expo-image@58.0.16: yohaku-oss/patches/expo-image@58.0.16.patch
+  expo-router@58.0.24: patches/expo-router@58.0.24.patch
   react-native-enriched-markdown@1.0.2: yohaku-oss/patches/react-native-enriched-markdown@1.0.2.patch
   react-native-screens@4.30.0: yohaku-oss/patches/react-native-screens@4.30.0.patch
   slot-text@0.3.4: patches/slot-text@0.3.4.patch

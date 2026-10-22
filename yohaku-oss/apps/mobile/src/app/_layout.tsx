@@ -1,3 +1,4 @@
+import { isDuo } from '@modules/yohaku/duo-shell'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { type ErrorBoundaryProps, Stack } from 'expo-router'
@@ -13,6 +14,8 @@ import { LogBox, StyleSheet, useColorScheme, View } from 'react-native'
 
 import { refreshSession } from '@/auth/session'
 import { useSession } from '@/auth/session-store'
+import { DuoStack } from '@/components/navigation/duo/navigators'
+import { rootScreens } from '@/components/navigation/root-screens'
 import { RouteRestorationHost } from '@/components/navigation/route-restoration-host'
 import { getStackScreenOptions } from '@/components/navigation/stack-screen-options'
 import { SplashOverlay } from '@/components/splash/splash-overlay'
@@ -21,7 +24,6 @@ import { db } from '@/db'
 import { AppRecoveryScreen } from '@/errors/app-recovery-screen'
 import { FatalErrorHost } from '@/errors/fatal-error-host'
 import { useTranslations } from '@/i18n'
-import { parseTocDetents } from '@/lib/article-toc'
 import { assertVendoredDomWebView } from '@/lib/assert-vendored-dom-webview'
 import { queryClient } from '@/lib/query-client'
 import { useOtaForegroundCheck } from '@/ota/use-ota-foreground-check'
@@ -34,7 +36,6 @@ import { useSocketLifecycle } from '@/socket/use-socket-lifecycle'
 import { useSyncErrorBanner } from '@/sync/use-sync-error-banner'
 import { useSyncLifecycle } from '@/sync/use-sync-lifecycle'
 import { useAppFonts } from '@/theme/fonts'
-import { timings } from '@/theme/motion'
 import { usePalette } from '@/theme/palette'
 import { splashTiming } from '@/theme/splash-timing'
 
@@ -114,6 +115,7 @@ export default function RootLayout() {
   }, [dataReady])
 
   const onSplashFinished = useCallback(() => setSplashDone(true), [])
+  const screens = rootScreens(palette.surface.desk)
 
   return (
     <View style={[styles.root, { backgroundColor: palette.surface.desk }]}>
@@ -130,107 +132,29 @@ export default function RootLayout() {
           <ThemeProvider
             value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
           >
-            <Stack screenOptions={getStackScreenOptions(palette.surface.desk)}>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="reader"
-                options={{
-                  headerTransparent: false,
-                  headerStyle: { backgroundColor: palette.surface.desk },
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [1],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="search"
-                options={{
-                  animation: 'fade',
-                  animationDuration: timings.fade.duration,
-                }}
-              />
-              <Stack.Screen
-                name="dev"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.72, 1],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="dev-demos"
-                options={{
-                  animation: 'slide_from_right',
-                  headerShown: false,
-                  presentation: 'fullScreenModal',
-                }}
-              />
-              <Stack.Screen
-                name="comments/[id]"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.75, 1],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="login"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.72, 1],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="desk"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.42],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="summary/[kind]/[id]"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.62, 1],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="insights/[kind]/[id]"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.72, 1],
-                  sheetGrabberVisible: true,
-                }}
-              />
-              <Stack.Screen
-                name="selection-comment"
-                options={{
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: [0.5, 1],
-                  sheetGrabberVisible: true,
-                  sheetLargestUndimmedDetentIndex: 0,
-                }}
-              />
-              <Stack.Screen
-                name="toc"
-                options={({ route }) => ({
-                  headerShown: false,
-                  presentation: 'formSheet',
-                  sheetAllowedDetents: parseTocDetents(route.params),
-                  sheetGrabberVisible: true,
-                })}
-              />
-            </Stack>
+            {isDuo ? (
+              <DuoStack>
+                {screens.map((screen) => (
+                  <DuoStack.Screen
+                    key={screen.name}
+                    name={screen.name}
+                    options={screen.options}
+                  />
+                ))}
+              </DuoStack>
+            ) : (
+              <Stack
+                screenOptions={getStackScreenOptions(palette.surface.desk)}
+              >
+                {screens.map((screen) => (
+                  <Stack.Screen
+                    key={screen.name}
+                    name={screen.name}
+                    options={screen.options}
+                  />
+                ))}
+              </Stack>
+            )}
             <RouteRestorationHost ready={appPainted} />
             <PushOnboardingHost ready={dataReady && !failed && splashDone} />
             <BannerHost />

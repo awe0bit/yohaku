@@ -125,6 +125,9 @@ export const ko = {
     fileDownloadFull: '전체 파일 내려받기',
     passwordProtected: '이 노트에는 비밀번호가 있습니다',
     passwordHint: '눌러서 브라우저에서 열고 잠금을 해제하세요',
+    readPercent: '{percent}% 읽음',
+    minutesLeft: '{count}분 남음',
+    readFinished: '다 읽음',
   },
   notice: {
     summary: '요약',

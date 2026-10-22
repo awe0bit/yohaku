@@ -1,6 +1,10 @@
 import { Stack, useRouter } from 'expo-router'
 import { useCallback, useMemo } from 'react'
 
+import {
+  useDuoBarItems,
+  useInDuoStack,
+} from '@/components/navigation/duo/bar-items'
 import { PaperNavigationControl } from '@/components/navigation/paper-navigation-control'
 import { usesPaperNavigationControls } from '@/components/navigation/platform'
 import { useTranslations } from '@/i18n'
@@ -39,6 +43,7 @@ export function ArticleMore({
   url: string
 }) {
   const router = useRouter()
+  const inDuoStack = useInDuoStack()
   const t = useTranslations('common')
   const tts = useTranslations('tts')
   const paperMenuItems = useMemo(
@@ -110,6 +115,16 @@ export function ArticleMore({
     [onListen, onPrint, onPrompt, onToc, title, url],
   )
 
+  if (inDuoStack) {
+    return (
+      <DuoArticleMore
+        items={paperMenuItems}
+        label={t('more')}
+        onAction={handlePaperMenuAction}
+      />
+    )
+  }
+
   if (usesPaperNavigationControls) {
     return (
       <>
@@ -158,4 +173,32 @@ export function ArticleMore({
       </Stack.Toolbar.Menu>
     </Stack.Toolbar>
   )
+}
+
+function DuoArticleMore({
+  items,
+  label,
+  onAction,
+}: {
+  items: ReturnType<typeof buildArticleMoreItems>
+  label: string
+  onAction: (id: string) => void
+}) {
+  useDuoBarItems([
+    {
+      id: 'article-more',
+      label,
+      menu: items
+        .filter((item) => !item.hidden)
+        .map((item) => ({
+        group: item.category,
+        id: item.id,
+        onPress: () => onAction(item.id),
+        systemImage: item.icon,
+        title: item.title,
+      })),
+      systemImage: 'ellipsis',
+    },
+  ])
+  return null
 }

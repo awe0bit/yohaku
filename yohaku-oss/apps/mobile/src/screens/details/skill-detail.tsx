@@ -3,6 +3,7 @@ import { Stack, useLocalSearchParams } from 'expo-router'
 import { Share, StyleSheet, View } from 'react-native'
 
 import { api } from '@/api/client'
+import { duoArticleColumn } from '@/components/navigation/duo/readable'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText, MarkdownBody } from '@/components/ui'
 import { useTranslations } from '@/i18n'
@@ -49,7 +50,7 @@ export function SkillDetailScreen() {
         onPrompt={sharePrompt}
       />
       <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, duoArticleColumn]}
         headerTitleProgress={headerTitleProgress}
         style={styles.screen}
         onScroll={onScroll}

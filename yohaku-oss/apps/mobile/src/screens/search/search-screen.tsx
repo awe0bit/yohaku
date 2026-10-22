@@ -13,6 +13,7 @@ import {
 import { api } from '@/api/client'
 import { ApiError } from '@/api/errors'
 import type { ApiSearchNote, ApiSearchPost } from '@/api/types'
+import { duoArticleColumn } from '@/components/navigation/duo/readable'
 import { EdgeEffectScrollView } from '@/components/navigation/edge-effect-scroll-view'
 import { AppText } from '@/components/ui'
 import { db } from '@/db'
@@ -313,7 +314,7 @@ export function SearchScreen({ scope: rawScope }: { scope: string | string[] | u
     <View style={[styles.screen, { backgroundColor: palette.surface.desk }]}>
       <SearchChrome />
       <EdgeEffectScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, duoArticleColumn]}
         contentInset={{ bottom: dockHeight }}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled"

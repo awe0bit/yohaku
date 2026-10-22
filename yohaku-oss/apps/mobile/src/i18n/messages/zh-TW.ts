@@ -124,6 +124,9 @@ export const zhTW = {
     fileDownloadFull: '下載完整檔案',
     passwordProtected: '這篇手記有密碼',
     passwordHint: '點此在網頁中開啟以解鎖',
+    readPercent: '已讀 {percent}%',
+    minutesLeft: '還剩 {count} 分鐘',
+    readFinished: '已讀完',
   },
   notice: {
     summary: '摘要',

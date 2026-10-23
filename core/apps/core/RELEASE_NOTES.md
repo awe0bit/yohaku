@@ -1,27 +1,29 @@
 ## TL;DR
 
-mx-core now requires Node.js 26 everywhere — Docker image, CI and published packages — and bundles the latest editor improvements.
-
-## Breaking Changes
-
-- **Runtime**: mx-core requires Node.js 26. The official Docker image ships `node:26-alpine`, CI runs `26.x`, `.nvmrc` is `26`, and the workspace `engines` field declares `>=26.0.0`. **Migration**: deployments using the published `innei/mx-server` image need no action — the image already contains Node.js 26. Bare-metal, custom-image or Railway/nixpacks deployments must upgrade the host or build runtime to Node.js 26 before deploying; Node.js 22 and 24 are no longer supported. Node.js 26 also dropped the bundled corepack, so the image installs corepack from npm and still resolves pnpm from the root `packageManager` field.
-- **Published packages**: `@mx-space/api-client`, `@mx-space/cli`, `@mx-space/mongo-pg-cli` and `@mx-space/webhook` now declare `engines.node >= 26.0.0`. Installs with `engine-strict` enabled fail on older Node; the migration CLI also requires Node.js 26 on the host that runs it.
+This release introduces guided onboarding, restores encrypted backups during setup, and improves translation language handling for regional targets.
 
 ## Highlights
 
-The whole toolchain moved to Node.js 26 in one step: the multi-stage Docker build uses `node:26-alpine` for both the builder and the runtime stage, every GitHub workflow pins `26.x`, and the engine ranges across the monorepo follow. The image build, the production boot path and the V8 compile-cache warmup were verified on Node.js 26; boot timings and the serve path are unchanged.
+New installations now follow a guided setup flow covering the administrator account, site details, AI providers, model assignments, and feature languages. Progress can be resumed, saved settings stay consistent when revisiting steps, and the setup and sign-in screens use the dashboard's shared design system.
 
-Node.js 26 no longer ships corepack inside the distribution, so the build stage installs `corepack@0.36.0` from npm before enabling pnpm. pnpm is still resolved from the root `packageManager` field, which keeps a single source of truth for the package-manager version.
-
-The editor pipeline (`@haklex/*`) advanced from 0.48.x to 0.51.x: charts are now first-class Lexical nodes (bar, line, area, pie) with LiteXML output, Excalidraw whiteboards render to SVG without loading the editor, code-block gutters stay sticky on horizontal scroll, and custom nodes keep their block ids and node state through round-trips.
+Encrypted `.mxbackup` files can now be restored during initial setup using the same recovery-key workflow as the backup settings page. Incorrect keys keep the dialog open for a retry, recovery keys can be imported from a file, and older ZIP archives remain supported. Translation prompts also use region-specific language names when regional targets are supplied.
 
 ## Changes
 
+### Features
+
+- Set up a new instance through guided account, site, AI provider, model, and feature steps. ([a9988f2](https://github.com/mx-space/core/commit/a9988f2a3))
+
+### Bug Fixes
+
+- Restore encrypted backups during initial setup, with recovery-key import and retry support shared with the backup settings page. ([#2856](https://github.com/mx-space/core/issues/2856))
+- Resume setup reliably and preserve saved account and site settings when revisiting earlier steps. ([9930478](https://github.com/mx-space/core/commit/993047805))
+- Handle onboarding edge cases and clarify setup instructions. ([c0a81f1](https://github.com/mx-space/core/commit/c0a81f143))
+
 ### Other
 
-- Editor packages updated to `@haklex/*` 0.51.x — chart nodes with LiteXML support, whiteboard SVG rendering, sticky code-block gutter, block-id retention on custom nodes, and typography/table/code polish ([297bf1f](https://github.com/mx-space/core/commit/297bf1ff9))
-- Bundled admin dashboard bumped to 8.4.48
+- Use regional language names such as Traditional Chinese and Brazilian Portuguese for translation targets, with base-language fallback. ([#2857](https://github.com/mx-space/core/pull/2857))
 
 ---
 
-**Full Changelog**: https://github.com/mx-space/core/compare/v14.16.0...v15.0.0
+**Full Changelog**: https://github.com/mx-space/core/compare/v15.0.1...v15.1.0

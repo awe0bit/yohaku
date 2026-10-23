@@ -50,6 +50,13 @@ export const devDemos: DevDemo[] = [
   },
   {
     group: 'content',
+    href: '/dev-demos/code-notation',
+    name: 'Code notation',
+    meta: 'shiki transformer 覆盖 · diff / highlight / word / meta · 注释语法边界',
+    tags: ['code', 'highlight', 'diff', 'shiki'],
+  },
+  {
+    group: 'content',
     href: '/dev-demos/excalidraw-static',
     name: 'Excalidraw static',
     meta: '静态白板场景 · 无编辑器的只读渲染',

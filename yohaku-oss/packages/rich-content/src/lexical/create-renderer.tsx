@@ -82,6 +82,7 @@ import { staticExcalidrawModule } from './portable/excalidraw'
 import { LexicalImageOverride } from './portable/image'
 import { Mermaid } from './portable/mermaid'
 import { LexicalNestedDocOverride } from './portable/nested-doc'
+import { yohakuStepsModule } from './portable/steps-module'
 import { YohakuEmbedNode } from './portable/yohaku-embed-node'
 
 function withBoundary<P extends object>(
@@ -226,6 +227,7 @@ const modules: RichRendererModule[] = [
   configuredNestedDocModule,
   staticExcalidrawModule,
   yohakuChatModule,
+  yohakuStepsModule,
   lexicalCodeSnippetModule,
   configuredGalleryModule,
   lexicalAlertModule,

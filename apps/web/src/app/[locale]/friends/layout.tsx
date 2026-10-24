@@ -22,5 +22,9 @@ export const generateMetadata = async (
   })
 }
 export default async function (props: PropsWithChildren) {
-  return <NormalContainer>{props.children}</NormalContainer>
+  return (
+    <NormalContainer className="max-w-[960px] 2xl:max-w-[960px]">
+      {props.children}
+    </NormalContainer>
+  )
 }

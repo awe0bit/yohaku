@@ -161,6 +161,13 @@ export const devDemos: DevDemo[] = [
     tags: ['motion', 'enter', 'exit', 'view', 'presence'],
   },
   {
+    group: 'ambient',
+    href: '/dev-demos/friends-constellation',
+    name: 'Friends constellation',
+    meta: '友链星图 · 熵增换星空 · 离线 fixtures',
+    tags: ['friends', 'motion', 'svg', 'physics'],
+  },
+  {
     group: 'data',
     href: '/dev-demos/gps-track',
     name: 'GPS track',

@@ -12,6 +12,7 @@ import { SlotText } from '~/components/ui/slot-text'
 import { clsxm } from '~/lib/helper'
 
 interface KvOption {
+  aria?: string
   label: string
   value: string
 }
@@ -28,6 +29,45 @@ export const FooterKv: FC<{ label: string; children: ReactNode }> = ({
 
 export const footerKvValueClass =
   'border-b border-transparent text-neutral-8 transition-colors duration-200 hover:border-neutral-5 data-[popup-open]:border-neutral-5'
+
+export const FooterOptionGroup: FC<{
+  label: string
+  value: string
+  options: KvOption[]
+  onSelect: (value: string) => void
+  disabled?: boolean
+  busy?: boolean
+}> = ({ label, value, options, onSelect, disabled, busy }) => (
+  <FooterKv label={label}>
+    <span className="inline-flex items-baseline">
+      {options.map((o, i) => (
+        <span key={o.value}>
+          <button
+            aria-busy={busy}
+            aria-label={o.aria}
+            aria-pressed={value === o.value}
+            disabled={disabled}
+            type="button"
+            className={clsxm(
+              'transition-colors duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]',
+              value === o.value
+                ? 'text-neutral-8 underline decoration-current/30 underline-offset-2'
+                : 'text-neutral-6 hover:text-neutral-8',
+            )}
+            onClick={() => onSelect(o.value)}
+          >
+            {o.label}
+          </button>
+          {i < options.length - 1 && (
+            <span aria-hidden className="mx-1 select-none text-neutral-5">
+              ·
+            </span>
+          )}
+        </span>
+      ))}
+    </span>
+  </FooterKv>
+)
 
 export const FooterKvMenu: FC<{
   label: string

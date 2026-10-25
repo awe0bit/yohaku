@@ -11,19 +11,25 @@ import { useAggregationSelector } from '~/providers/root/aggregation-data-provid
 
 import type { FooterConfig } from './config'
 import { getDefaultLinkSections } from './config'
+import { CropMarks } from './CropMarks'
 import { Heartbeat } from './GatewayInfo'
 import { OwnerName } from './OwnerName'
 
 interface FooterInfoProps {
   backgroundSwitcher: ReactNode
+  bgmSwitcher: ReactNode
   footerConfig?: FooterConfig
   localeSwitcher: ReactNode
   themeSwitcher: ReactNode
 }
 
+const linkClass =
+  'self-start text-copy-13 leading-[26px] text-neutral-8 hover:underline hover:decoration-current/30 hover:underline-offset-2'
+
 export const FooterInfo = ({
   localeSwitcher,
   themeSwitcher,
+  bgmSwitcher,
   backgroundSwitcher,
   footerConfig: footerConfigProp,
 }: FooterInfoProps) => {
@@ -40,123 +46,107 @@ export const FooterInfo = ({
 
   return (
     <>
-      <div className="flex flex-col md:grid md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline md:gap-x-8">
-        <div className="flex items-baseline justify-between gap-3 md:contents">
-          <div className="font-serif text-copy-16 tracking-[0.1em] text-neutral-9 md:col-start-1 md:row-start-1">
-            <a href="/">
+      <div className="relative isolate md:px-12 md:py-9">
+        <div
+          aria-hidden
+          className="paper-panel-color absolute inset-0 -z-1 hidden md:block"
+        />
+        <CropMarks />
+
+        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:gap-8">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <a
+              className="font-serif text-[22px] font-semibold leading-none tracking-[0.04em] text-neutral-9"
+              href="/"
+            >
               <OwnerName />
             </a>
+            <span className="font-serif text-copy-13 italic text-neutral-7">
+              {t('footer_motto')}
+            </span>
           </div>
           <Heartbeat />
         </div>
 
-        <div className="mt-1 text-copy-13 italic text-neutral-7 md:col-start-1 md:row-start-2">
-          {t('footer_motto')}
-        </div>
+        <div className="paper-hairline my-6 border-t md:mb-[22px] md:mt-[26px]" />
 
-        <div className="order-last mt-5 md:order-none md:col-start-1 md:row-start-3 md:mt-[18px]">
-          <Colophon copyrightDate={copyrightDate} icp={icp} />
-        </div>
-
-        <div className="md:hidden">
-          <div className="mt-4 border-t border-black/5 dark:border-white/8" />
-          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-6">
-            {linkSections.map((section) => (
-              <div key={section.name}>
-                <div className="text-caption-10 tracking-[0.12em] text-neutral-6">
-                  {section.name}
-                </div>
-                <div className="mt-1.5 flex flex-col">
-                  {section.links.map((link) => (
-                    <StyledLink
-                      className="py-1 text-copy-13 leading-5 text-neutral-8"
-                      external={link.external}
-                      href={link.href}
-                      key={link.href}
-                    >
-                      {link.name}
-                    </StyledLink>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-3 flex flex-wrap items-baseline text-copy-13 text-neutral-8">
-            <a href="/feed" rel="noreferrer" target="_blank">
-              {t('rss_subscribe')}
-            </a>
-            <DotSep />
-            <a href="/sitemap.xml" rel="noreferrer" target="_blank">
-              {t('sitemap')}
-            </a>
-            <SubscribeTextButton>
-              <DotSep />
-            </SubscribeTextButton>
-          </div>
-
-          <div className="mt-4 border-t border-black/5 dark:border-white/8" />
-
-          <div className="mt-3 flex flex-col items-start gap-y-1.5 text-copy-13 text-neutral-6">
-            {themeSwitcher}
-            {localeSwitcher}
-            {backgroundSwitcher}
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 hidden flex-wrap items-center gap-x-0 gap-y-1.5 border-t border-black/4 pt-3 text-copy-13 text-neutral-6 md:flex dark:border-white/4">
-        <Group>
-          {linkSections.flatMap((section, si) =>
-            section.links.map((link, li) => (
-              <span key={link.href}>
-                {(si > 0 || li > 0) && <DotSep />}
+        <div className="grid grid-cols-2 gap-6 sm:grid-cols-4 lg:grid-flow-col lg:grid-cols-none lg:auto-cols-fr">
+          {linkSections.map((section, i) => (
+            <Column index={i + 1} key={section.name} title={section.name}>
+              {section.links.map((link) => (
                 <StyledLink
-                  className="text-neutral-8 hover:underline hover:decoration-current/30 hover:underline-offset-2"
+                  className={linkClass}
                   external={link.external}
                   href={link.href}
+                  key={link.href}
                 >
                   {link.name}
                 </StyledLink>
-              </span>
-            )),
-          )}
-        </Group>
-        <SectionSep />
-        <Group>
-          <a
-            className="text-neutral-8"
-            href="/feed"
-            rel="noreferrer"
-            target="_blank"
+              ))}
+            </Column>
+          ))}
+          <Column
+            index={linkSections.length + 1}
+            title={t('footer_section_follow')}
           >
-            {t('rss_subscribe')}
-          </a>
-          <DotSep />
-          <a
-            className="text-neutral-8"
-            href="/sitemap.xml"
-            rel="noreferrer"
-            target="_blank"
+            <a
+              className={linkClass}
+              href="/feed"
+              rel="noreferrer"
+              target="_blank"
+            >
+              {t('rss_subscribe')}
+            </a>
+            <a
+              className={linkClass}
+              href="/sitemap.xml"
+              rel="noreferrer"
+              target="_blank"
+            >
+              {t('sitemap')}
+            </a>
+            <span className={linkClass}>
+              <SubscribeTextButton />
+            </span>
+          </Column>
+          <Column
+            className="col-span-2 sm:col-span-4 lg:col-span-1"
+            index={linkSections.length + 2}
+            title={t('footer_section_settings')}
           >
-            {t('sitemap')}
-          </a>
-          <SubscribeTextButton>
-            <DotSep />
-          </SubscribeTextButton>
-        </Group>
-        <span className="basis-full md:flex-1" />
-        <Group>
-          {themeSwitcher}
-          <DotSep />
-          {localeSwitcher}
-          <DotSep />
-          {backgroundSwitcher}
-        </Group>
+            <div className="flex flex-col items-start text-label-12 leading-[26px] text-neutral-6">
+              {themeSwitcher}
+              {bgmSwitcher}
+              {localeSwitcher}
+              {backgroundSwitcher}
+            </div>
+          </Column>
+        </div>
       </div>
+
+      <Colophon copyrightDate={copyrightDate} icp={icp} />
     </>
   )
 }
+
+const Column = ({
+  index,
+  title,
+  className,
+  children,
+}: {
+  index: number
+  title: string
+  className?: string
+  children: ReactNode
+}) => (
+  <div className={clsxm('flex min-w-0 flex-col', className)}>
+    <span className="mb-1 font-mono text-caption-10 tracking-[0.1em] text-neutral-6">
+      {String(index).padStart(2, '0')} {title}
+    </span>
+    {children}
+  </div>
+)
 
 const Colophon = ({
   copyrightDate,
@@ -165,67 +155,46 @@ const Colophon = ({
   copyrightDate: string
   icp?: FooterConfig['otherInfo']['icp']
 }) => {
-  const t = useTranslations('common')
   const hash = process.env.COMMIT_HASH
   const buildTime = process.env.BUILD_TIME
 
   return (
-    <div className="flex flex-wrap items-baseline font-sans text-label-12 text-neutral-6">
-      <span className="flex basis-full flex-wrap items-baseline md:basis-auto">
-        <span>
-          © {copyrightDate} <OwnerName />
-        </span>
-        {hash && process.env.COMMIT_URL && (
-          <>
-            <DotSep />
-            <StyledLink
-              external
-              className={colophonLinkClass}
-              href={process.env.COMMIT_URL}
-            >
-              {hash.slice(0, 8)}
-            </StyledLink>
-          </>
-        )}
-      </span>
-
-      {buildTime && (
-        <span className="flex basis-full flex-wrap items-baseline md:basis-auto">
-          <span className="hidden md:inline">
-            <DotSep />
-          </span>
-          <span>
-            {t('colophon_printed_at', {
-              time: new Date(buildTime).toLocaleDateString(),
-            })}
-          </span>
-          <DotSep />
-          <StyledLink
-            external
-            className={colophonLinkClass}
-            href="https://github.com/mx-space"
-          >
-            Mix Space
-          </StyledLink>
-        </span>
+    <div className="mt-8 flex flex-wrap items-baseline gap-x-2.5 gap-y-1 font-mono text-caption-10 uppercase tracking-[0.06em] text-neutral-6 md:mt-9">
+      <YohakuLink />
+      {hash && process.env.COMMIT_URL && (
+        <>
+          <Dash />
+          <SlugLink className="normal-case" href={process.env.COMMIT_URL}>
+            {hash.slice(0, 8)}
+          </SlugLink>
+        </>
       )}
-
-      <span className="flex basis-full flex-wrap items-baseline md:basis-auto">
-        <span className="hidden md:inline">
-          <DotSep />
-        </span>
-        <YohakuLink />
-        {icp && (
-          <>
-            <DotSep />
-            <StyledLink external className={colophonLinkClass} href={icp.link}>
-              {icp.text}
-            </StyledLink>
-          </>
-        )}
+      {buildTime && (
+        <>
+          <Dash />
+          <span>{formatSlugDate(buildTime)}</span>
+          <Dash />
+          <SlugLink href="https://github.com/mx-space">Mix Space</SlugLink>
+        </>
+      )}
+      <Dash />
+      <span>
+        © {copyrightDate} <OwnerName />
       </span>
+      {icp && (
+        <>
+          <Dash />
+          <SlugLink href={icp.link}>{icp.text}</SlugLink>
+        </>
+      )}
     </div>
   )
+}
+
+const formatSlugDate = (time: string) => {
+  const date = new Date(time)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${date.getUTCFullYear()}/${pad(date.getUTCMonth() + 1)}/${pad(date.getUTCDate())}`
 }
 
 const YohakuLink = () => {
@@ -250,16 +219,15 @@ const YohakuLink = () => {
       as="span"
       type="tooltip"
       triggerElement={
-        <StyledLink
-          external
-          className={clsxm(colophonLinkClass, 'cursor-help')}
+        <SlugLink
+          className="cursor-help"
           href="https://github.com/Innei/Yohaku"
         >
           余白 / Yohaku
-        </StyledLink>
+        </SlugLink>
       }
     >
-      <div className="max-w-xs space-y-2 text-copy-13 leading-relaxed">
+      <div className="max-w-xs space-y-2 text-copy-13 normal-case leading-relaxed tracking-normal">
         <p>{rich('yohaku_footer_line', 'https://github.com/Innei/Yohaku')}</p>
         <p>
           {rich('yohaku_footer_sponsor', 'https://github.com/sponsors/Innei')}
@@ -269,27 +237,21 @@ const YohakuLink = () => {
   )
 }
 
-const colophonLinkClass =
-  'border-b border-transparent transition-colors hover:border-neutral-5 hover:text-neutral-8'
-
-const Group = ({ children }: { children: ReactNode }) => (
-  <span className="flex basis-full flex-wrap items-center md:basis-auto">
-    {children}
-  </span>
+const SlugLink = ({ className, ...props }: JSX.IntrinsicElements['a']) => (
+  <a
+    rel="noreferrer"
+    target="_blank"
+    className={clsxm(
+      'border-b border-transparent transition-colors hover:border-neutral-5 hover:text-neutral-8',
+      className,
+    )}
+    {...props}
+  />
 )
 
-const DotSep = () => (
-  <span aria-hidden className="mx-1.5 select-none text-neutral-5">
-    ·
-  </span>
-)
-
-const SectionSep = () => (
-  <span
-    aria-hidden
-    className="mx-3.5 hidden select-none text-neutral-4 md:inline"
-  >
-    |
+const Dash = () => (
+  <span aria-hidden className="select-none text-neutral-5">
+    —
   </span>
 )
 

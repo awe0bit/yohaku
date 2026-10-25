@@ -9,12 +9,17 @@ import { Avatar } from '~/components/ui/avatar'
 import { clsxm } from '~/lib/helper'
 
 import { layoutStars, matchesQuery } from './constellation'
+import { HeatBloom } from './HeatBloom'
 import { SkyBackdrop } from './SkyBackdrop'
 import { StarCard } from './StarCard'
 import { StarEdges } from './StarEdges'
 import { StarLabels } from './StarLabels'
 import type { StarTransition } from './use-star-transition'
-import { buildTransition, useStarTransition } from './use-star-transition'
+import {
+  buildGenesisTransition,
+  buildTransition,
+  useStarTransition,
+} from './use-star-transition'
 
 const COMPACT_WIDTH = 640
 
@@ -42,6 +47,8 @@ export const FriendsConstellation = ({
   const [transition, setTransition] = useState<StarTransition | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
   const [drawKey, setDrawKey] = useState(0)
+  const [blooming, setBlooming] = useState(false)
+  const bootedRef = useRef(false)
 
   useLayoutEffect(() => {
     const el = frameRef.current!
@@ -62,6 +69,16 @@ export const FriendsConstellation = ({
     () => size && layoutStars(links, { ...size, count, seed, compact }),
     [links, size, count, seed, compact],
   )
+
+  // Cold start: the first measured layout ignites from a hot cloud and cools
+  // into place, then the edges are traced in by the settle handler below.
+  useLayoutEffect(() => {
+    if (bootedRef.current || !layout || !size) return
+    bootedRef.current = true
+    if (reduceMotion) return
+    setBlooming(true)
+    setTransition(buildGenesisTransition(layout, size, seed))
+  }, [layout, size, seed, reduceMotion])
 
   useStarTransition({
     transition,
@@ -135,6 +152,14 @@ export const FriendsConstellation = ({
         </svg>
       )}
 
+      {blooming && size && (
+        <HeatBloom
+          height={height}
+          width={width}
+          onDone={() => setBlooming(false)}
+        />
+      )}
+
       {stars.map((link) => {
         const p = target.get(link.id)!
         return (
@@ -142,13 +167,12 @@ export const FriendsConstellation = ({
             href={link.url}
             key={link.id}
             rel="noreferrer"
-            style={{ transform: `translate(${p.x}px, ${p.y}px)` }}
             target="_blank"
             aria-label={
               link.description ? `${link.name}: ${link.description}` : link.name
             }
             className={clsxm(
-              'absolute left-0 top-0 z-10 -ml-5 -mt-5 rounded-full bg-paper ring-1 ring-black/15 will-change-transform dark:ring-white/20',
+              'absolute left-0 top-0 z-10 flex rounded-full bg-paper ring-1 ring-black/15 will-change-transform dark:ring-white/20',
               'transition-[scale,box-shadow,filter] duration-200 hover:scale-[1.18]',
               activeId === link.id &&
                 'scale-[1.18] shadow-[0_0_0_7px_color-mix(in_srgb,var(--color-accent)_12%,transparent)] ring-[1.5px] ring-accent',
@@ -158,6 +182,11 @@ export const FriendsConstellation = ({
             ref={(el) => {
               if (el) starElsRef.current.set(link.id, el)
               else starElsRef.current.delete(link.id)
+            }}
+            style={{
+              // The element is the avatar box (flex below), so `-50%` centres
+              // it exactly on the layout point.
+              translate: `calc(${p.x}px - 50%) calc(${p.y}px - 50%)`,
             }}
             onBlur={() => setActiveId(null)}
             onFocus={() => setActiveId(link.id)}

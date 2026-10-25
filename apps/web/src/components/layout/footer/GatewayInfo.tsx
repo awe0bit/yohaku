@@ -101,7 +101,7 @@ export const Heartbeat = () => {
   const reading = count > 0 ? rooms?.[index % Math.max(roomsLength, 1)] : null
 
   return (
-    <div className="flex flex-col gap-0.5 whitespace-nowrap md:contents">
+    <div className="flex min-w-0 flex-col items-start gap-1 whitespace-nowrap text-label-12 text-neutral-6 md:items-end">
       <FloatPopover
         asChild
         mobileAsSheet
@@ -110,7 +110,7 @@ export const Heartbeat = () => {
         placement="top-end"
         trigger="both"
         triggerElement={
-          <span className="inline-flex cursor-pointer items-baseline gap-1.5 md:col-start-2 md:row-start-3 md:justify-self-end">
+          <span className="inline-flex cursor-pointer items-baseline gap-1.5">
             <Pulse className="self-center" connected={connected} />
             <SlotText
               className="text-neutral-8"
@@ -160,7 +160,7 @@ export const Heartbeat = () => {
         </div>
       </FloatPopover>
 
-      <span className="hidden h-[1.6em] truncate text-neutral-8 md:col-span-2 md:row-start-4 md:block md:min-w-0 md:max-w-full md:justify-self-end md:mt-0.5">
+      <span className="hidden h-[1.5em] max-w-[30rem] truncate md:block md:text-right">
         {reading && <SlotText text={reading.title} />}
       </span>
     </div>

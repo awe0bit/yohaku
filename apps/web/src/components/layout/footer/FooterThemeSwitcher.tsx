@@ -6,9 +6,8 @@ import { flushSync } from 'react-dom'
 
 import { useIsClient } from '~/hooks/common/use-is-client'
 import { transitionViewIfSupported } from '~/lib/dom'
-import { clsxm } from '~/lib/helper'
 
-import { FooterKv } from './FooterKv'
+import { FooterOptionGroup } from './FooterKv'
 
 export const FooterThemeSwitcher = () => {
   const t = useTranslations('common')
@@ -33,32 +32,11 @@ export const FooterThemeSwitcher = () => {
   }
 
   return (
-    <FooterKv label={t('footer_theme')}>
-      <span className="inline-flex items-baseline">
-        {options.map((o, i) => (
-          <span key={o.value}>
-            <button
-              aria-label={o.aria}
-              aria-pressed={current === o.value}
-              type="button"
-              className={clsxm(
-                'transition-colors duration-200 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]',
-                current === o.value
-                  ? 'text-neutral-8 underline decoration-current/30 underline-offset-2'
-                  : 'text-neutral-6 hover:text-neutral-8',
-              )}
-              onClick={() => handleSelect(o.value)}
-            >
-              {o.label}
-            </button>
-            {i < options.length - 1 && (
-              <span aria-hidden className="mx-1 select-none text-neutral-5">
-                ·
-              </span>
-            )}
-          </span>
-        ))}
-      </span>
-    </FooterKv>
+    <FooterOptionGroup
+      label={t('footer_theme')}
+      options={options}
+      value={current}
+      onSelect={handleSelect}
+    />
   )
 }

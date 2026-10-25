@@ -6,10 +6,9 @@ import {
   setIsBackgroundEffectEnabled,
   useIsBackgroundEffectEnabled,
 } from '~/atoms/hooks/background'
-import { SlotText } from '~/components/ui/slot-text'
 import { useIsClient } from '~/hooks/common/use-is-client'
 
-import { FooterKv, footerKvValueClass } from './FooterKv'
+import { FooterOptionGroup } from './FooterKv'
 
 export const FooterBackgroundSwitcher = () => {
   const t = useTranslations('common')
@@ -18,16 +17,14 @@ export const FooterBackgroundSwitcher = () => {
   const on = isClient ? enabled : true
 
   return (
-    <FooterKv label={t('footer_background_effect')}>
-      <button
-        aria-checked={on}
-        className={footerKvValueClass}
-        role="switch"
-        type="button"
-        onClick={() => setIsBackgroundEffectEnabled(!on)}
-      >
-        <SlotText text={on ? t('footer_on') : t('footer_off')} />
-      </button>
-    </FooterKv>
+    <FooterOptionGroup
+      label={t('footer_background_effect')}
+      value={on ? 'on' : 'off'}
+      options={[
+        { label: t('footer_off'), value: 'off' },
+        { label: t('footer_on'), value: 'on' },
+      ]}
+      onSelect={(value) => setIsBackgroundEffectEnabled(value === 'on')}
+    />
   )
 }

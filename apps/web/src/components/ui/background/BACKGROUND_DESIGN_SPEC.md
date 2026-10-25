@@ -25,12 +25,12 @@ sheet were still floating in the papermaking vat.
 
 ## Footer surface
 
-The footer owns a surface, and it is accent, not paper: `footer-wash` dyes the
-sheet with a 5% accent wash that fades in over 96 px (6% in dark), and the
-colophon sits in a 1 px `paper-hairline` frame. The wash is translucent — the
-fibers, sunago and pressed petals still read through it — which is what keeps
-it different from the rejected viewport-edge band: a feathered, content-bound
-surface rather than a fixed line at the bottom of the screen.
+The footer is a 刷版 proof sheet, not a dyed band: on md+ the sheet takes
+`paper-panel-color` (3% accent over paper) and is framed only by light
+crop marks at its corners; there is no wash and no border. The slug line
+(build hash, date, copyright) sits outside the trim in small mono caps. The
+reading-now title gets its own right-aligned line because its width changes
+as it rotates.
 
 ## Layers and states
 

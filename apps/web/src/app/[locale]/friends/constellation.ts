@@ -1,5 +1,6 @@
 export type StarPoint<T> = { link: T; x: number; y: number }
 export type StarEdge = { from: number; to: number; faint: boolean }
+export type StarMap<T> = { points: StarPoint<T>[]; edges: StarEdge[] }
 export type Body = {
   x: number
   y: number
@@ -83,7 +84,7 @@ export const layoutStars = <T extends { id: string }>(
     seed: number
     compact?: boolean
   },
-) => {
+): StarMap<T> => {
   const { width, height, count, seed, compact = false } = options
   const pad = mapPadding(compact)
   // Labels sit under each star, so vertical neighbours need more room than horizontal ones.
@@ -143,20 +144,58 @@ export const layoutStars = <T extends { id: string }>(
   return { points, edges }
 }
 
+export type StepTiming = {
+  /** Heat ramps up over this window, then dissipates over `heatDecay`. */
+  chaos: number
+  heatDecay: number
+  /** `enter` stars fade/scale in from `fadeStart` over `fade`. */
+  fadeStart: number
+  fade: number
+  /** Pull toward the target slot engages at `pullStart` over `pullRamp`. */
+  pullStart: number
+  pullRamp: number
+  /** Nothing settles before this. */
+  settleMin: number
+}
+
+const STEP_TIMING: StepTiming = {
+  chaos: CHAOS_MS,
+  fade: 560,
+  fadeStart: 160,
+  heatDecay: 520,
+  pullRamp: 340,
+  pullStart: CHAOS_MS - 80,
+  settleMin: SETTLE_MIN_MS,
+}
+
+/** Cold start: no lingering in the core — the cloud bursts and scatters at once. */
+export const GENESIS_TIMING: StepTiming = {
+  chaos: 170,
+  fade: 240,
+  fadeStart: 40,
+  heatDecay: 300,
+  pullRamp: 190,
+  pullStart: 70,
+  settleMin: 480,
+}
+
 export const stepBodies = (
   bodies: Body[],
   t: number,
   dt: number,
   rand: () => number,
   bounds: { width: number; height: number },
+  timing: StepTiming = STEP_TIMING,
 ) => {
   const { width, height } = bounds
+  const { chaos, heatDecay, fadeStart, fade, pullStart, pullRamp, settleMin } =
+    timing
   const heat =
-    t < CHAOS_MS
-      ? easeInOutCubic(t / CHAOS_MS)
-      : Math.max(0, 1 - (t - CHAOS_MS) / 520)
-  const pull = clamp((t - CHAOS_MS + 80) / 340, 0, 1)
-  let restless = t < SETTLE_MIN_MS
+    t < chaos
+      ? easeInOutCubic(t / chaos)
+      : Math.max(0, 1 - (t - chaos) / heatDecay)
+  const pull = clamp((t - pullStart) / pullRamp, 0, 1)
+  let restless = t < settleMin
 
   for (const b of bodies) {
     let ax = (rand() - 0.5) * 2 * 5200 * heat - (b.y - height / 2) * 1.6 * heat
@@ -186,7 +225,7 @@ export const stepBodies = (
       continue
     }
     if (b.phase === 'enter') {
-      const k = clamp((t - 160) / 560, 0, 1)
+      const k = clamp((t - fadeStart) / fade, 0, 1)
       b.alpha = k
       b.scale = 0.4 + 0.6 * easeInOutCubic(k)
     }

@@ -12,6 +12,7 @@ import { MiSansLoader } from '~/components/common/MiSansLoader'
 import { OpenPanelInit } from '~/components/common/OpenPanelInit'
 import { SafariDetector } from '~/components/common/SafariDetector'
 import { SyncServerTime } from '~/components/common/SyncServerTime'
+import { BgmProvider } from '~/components/layout/bgm/BgmProvider'
 import { Root } from '~/components/layout/root/Root'
 import { SearchPanelWithHotKey } from '~/components/modules/shared/SearchPanel'
 import { BackgroundTexture } from '~/components/ui/background/BackgroundTexture'
@@ -65,9 +66,11 @@ export const AppShell = ({
             aggregationData={data}
             appConfig={data.theme.config}
           />
-          <div data-theme id="root">
-            <Root footerConfig={data.theme.footer}>{children}</Root>
-          </div>
+          <BgmProvider>
+            <div data-theme id="root">
+              <Root footerConfig={data.theme.footer}>{children}</Root>
+            </div>
+          </BgmProvider>
           <SearchPanelWithHotKey />
           <Analyze />
           <SyncServerTime />

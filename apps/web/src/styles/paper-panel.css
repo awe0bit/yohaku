@@ -62,37 +62,3 @@
     border-color: rgba(255, 255, 255, 0.1);
   }
 }
-
-/* The footer is dyed, not surfaced: a 5% accent wash keeps the fibers and
-   sunago visible, and its top edge is feathered so no hard line appears. */
-@utility footer-wash {
-  background-image: linear-gradient(
-    to bottom,
-    transparent 0,
-    color-mix(in oklab, var(--color-accent) 5%, transparent) 56px
-  );
-
-  @media (width >= 48rem) {
-    background-image: linear-gradient(
-      to bottom,
-      transparent 0,
-      color-mix(in oklab, var(--color-accent) 5%, transparent) 96px
-    );
-  }
-
-  [data-theme='dark'] & {
-    background-image: linear-gradient(
-      to bottom,
-      transparent 0,
-      color-mix(in oklab, var(--color-accent) 6%, transparent) 56px
-    );
-
-    @media (width >= 48rem) {
-      background-image: linear-gradient(
-        to bottom,
-        transparent 0,
-        color-mix(in oklab, var(--color-accent) 6%, transparent) 96px
-      );
-    }
-  }
-}

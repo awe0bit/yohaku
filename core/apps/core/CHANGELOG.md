@@ -1,3 +1,36 @@
+## [15.6.0](https://github.com/mx-space/core/compare/v15.5.0...v15.6.0) (2026-10-26)
+
+### Features
+
+* **drafts:** add bulk organization for published articles ([ab7b755](https://github.com/mx-space/core/commit/ab7b755d337cd018139d9e02ce90dba4ab780755))
+* **admin:** single-pane email template editor ([122e056](https://github.com/mx-space/core/commit/122e0562123f2f3e7622032bcfc7909648a81a61))
+
+### Bug Fixes
+
+* **drafts:** prevent previews from recreating deleted collaborative drafts ([ab7b755](https://github.com/mx-space/core/commit/ab7b755d337cd018139d9e02ce90dba4ab780755))
+* **drafts:** protect concurrent field edits and pending publications during cleanup ([ab7b755](https://github.com/mx-space/core/commit/ab7b755d337cd018139d9e02ce90dba4ab780755))
+
+## [15.5.0](https://github.com/mx-space/core/compare/v15.4.0...v15.5.0) (2026-10-25)
+
+### Features
+
+* **admin:** inline draft diff with version picker and side-by-side dialog ([c1066b0](https://github.com/mx-space/core/commit/c1066b0953927b9d64b7ba9878dfad345711463a))
+
+### Bug Fixes
+
+* **admin:** use SelectField and align padding in drafts cleanup dialog ([756d2dc](https://github.com/mx-space/core/commit/756d2dcf3153aec2318ce0f6a0f1e2da1b10231a))
+
+## [15.4.0](https://github.com/mx-space/core/compare/v15.3.0...v15.4.0) (2026-10-25)
+
+### Features
+
+* collaborative editing on Loro — realtime room, AI peer, co-authors ([#2870](https://github.com/mx-space/core/pull/2870)) ([cfb24a0](https://github.com/mx-space/core/commit/cfb24a0d29ccd485025c1b9c0e4cf7f841f54cc1))
+* **drafts:** draft management and storage reclamation ([88c3c69](https://github.com/mx-space/core/commit/88c3c690bc2d8b07c1ef6d8c542094d91245cc30))
+
+### Bug Fixes
+
+* **ai:** allow saving LobeHub providers without an API key ([b58dc67](https://github.com/mx-space/core/commit/b58dc6746e744c2987dc8bf550e67a09d835d9da))
+
 ## [15.3.0](https://github.com/mx-space/core/compare/v15.2.0...v15.3.0) (2026-10-25)
 
 ### Features

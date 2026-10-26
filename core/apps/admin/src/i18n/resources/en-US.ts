@@ -1145,6 +1145,19 @@ export const enUS = {
   'debug.toast.withAction.title': 'With Action',
 
   'drafts.countLabel': '{count}',
+  'drafts.compare.changesOnly': 'Changes only',
+  'drafts.compare.collapsed': '⋯ {count} unchanged blocks',
+  'drafts.compare.doomedHint': 'Dimmed versions are removed on compaction',
+  'drafts.compare.fullText': 'Full text',
+  'drafts.compare.label': 'Compare',
+  'drafts.compare.nextAria': 'Newer version',
+  'drafts.compare.openSplit': 'Side by side',
+  'drafts.compare.pickerAria': 'Choose a version to compare',
+  'drafts.compare.prevAria': 'Older version',
+  'drafts.compare.restore': 'Restore this version',
+  'drafts.compare.splitTitle': 'Side-by-side comparison',
+  'drafts.compare.versionCount': '{count} versions',
+  'drafts.compare.viewAria': 'Display mode',
   'drafts.detail.backAria': 'Back to draft list',
   'drafts.detail.confirmDelete': 'Delete "{title}"?',
   'drafts.detail.delete': 'Delete',
@@ -1166,6 +1179,7 @@ export const enUS = {
   'drafts.history.direction': 'Historical draft → current draft',
   'drafts.history.historyFile': 'historical-draft',
   'drafts.history.deltaChars': '{delta} chars',
+  'drafts.history.noEarlier': 'No earlier versions yet',
   'drafts.history.pickVersion': 'Select a historical version to view the diff',
   'drafts.history.restoreFailed': 'Restore failed',
   'drafts.history.restoreSuccess': 'Version restored',
@@ -2399,7 +2413,7 @@ export const enUS = {
   'settings.group.site.description': 'Site URL, SEO',
   'settings.group.site.title': 'Site',
   'settings.group.storage.description':
-    'Backup, image hosting, comment image uploads',
+    'Backup, image hosting, comment image uploads, draft cleanup',
   'settings.group.storage.title': 'Storage',
   'settings.group.system.description': 'Admin settings, feature toggles',
   'settings.group.system.title': 'System',
@@ -3451,6 +3465,8 @@ export const enUS = {
   'subscribe.toggle.success': 'Subscription settings updated',
 
   'templates.action.testSmtp': 'Test SMTP',
+  'templates.preview.fit': 'Fit {percent}%',
+  'templates.preview.fitHint': 'The email scales down to fit the pane',
   'templates.preview.title': 'Live preview',
   'templates.previewFailed': 'Render failed',
   'templates.props.button': 'Sample props',
@@ -3468,6 +3484,8 @@ export const enUS = {
   'templates.saveFailed': 'Save failed',
   'templates.saveSuccess': 'Template saved',
   'templates.saved': 'Saved',
+  'templates.split.aria': 'Resize the editor and preview',
+  'templates.switcher.aria': 'Switch email template',
   'templates.testSmtp.failed': 'Test email failed',
   'templates.testSmtp.success': 'Test email sent to owner',
   'templates.title': 'Templates',
@@ -3481,7 +3499,6 @@ export const enUS = {
   'templates.view.aria': 'Editor view mode',
   'templates.view.code': 'Code',
   'templates.view.preview': 'Preview',
-  'templates.view.split': 'Split',
 
   'time.daysAgo': '{count}d ago',
   'time.hoursAgo': '{count}h ago',
@@ -3779,7 +3796,7 @@ export const enUS = {
   'write.format.switchUnavailable.title': 'Editor switching is unavailable',
   'write.format.switchUnavailable.description':
     'CodeMirror edits Markdown source, while Lexical stores rich-text structure. Converting an article that already has content can lose formatting, special nodes, or source syntax, so switching is disabled. Choose the editor you need before writing in a new, empty article.',
-  'write.migration.action.blocked': 'Conversion blocked ({{count}})',
+  'write.migration.action.blocked': 'Conversion blocked ({count})',
   'write.migration.action.checking': 'Checking conversion',
   'write.migration.action.committing': 'Committing conversion',
   'write.migration.action.convert': 'Convert to Lexical',
@@ -4169,6 +4186,65 @@ export const enUS = {
   'write.share.shareRevision': 'Share this version',
   'write.share.linkedHere': 'The share link points here',
   'write.share.revoke': 'Revoke share link',
+  'write.timeline.title': 'History',
+  'write.collab.peerOtherTab': '{name} (another tab of yours)',
+  'write.collab.more': '{count} more',
+  'write.collab.editing': 'People editing',
+  'write.timeline.step.coauthor': "{name}'s edits ({count})",
+  'write.collaborators.title': 'Co-authors',
+  'write.collaborators.unknownAuthor': 'A co-author',
+  'write.collaborators.historyNotice':
+    "Co-authors receive the draft's full edit history, including text deleted before they joined.",
+  'write.collaborators.invite': 'Invite link',
+  'write.collaborators.linkCopied': 'Invite link copied',
+  'write.collaborators.linkExpires': 'Link · expires {time} · used {uses}',
+  'write.collaborators.revokeLink': 'Revoke invite link',
+  'write.collaborators.byline': 'Byline',
+  'write.collaborators.remove': 'Remove {name}',
+  'write.collaborators.removed': 'Co-author removed',
+  'write.collaborators.failed': 'Could not create the invite link',
+  'collab.join.title': 'Co-write this article',
+  'collab.join.signInHint': 'Sign in to accept the invitation.',
+  'collab.join.signInWith': 'Continue with {provider}',
+  'collab.join.noProviders': 'No sign-in method is set up on this site.',
+  'collab.join.accepting': 'Opening the document…',
+  'collab.join.invalid': 'This invite link has expired or was revoked.',
+  'collab.join.failed': 'Could not accept the invitation.',
+  'collab.document.editingAs': 'Editing as {name}',
+  'collab.document.offline': 'Offline, changes will sync later',
+  'collab.document.titleLabel': 'Title',
+  'collab.document.rejected':
+    'Your last change was refused; the document was reloaded.',
+  'collab.document.revokedTitle': 'You no longer have access',
+  'collab.document.revokedDescription':
+    'The author removed you from this document. Your earlier edits are kept.',
+  'collab.document.unavailableTitle': 'Document unavailable',
+  'collab.document.unavailableDescription':
+    'Open your invite link again to sign in.',
+  'write.timeline.emptyTitle': 'No history yet',
+  'write.timeline.emptyDescription':
+    'Every step appears here once you save or edit.',
+  'write.timeline.restore': 'Restore this version',
+  'write.timeline.restoreTitle': 'Restore this version?',
+  'write.timeline.restoreDescription':
+    'Restoring is written as a new change; later history is kept.',
+  'write.timeline.restored': 'Restored',
+  'write.timeline.undo': 'Undo this step',
+  'write.timeline.undone': 'Step undone',
+  'write.timeline.failed': 'Action failed',
+  'write.timeline.published': 'Live',
+  'write.timeline.checkpoint.save': 'Saved',
+  'write.timeline.checkpoint.publish': 'Published',
+  'write.timeline.checkpoint.restore': 'Restored',
+  'write.timeline.checkpoint.undo': 'Undone',
+  'write.timeline.checkpoint.import': 'Collaborative editing started',
+  'write.timeline.checkpoint.legacySave': 'Saved elsewhere',
+  'write.timeline.checkpoint.legacy': 'Earlier version',
+  'write.timeline.step.human': 'Your edits ({count})',
+  'write.timeline.step.agent': 'AI: {summary}',
+  'write.timeline.step.restore': 'Restore',
+  'write.timeline.step.undo': 'Undo',
+  'write.timeline.step.other': 'System',
   'write.share.revoked': 'Share link revoked',
   'write.branch.compare': 'Compare',
   'write.branch.history': 'View branch history',
@@ -4352,6 +4428,10 @@ export const enUS = {
   'write.toast.publishedDraftSaved':
     'Changes saved as a draft and not yet applied to the online article',
   'write.toast.unpublishedSaved': 'Unpublished content saved',
+  'write.toast.draftResynced':
+    'Sync was rejected; your content was saved again',
+  'write.toast.draftSyncPending':
+    'The shared document is still loading; try saving again shortly',
   'write.toast.draftSaveFailed': 'Failed to save draft',
   'write.toast.draftTypeMismatch':
     'Draft type does not match current writing page',
@@ -4465,4 +4545,198 @@ export const enUS = {
   'dynamicNode.outdatedHint':
     "This block uses an older version of the component. The form follows the current version's schema.",
   'dynamicComponents.detail.previousUrls': 'Earlier versions',
+  'drafts.storage.title': 'Draft storage',
+  'drafts.storage.total': 'Drafts use',
+  'drafts.storage.reclaimable': 'Reclaimable',
+  'drafts.storage.revisions': 'Versions',
+  'drafts.storage.crdt': 'Collaboration data',
+  'drafts.storage.updates': 'Pending updates',
+  'drafts.autoCleanup.on': 'Auto cleanup: on',
+  'drafts.autoCleanup.off': 'Auto cleanup: off',
+  'drafts.cleanup.open': 'Free up space',
+  'drafts.cleanup.title': 'Free up space',
+  'drafts.cleanup.subtitle':
+    'Pick what to clean up. It runs right away and cannot be undone.',
+  'drafts.cleanup.olderThanPrefix': 'Only touch content idle for more than',
+  'drafts.cleanup.olderThanSuffix': '',
+  'drafts.cleanup.days': '{count} days',
+  'drafts.cleanup.count': '{count} items',
+  'drafts.cleanup.inSync.title':
+    'Delete drafts identical to the published version',
+  'drafts.cleanup.inSync.description':
+    'Everything is published; the draft goes with its versions and collaboration data. Editing again starts a new draft from the published version.',
+  'drafts.cleanup.revisions.title': 'Delete old intermediate versions',
+  'drafts.cleanup.revisions.description':
+    'Only old saved snapshots are removed. The current content of each draft stays.',
+  'drafts.cleanup.crdt.title': 'Compact idle collaboration data',
+  'drafts.cleanup.crdt.description':
+    'Documents nobody edited for a while are rebuilt from their current content. Step-by-step undo and history are dropped.',
+  'drafts.cleanup.orphans.title': 'Delete orphaned collaboration data',
+  'drafts.cleanup.orphans.description':
+    'Collaboration data left behind by drafts that no longer exist.',
+  'drafts.cleanup.archived.title': 'Archived drafts',
+  'drafts.cleanup.archived.description':
+    '{count} drafts. They may hold unpublished content; tick the ones to delete.',
+  'drafts.cleanup.keptTitle': 'No cleanup ever touches',
+  'drafts.cleanup.kept.ahead':
+    'The current content of drafts with unpublished changes',
+  'drafts.cleanup.kept.published': 'Every published version',
+  'drafts.cleanup.kept.shared': 'Versions behind share links',
+  'drafts.cleanup.kept.base': 'Each draft base version, used for comparison',
+  'drafts.cleanup.total': 'Frees about {size}',
+  'drafts.cleanup.run': 'Clean up now',
+  'drafts.cleanup.done': 'Freed {size}',
+  'drafts.cleanup.failed': 'Cleanup failed',
+  'drafts.deleteDialog.titleOne': 'Delete the draft “{title}”?',
+  'drafts.deleteDialog.titleMany': 'Delete {count} drafts?',
+  'drafts.deleteDialog.subtitle':
+    'Deleted right away and cannot be undone. Published articles are not affected.',
+  'drafts.deleteDialog.collabWarning':
+    'This has collaboration data. Co-authors editing it now are removed immediately.',
+  'drafts.deleteDialog.removed': 'Will be deleted',
+  'drafts.deleteDialog.removedRevisions':
+    'The draft and the versions only it uses (of {count})',
+  'drafts.deleteDialog.removedCrdt':
+    'Collaboration data, with step-by-step history',
+  'drafts.deleteDialog.kept': 'Kept',
+  'drafts.deleteDialog.keptPublished':
+    'Published versions and publication history',
+  'drafts.deleteDialog.keptShare':
+    'Share links point to the latest published version',
+  'drafts.deleteDialog.keptNothing':
+    'This was never published; nothing remains after deleting',
+  'drafts.deleteDialog.reopen':
+    'Editing again starts a new draft from the published version. Co-authors need a new invite link to rejoin.',
+  'drafts.deleteDialog.confirm': 'Delete and free about {size}',
+  'drafts.relation.inSync': 'Same as published',
+  'drafts.relation.ahead': 'Unpublished changes',
+  'drafts.relation.fresh': 'Never published',
+  'drafts.sort.label': 'Sort',
+  'drafts.sort.updated': 'Recently updated',
+  'drafts.sort.size': 'Largest first',
+  'drafts.row.versions': '{count} versions',
+  'drafts.row.hasCrdt': 'Has collaboration data',
+  'drafts.list.selectedBytes': 'about {size}',
+  'drafts.compact.action': 'Compact history',
+  'drafts.compact.actionWithSize': 'Compact history · free {size}',
+  'drafts.compact.title': 'Compact the history of {count} drafts?',
+  'drafts.compact.description':
+    'Keeps the current content, published and shared versions; deletes intermediate versions and step-by-step history. Cannot be undone. Open editors reload.',
+  'drafts.compact.confirm': 'Compact',
+  'drafts.compact.done': 'Compacted, freed {size}',
+  'drafts.compact.failed': 'Compaction failed',
+  'drafts.toast.deletePartial':
+    'Skipped {count} drafts with a publish task in progress',
+  'drafts.toast.deletedFreed': 'Draft deleted, freed {size}',
+  'drafts.storagePanel.revisionsValue': '{count} · {size}',
+  'drafts.version.doomed': 'Removed on compaction',
+  'write.toast.draftCompacted': 'Draft history was compacted; reloaded',
+  'write.toast.draftDeleted': 'This draft was deleted; changes no longer sync',
+  'settings.schema.draftCleanupOptions.title': 'Draft cleanup',
+  'settings.schema.draftCleanupOptions.enable.title':
+    'Clean up drafts automatically',
+  'settings.schema.draftCleanupOptions.enable.description':
+    'Runs daily at 04:30 with the same rules as “Free up space” on the drafts page. Drafts with unpublished changes are never deleted.',
+  'settings.schema.draftCleanupOptions.olderThanDays.title':
+    'Only touch content idle for (days)',
+  'settings.schema.draftCleanupOptions.olderThanDays.description':
+    'Minimum 7. Default 30',
+  'settings.schema.draftCleanupOptions.deleteInSyncDrafts.title':
+    'Delete drafts identical to the published version',
+  'settings.schema.draftCleanupOptions.pruneRevisions.title':
+    'Delete old intermediate versions',
+  'settings.schema.draftCleanupOptions.pruneRevisions.description':
+    'Keeps the current content, published versions, shared versions and each draft base',
+  'settings.schema.draftCleanupOptions.compactCrdt.title':
+    'Compact idle collaboration data',
+  'settings.schema.draftCleanupOptions.compactCrdt.description':
+    'Rebuilds from the current content; step-by-step history is dropped',
+  'settings.schema.draftCleanupOptions.removeOrphanCrdt.title':
+    'Remove orphaned collaboration data',
+  'settings.maintenance.draftCleanup.label': 'Draft storage',
+  'settings.maintenance.draftCleanup.value': '{size} reclaimable',
+  'settings.maintenance.draftCleanup.description':
+    'Delete published drafts, old versions and idle collaboration data',
+  'settings.maintenance.draftCleanup.action': 'Preview and clean up',
+  'drafts.organizer.open': 'Organize drafts',
+  'drafts.organizer.title': 'Organize drafts',
+  'drafts.organizer.description':
+    'Discard drafts and old history for articles you no longer plan to edit.',
+  'drafts.organizer.published': 'Published content',
+  'drafts.organizer.ageFilter': 'Last edited',
+  'drafts.organizer.typeFilter': 'Content type',
+  'drafts.organizer.days': 'Unedited for {count} days',
+  'drafts.organizer.anyTime': 'Any time',
+  'drafts.organizer.includeChanges':
+    'Includes unpublished changes · Unpublished articles are excluded',
+  'drafts.organizer.search': 'Search article titles',
+  'drafts.organizer.oldest': 'Oldest edits first',
+  'drafts.organizer.matching': '{count} matching articles',
+  'drafts.organizer.selected': '{count} articles selected',
+  'drafts.organizer.allSelected': 'All {count} matching articles selected',
+  'drafts.organizer.selectAll': 'Select all {count} articles',
+  'drafts.organizer.clear': 'Clear selection',
+  'drafts.organizer.selectPage': 'Select all articles on this page',
+  'drafts.organizer.selectArticle': 'Select {title}',
+  'drafts.organizer.article': 'Article',
+  'drafts.organizer.history': 'Drafts and history',
+  'drafts.organizer.bytes': 'Reclaimable',
+  'drafts.organizer.lastEdited': 'Last edited',
+  'drafts.organizer.changed': 'Unpublished changes',
+  'drafts.organizer.inSync': 'Same as published',
+  'drafts.organizer.summary': 'Selected for organizing',
+  'drafts.organizer.estimated': 'Estimated space to reclaim',
+  'drafts.organizer.draftCount': '{count} drafts',
+  'drafts.organizer.revisionCount': '{count} historical versions',
+  'drafts.organizer.collab': 'Associated collaboration history is also removed',
+  'drafts.organizer.changedNotice': '{count} articles have unpublished changes',
+  'drafts.organizer.changedHint':
+    'These changes will also be discarded. Review the selection before continuing.',
+  'drafts.organizer.kept': 'Published content and comments stay unchanged',
+  'drafts.organizer.keptShared':
+    'Versions referenced by publication records or shared links are kept.',
+  'drafts.organizer.review': 'Review selection',
+  'drafts.organizer.nextHint': 'Review next; nothing is deleted yet',
+  'drafts.organizer.skipHint':
+    'Articles being edited, being published, or changed since the preview are skipped. Actual reclaimed space is reported after completion.',
+  'drafts.organizer.loadFailed': 'Could not load the preview',
+  'drafts.organizer.empty': 'No matching drafts',
+  'drafts.organizer.emptyHint':
+    'Try a different age, content type, or search term.',
+  'drafts.organizer.confirmTitle': 'Discard drafts for {count} articles?',
+  'drafts.organizer.confirmIntro':
+    'Keep published content and discard all drafts and reclaimable history for these articles.',
+  'drafts.organizer.selection': '{count} articles · {drafts} drafts',
+  'drafts.organizer.removed': 'Will be discarded',
+  'drafts.organizer.irreversible':
+    'These changes differ from the published content and cannot be restored after organizing.',
+  'drafts.organizer.ack':
+    'I no longer need the unpublished changes in these {count} articles',
+  'drafts.organizer.back': 'Back to review',
+  'drafts.organizer.discard': 'Discard {count} drafts',
+  'drafts.organizer.progress': 'Organizing {count}/{total}',
+  'drafts.organizer.mobileSelection':
+    '{count} selected · {changed} with changes',
+  'drafts.organizer.doneTitle': 'Drafts organized.',
+  'drafts.organizer.interrupted': 'Organizing interrupted',
+  'drafts.organizer.doneDescription':
+    '{count} articles organized; {skipped} skipped.',
+  'drafts.organizer.actualBytes': 'Space reclaimed',
+  'drafts.organizer.removedDrafts': 'Drafts discarded',
+  'drafts.organizer.removedRevisions': 'Versions removed',
+  'drafts.organizer.skippedTitle': 'Drafts for {count} articles were kept',
+  'drafts.organizer.skippedHint':
+    'These drafts were not discarded. Review them later before organizing again.',
+  'drafts.organizer.reason.changed': 'Changed since the preview',
+  'drafts.organizer.reason.editing': 'Being edited',
+  'drafts.organizer.reason.publishing': 'Publication queued or running',
+  'drafts.organizer.reason.unconfirmed':
+    'Discarding changes was not acknowledged',
+  'drafts.organizer.reason.failed': 'Could not complete; try again later',
+  'drafts.organizer.unverifiedTitle':
+    '{count} articles are unfinished or have unconfirmed results',
+  'drafts.organizer.unverifiedHint':
+    'The connection was interrupted. Some operations may have completed. Refresh and check the remaining drafts before continuing.',
+  'drafts.organizer.reviewRemaining': 'Review remaining drafts',
+  'drafts.organizer.backDrafts': 'Back to drafts',
 } satisfies Record<TranslationKey, string>

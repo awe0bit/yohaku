@@ -21,6 +21,10 @@
       "types": "./src/core/index.ts",
       "import": "./src/core/index.ts"
     },
+    "./loro": {
+      "types": "./src/loro/index.ts",
+      "import": "./src/loro/index.ts"
+    },
     "./package.json": "./package.json"
   },
   "publishConfig": {
@@ -36,6 +40,10 @@
       "./core": {
         "types": "./dist/core/index.d.ts",
         "import": "./dist/core/index.js"
+      },
+      "./loro": {
+        "types": "./dist/loro/index.d.ts",
+        "import": "./dist/loro/index.js"
       },
       "./package.json": "./package.json"
     }
@@ -60,16 +68,30 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@haklex/rich-headless": "0.54.4",
-    "@haklex/rich-litexml": "0.54.4",
+    "@haklex/rich-headless": "0.58.0",
+    "@haklex/rich-litexml": "0.58.0",
     "@lexical/headless": "^0.52.0",
     "@lexical/markdown": "^0.52.0",
     "@noble/hashes": "2.4.0",
     "lexical": "^0.52.0"
   },
   "devDependencies": {
+    "@haklex/rich-collab-loro": "0.58.0",
+    "loro-crdt": "^1.16.4",
     "tsdown": "0.23.0",
     "typescript": "6.0.3",
     "vitest": "5.0.5"
+  },
+  "peerDependencies": {
+    "@haklex/rich-collab-loro": "0.58.0",
+    "loro-crdt": "^1.16.4"
+  },
+  "peerDependenciesMeta": {
+    "@haklex/rich-collab-loro": {
+      "optional": true
+    },
+    "loro-crdt": {
+      "optional": true
+    }
   }
 }

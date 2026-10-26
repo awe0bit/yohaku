@@ -11,6 +11,7 @@ import { validateLexicalCreateContentPair } from '~/shared/schema'
 import { ContentFormat } from '~/shared/types/content-format.type'
 
 import { DraftRefType } from './draft.enum'
+import { DRAFT_RELATIONS } from './draft.types'
 
 const ImageModelSchema = z.object({
   alt: z.string().optional(),
@@ -51,8 +52,10 @@ export const DraftPagerSchema = z.object({
   hasRef: zCoerceBoolean.optional(),
   page: zPaginationPage,
   refType: z.enum(DraftRefType).optional(),
+  relation: z.enum(DRAFT_RELATIONS).optional(),
   search: z.string().optional(),
   size: zPaginationSize,
+  sort: z.enum(['size', 'updated']).optional(),
   sortBy: z.string().optional(),
   sortOrder: zSortOrder,
 })
@@ -96,3 +99,44 @@ export const SetDraftShareSchema = z.discriminatedUnion('mode', [
 ])
 
 export type SetDraftShareDto = z.infer<typeof SetDraftShareSchema>
+
+export const DraftCrdtQuerySchema = z.object({
+  since: z.string().max(65_536).optional(),
+})
+
+export type DraftCrdtQueryDto = z.infer<typeof DraftCrdtQuerySchema>
+
+export const DraftCheckpointSchema = z.object({
+  kind: z.enum(['save', 'publish']),
+})
+
+export type DraftCheckpointDto = z.infer<typeof DraftCheckpointSchema>
+
+export const DraftFieldsSchema = z
+  .object({
+    meta: z.record(z.string(), z.unknown()).optional(),
+    typeSpecificData: z.record(z.string(), z.unknown()).optional(),
+  })
+  .refine((value) => value.meta || value.typeSpecificData, {
+    message: 'Nothing to update',
+  })
+
+export type DraftFieldsDto = z.infer<typeof DraftFieldsSchema>
+
+export const DraftRestoreSchema = z.object({
+  revisionId: zEntityId,
+})
+
+export type DraftRestoreDto = z.infer<typeof DraftRestoreSchema>
+
+const OpIdSchema = z.object({
+  counter: z.number().int().nonnegative(),
+  peer: z.string().regex(/^\d+$/),
+})
+
+export const DraftUndoSchema = z.object({
+  before: z.array(OpIdSchema).max(64),
+  id: OpIdSchema,
+})
+
+export type DraftUndoDto = z.infer<typeof DraftUndoSchema>

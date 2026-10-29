@@ -4,10 +4,9 @@ import { useLocale, useTranslations } from 'next-intl'
 import type { FC } from 'react'
 import { useCallback, useMemo } from 'react'
 
-import { swapPaperContentAcrossRoute } from '~/components/layout/container/paper-swap'
 import { LanguageSelector } from '~/components/ui/language-selector'
-import { locales } from '~/i18n/config'
-import { usePathname, useRouter } from '~/i18n/navigation'
+import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
+import { isSupportedLocale } from '~/i18n/config'
 
 function getLanguageLabel(
   code: string,
@@ -29,9 +28,6 @@ function getLanguageLabel(
   return code.toUpperCase()
 }
 
-const isSupportedLocale = (code?: string | null): code is string =>
-  !!code && (locales as readonly string[]).includes(code)
-
 interface TranslationLanguageSwitcherProps {
   availableTranslations?: string[]
   sourceLang?: string
@@ -44,8 +40,7 @@ export const TranslationLanguageSwitcher: FC<
   const t = useTranslations('translation')
   const tCommon = useTranslations('common')
   const appLocale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
+  const switchLocale = useSwitchLocale()
 
   const languages = useMemo(() => {
     const langSet = new Set<string>()
@@ -77,13 +72,9 @@ export const TranslationLanguageSwitcher: FC<
 
   const handleLanguageChange = useCallback(
     (lang: string) => {
-      const locale = lang as (typeof locales)[number]
-      const swapped = swapPaperContentAcrossRoute(() =>
-        router.push(pathname, { locale, scroll: false }),
-      )
-      if (!swapped) router.push(pathname, { locale })
+      if (isSupportedLocale(lang)) switchLocale(lang)
     },
-    [pathname, router],
+    [switchLocale],
   )
 
   if (languages.length <= 1) {

@@ -5,8 +5,8 @@ import { atomWithStorage } from 'jotai/utils'
 import { useLocale } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
 import type { Locale } from '~/i18n/config'
-import { usePathname, useRouter } from '~/i18n/navigation'
 import { buildNSKey } from '~/lib/ns'
 
 import type { LocaleSuggestionCopy } from './copy'
@@ -49,8 +49,7 @@ export interface LocaleSuggestion {
 
 export const useLocaleSuggestion = (): LocaleSuggestion | null => {
   const currentLocale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
+  const switchLocale = useSwitchLocale()
   const [dismissed, setDismissed] = useAtom(dismissedAtom)
   const [suggested, setSuggested] = useState<Locale | null>(null)
 
@@ -79,8 +78,8 @@ export const useLocaleSuggestion = (): LocaleSuggestion | null => {
   const accept = useCallback(() => {
     if (!suggested) return
     setSuggested(null)
-    router.push(pathname, { locale: suggested })
-  }, [suggested, router, pathname])
+    switchLocale(suggested)
+  }, [suggested, switchLocale])
 
   useEffect(() => {
     if (!suggested) return

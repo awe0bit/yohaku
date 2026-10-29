@@ -10,8 +10,8 @@ import { useMaybeInRoomContext } from '~/components/modules/activity'
 import { AIGenBadge } from '~/components/modules/ai/AIGenBadge'
 import { TranslationLanguageSwitcher } from '~/components/modules/translation/TranslationLanguageSwitcher'
 import { FloatPopover } from '~/components/ui/float-popover'
-import { locales } from '~/i18n/config'
-import { usePathname, useRouter } from '~/i18n/navigation'
+import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
+import { isSupportedLocale } from '~/i18n/config'
 import { articleMetaOf } from '~/lib/api/article-meta'
 import {
   getMoodLabel,
@@ -42,9 +42,6 @@ const languageNameKey = {
   'zh-TW': 'language_zh_tw',
 } as const
 
-const isSupportedLocale = (code?: string | null): code is string =>
-  !!code && (locales as readonly string[]).includes(code)
-
 const TranslatedInlineNotice = () => {
   const articleTranslation = useCurrentNoteMetaSelector(
     (m) => articleMetaOf(m).translation,
@@ -52,16 +49,14 @@ const TranslatedInlineNotice = () => {
   const tCommon = useTranslations('common')
   const tNote = useTranslations('note')
   const appLocale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
+  const switchLocale = useSwitchLocale()
 
   const sourceLang = articleTranslation?.sourceLang
   const canSwitch = isSupportedLocale(sourceLang) && sourceLang !== appLocale
 
   const onSwitch = useCallback(() => {
-    if (!canSwitch || !sourceLang) return
-    router.push(pathname, { locale: sourceLang as (typeof locales)[number] })
-  }, [canSwitch, pathname, router, sourceLang])
+    if (isSupportedLocale(sourceLang)) switchLocale(sourceLang)
+  }, [sourceLang, switchLocale])
 
   if (!articleTranslation?.isTranslated) return null
 

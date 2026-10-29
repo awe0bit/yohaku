@@ -4,17 +4,16 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useCallback, useTransition } from 'react'
 
 import { useMarkLocaleSuggestionDismissed } from '~/components/modules/locale-suggestion/use-locale-suggestion'
+import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
 import type { Locale } from '~/i18n/config'
-import { locales } from '~/i18n/config'
-import { usePathname, useRouter } from '~/i18n/navigation'
+import { isSupportedLocale, locales } from '~/i18n/config'
 
 import { FooterKvMenu } from './FooterKv'
 
 export const LocaleSwitcher = () => {
   const t = useTranslations('common')
   const locale = useLocale()
-  const router = useRouter()
-  const pathname = usePathname()
+  const switchLocale = useSwitchLocale()
   const [isPending, startTransition] = useTransition()
 
   const localeLabels: Record<Locale, string> = {
@@ -29,13 +28,13 @@ export const LocaleSwitcher = () => {
 
   const handleLocaleChange = useCallback(
     (newLocale: string) => {
-      if (newLocale === locale) return
-      markSuggestionDismissed(newLocale as Locale)
+      if (newLocale === locale || !isSupportedLocale(newLocale)) return
+      markSuggestionDismissed(newLocale)
       startTransition(() => {
-        router.push(pathname, { locale: newLocale })
+        switchLocale(newLocale)
       })
     },
-    [locale, markSuggestionDismissed, pathname, router],
+    [locale, markSuggestionDismissed, switchLocale],
   )
 
   return (

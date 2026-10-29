@@ -5,8 +5,8 @@ import { useLocale, useTranslations } from 'next-intl'
 import { Children, type FC, type ReactNode, useCallback, useState } from 'react'
 
 import { TranslatedBadge } from '~/components/modules/translation/TranslatedBadge'
-import { locales } from '~/i18n/config'
-import { usePathname, useRouter } from '~/i18n/navigation'
+import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
+import { isSupportedLocale } from '~/i18n/config'
 import { clsxm } from '~/lib/helper'
 
 import { aiNoticeTrail } from './notice-card-ai-fold'
@@ -188,15 +188,11 @@ export const NoticeCardItem: FC<NoticeCardItemProps> = ({
   )
 }
 
-const isSupportedLocale = (code?: string | null): code is string =>
-  !!code && (locales as readonly string[]).includes(code)
-
 export const TranslationNoticeContent: FC<{
   articleTranslation: ArticleTranslation
 }> = ({ articleTranslation }) => {
   const t = useTranslations('translation')
-  const router = useRouter()
-  const pathname = usePathname()
+  const switchLocale = useSwitchLocale()
   const appLocale = useLocale()
 
   const sourceLang = articleTranslation.sourceLang
@@ -204,9 +200,8 @@ export const TranslationNoticeContent: FC<{
     isSupportedLocale(sourceLang) && sourceLang !== appLocale
 
   const handleViewOriginal = useCallback(() => {
-    if (!canSwitchToOriginal) return
-    router.push(pathname, { locale: sourceLang as (typeof locales)[number] })
-  }, [canSwitchToOriginal, pathname, router, sourceLang])
+    if (isSupportedLocale(sourceLang)) switchLocale(sourceLang)
+  }, [sourceLang, switchLocale])
 
   return (
     <div className="flex items-center justify-between gap-2 text-label-12 text-neutral-7">

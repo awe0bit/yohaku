@@ -6,7 +6,7 @@ import { Children, type FC, type ReactNode, useCallback, useState } from 'react'
 
 import { TranslatedBadge } from '~/components/modules/translation/TranslatedBadge'
 import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
-import { isSupportedLocale } from '~/i18n/config'
+import { getSourceLocaleSwitch } from '~/lib/content-locale'
 import { clsxm } from '~/lib/helper'
 
 import { aiNoticeTrail } from './notice-card-ai-fold'
@@ -195,13 +195,15 @@ export const TranslationNoticeContent: FC<{
   const switchLocale = useSwitchLocale()
   const appLocale = useLocale()
 
-  const sourceLang = articleTranslation.sourceLang
-  const canSwitchToOriginal =
-    isSupportedLocale(sourceLang) && sourceLang !== appLocale
+  const originalLocale = getSourceLocaleSwitch(
+    articleTranslation.sourceLang,
+    appLocale,
+  )
+  const canSwitchToOriginal = !!originalLocale
 
   const handleViewOriginal = useCallback(() => {
-    if (isSupportedLocale(sourceLang)) switchLocale(sourceLang)
-  }, [sourceLang, switchLocale])
+    if (originalLocale) switchLocale(originalLocale)
+  }, [originalLocale, switchLocale])
 
   return (
     <div className="flex items-center justify-between gap-2 text-label-12 text-neutral-7">

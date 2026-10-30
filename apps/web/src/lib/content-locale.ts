@@ -1,30 +1,56 @@
 import type { ArticleTranslation } from '@mx-space/api-client'
 
 import type { Locale } from '~/i18n/config'
-import { locales } from '~/i18n/config'
+import { locales, toAppLocale } from '~/i18n/config'
 import { buildLocalePrefixedPath } from '~/lib/seo/hreflang'
 
 const localeSet = new Set<string>(locales)
-const traditionalChineseLocale = /^zh-(?:hant|hk|mo|tw)(?:-|$)/
 
 export const isAppLocale = (locale?: string | null): locale is Locale =>
   !!locale && localeSet.has(locale)
 
-export const toAppLocale = (locale?: string | null): Locale | null => {
-  if (!locale) return null
+export const getSourceLocaleSwitch = (
+  sourceLang: string | null | undefined,
+  appLocale: string,
+): Locale | null => {
+  const sourceLocale = toAppLocale(sourceLang)
+  return sourceLocale && sourceLocale !== appLocale ? sourceLocale : null
+}
 
-  const normalized = locale.toLowerCase()
-  const exact = locales.find(
-    (candidate) => candidate.toLowerCase() === normalized,
-  )
-  if (exact) return exact
+export const resolveTranslationLanguages = ({
+  appLocale,
+  sourceLang,
+  availableTranslations,
+}: {
+  appLocale: string
+  sourceLang?: string | null
+  availableTranslations?: string[] | null
+}) => {
+  const sourceLocale = toAppLocale(sourceLang)
+  const translatedLocales = new Set<Locale>()
+  availableTranslations?.forEach((lang) => {
+    const locale = toAppLocale(lang)
+    if (locale) translatedLocales.add(locale)
+  })
 
-  if (normalized === 'zh' || normalized.startsWith('zh-')) {
-    return traditionalChineseLocale.test(normalized) ? 'zh-TW' : 'zh'
+  const codes = new Set<Locale>()
+  if (sourceLocale) codes.add(sourceLocale)
+  translatedLocales.forEach((locale) => codes.add(locale))
+  if (isAppLocale(appLocale)) codes.add(appLocale)
+
+  const displayedLanguage =
+    appLocale === sourceLocale ||
+    (isAppLocale(appLocale) && translatedLocales.has(appLocale))
+      ? appLocale
+      : (sourceLocale ?? appLocale)
+
+  return {
+    displayedLanguage,
+    languages: Array.from(codes, (code) => ({
+      code,
+      isOriginal: code === sourceLocale,
+    })),
   }
-
-  const base = normalized.split('-')[0]
-  return locales.find((candidate) => candidate === base) ?? null
 }
 
 export const getContentLocaleRedirect = (

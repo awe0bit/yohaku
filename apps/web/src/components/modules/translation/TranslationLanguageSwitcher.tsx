@@ -7,6 +7,7 @@ import { useCallback, useMemo } from 'react'
 import { LanguageSelector } from '~/components/ui/language-selector'
 import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
 import { isSupportedLocale } from '~/i18n/config'
+import { resolveTranslationLanguages } from '~/lib/content-locale'
 
 function getLanguageLabel(
   code: string,
@@ -42,33 +43,21 @@ export const TranslationLanguageSwitcher: FC<
   const appLocale = useLocale()
   const switchLocale = useSwitchLocale()
 
-  const languages = useMemo(() => {
-    const langSet = new Set<string>()
-
-    if (isSupportedLocale(sourceLang)) {
-      langSet.add(sourceLang)
-    }
-    availableTranslations?.forEach((lang) => {
-      if (isSupportedLocale(lang)) langSet.add(lang)
+  const { languages, displayedLanguage } = useMemo(() => {
+    const resolved = resolveTranslationLanguages({
+      appLocale,
+      sourceLang,
+      availableTranslations,
     })
-    // 兜底：始终把当前 URL locale 纳入，保证 trigger 标签可解析
-    if (isSupportedLocale(appLocale)) {
-      langSet.add(appLocale)
+    return {
+      displayedLanguage: resolved.displayedLanguage,
+      languages: resolved.languages.map(({ code, isOriginal }) => ({
+        code,
+        label: getLanguageLabel(code, tCommon),
+        isOriginal,
+      })),
     }
-
-    return Array.from(langSet).map((code) => ({
-      code,
-      label: getLanguageLabel(code, tCommon),
-      isOriginal: code === sourceLang,
-    }))
   }, [appLocale, availableTranslations, sourceLang, tCommon])
-
-  // 实际渲染的内容语种：appLocale 命中时即为 appLocale；否则后端走兜底，落到 sourceLang
-  const displayedLanguage = useMemo(() => {
-    if (appLocale === sourceLang) return appLocale
-    if (availableTranslations?.includes(appLocale)) return appLocale
-    return sourceLang ?? appLocale
-  }, [appLocale, availableTranslations, sourceLang])
 
   const handleLanguageChange = useCallback(
     (lang: string) => {

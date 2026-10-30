@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 import type { Locale } from '~/i18n/config'
-import { defaultLocale } from '~/i18n/config'
+import { defaultLocale, toAppLocale } from '~/i18n/config'
 
 import {
   buildLanguageAlternates,
@@ -102,7 +102,7 @@ export const assemblePageMetadata = ({
     : undefined
   const xDefaultLocale =
     includeLocales?.find(
-      (candidate) => candidate === translations?.sourceLang,
+      (candidate) => candidate === toAppLocale(translations?.sourceLang),
     ) ??
     includeLocales?.[0] ??
     defaultLocale

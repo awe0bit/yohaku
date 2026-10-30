@@ -1,6 +1,5 @@
 import type { Locale } from '~/i18n/config'
-import { defaultLocale } from '~/i18n/config'
-import { toAppLocale } from '~/lib/content-locale'
+import { defaultLocale, toAppLocale } from '~/i18n/config'
 
 const parseAcceptLanguage = (header: string) =>
   header

@@ -90,6 +90,25 @@ describe('assemblePageMetadata', () => {
     })
   })
 
+  it('maps canonical BCP 47 translation tags onto app locales', () => {
+    const metadata = assemblePageMetadata({
+      seo,
+      locale: 'en',
+      path: '/posts/tech/hello',
+      translations: {
+        sourceLang: 'zh-TW',
+        availableTranslations: ['en-US', 'zh-CN', 'pt-BR'],
+      },
+    })
+
+    expect(metadata.alternates?.languages).toEqual({
+      'zh-CN': '/posts/tech/hello',
+      'zh-TW': '/zh-TW/posts/tech/hello',
+      en: '/en/posts/tech/hello',
+      'x-default': '/zh-TW/posts/tech/hello',
+    })
+  })
+
   it('points x-default at the source language when the default locale is unavailable', () => {
     const metadata = assemblePageMetadata({
       seo,

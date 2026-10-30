@@ -65,25 +65,25 @@
     "clean": "rm -rf dist",
     "prepublishOnly": "tsdown",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsrs -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@haklex/rich-headless": "0.58.0",
-    "@haklex/rich-litexml": "0.58.0",
+    "@haklex/rich-headless": "0.60.0",
+    "@haklex/rich-litexml": "0.60.0",
     "@lexical/headless": "^0.52.0",
     "@lexical/markdown": "^0.52.0",
     "@noble/hashes": "2.4.0",
     "lexical": "^0.52.0"
   },
   "devDependencies": {
-    "@haklex/rich-collab-loro": "0.58.0",
-    "loro-crdt": "^1.16.4",
-    "tsdown": "0.23.0",
-    "typescript": "6.0.3",
+    "@haklex/rich-collab-loro": "0.60.0",
+    "loro-crdt": "^1.17.1",
+    "tsdown": "0.23.3",
+    "tsrs": "0.20.1-ts7.1.0-beta",
     "vitest": "5.0.5"
   },
   "peerDependencies": {
-    "@haklex/rich-collab-loro": "0.58.0",
+    "@haklex/rich-collab-loro": "0.60.0",
     "loro-crdt": "^1.16.4"
   },
   "peerDependenciesMeta": {

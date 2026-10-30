@@ -1,5 +1,5 @@
 import type { Locale } from '~/i18n/config'
-import { defaultLocale, locales } from '~/i18n/config'
+import { defaultLocale, locales, toAppLocale } from '~/i18n/config'
 
 /**
  * Map app locale -> SEO hreflang code.
@@ -38,12 +38,11 @@ export const getSupportedLocalesFromTranslations = (input?: {
   sourceLang?: string | null
   availableTranslations?: string[] | null
 }): Locale[] => {
-  const supported = new Set(locales as readonly string[])
   const set = new Set<Locale>()
 
   const addIfSupported = (code?: string | null) => {
-    if (!code) return
-    if (supported.has(code)) set.add(code as Locale)
+    const locale = toAppLocale(code)
+    if (locale) set.add(locale)
   }
 
   addIfSupported(input?.sourceLang ?? defaultLocale)

@@ -11,8 +11,9 @@ import { AIGenBadge } from '~/components/modules/ai/AIGenBadge'
 import { TranslationLanguageSwitcher } from '~/components/modules/translation/TranslationLanguageSwitcher'
 import { FloatPopover } from '~/components/ui/float-popover'
 import { useSwitchLocale } from '~/hooks/common/use-switch-locale'
-import { isSupportedLocale } from '~/i18n/config'
+import { toAppLocale } from '~/i18n/config'
 import { articleMetaOf } from '~/lib/api/article-meta'
+import { getSourceLocaleSwitch } from '~/lib/content-locale'
 import {
   getMoodLabel,
   getWeatherLabel,
@@ -52,19 +53,19 @@ const TranslatedInlineNotice = () => {
   const switchLocale = useSwitchLocale()
 
   const sourceLang = articleTranslation?.sourceLang
-  const canSwitch = isSupportedLocale(sourceLang) && sourceLang !== appLocale
+  const sourceLocale = toAppLocale(sourceLang)
+  const switchTarget = getSourceLocaleSwitch(sourceLang, appLocale)
+  const canSwitch = !!switchTarget
 
   const onSwitch = useCallback(() => {
-    if (isSupportedLocale(sourceLang)) switchLocale(sourceLang)
-  }, [sourceLang, switchLocale])
+    if (switchTarget) switchLocale(switchTarget)
+  }, [switchTarget, switchLocale])
 
   if (!articleTranslation?.isTranslated) return null
 
-  const sourceLangLabel = sourceLang
-    ? languageNameKey[sourceLang as keyof typeof languageNameKey]
-      ? tCommon(languageNameKey[sourceLang as keyof typeof languageNameKey])
-      : sourceLang.toUpperCase()
-    : ''
+  const sourceLangLabel = sourceLocale
+    ? tCommon(languageNameKey[sourceLocale])
+    : (sourceLang?.toUpperCase() ?? '')
 
   const text = tNote('inline_translated_from', { lang: sourceLangLabel })
 

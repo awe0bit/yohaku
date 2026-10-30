@@ -2,8 +2,8 @@ import type { NoteResponseMeta, PostResponseMeta } from '@mx-space/api-client'
 
 import { getTranslation, setTranslationPending } from '~/atoms/translation'
 import { DOMCustomEvents } from '~/constants/event'
+import { toAppLocale } from '~/i18n/config'
 import { articleMetaOf } from '~/lib/api/article-meta'
-import { toAppLocale } from '~/lib/content-locale'
 import { toast } from '~/lib/toast'
 
 import type { EventHandler } from './types'
@@ -176,7 +176,8 @@ const markTranslationPendingIfNeeded = (
   if (
     currentTranslation &&
     currentTranslation.refId === refId &&
-    currentTranslation.lang === document.documentElement.lang &&
+    toAppLocale(currentTranslation.lang) ===
+      toAppLocale(document.documentElement.lang) &&
     contentChanged
   ) {
     setTranslationPending(true)

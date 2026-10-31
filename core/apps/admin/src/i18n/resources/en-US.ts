@@ -1,6 +1,47 @@
 import type { TranslationKey } from '../types'
 
 export const enUS = {
+  'auth.entry.loginTitle': 'Welcome back to your space.',
+  'auth.entry.loginDescription': 'Keep writing. Let your next idea unfold.',
+  'auth.entry.showPassword': 'Show password',
+  'auth.entry.hidePassword': 'Hide password',
+  'auth.entry.enter': 'Enter your space',
+  'auth.entry.otherAuth': 'Or continue with',
+  'auth.entry.secure': 'Sign in to your own Mix Space service',
+  'auth.entry.connectTitle': 'Connect your space.',
+  'auth.entry.connectDescription':
+    'Enter your Mix Space service address to connect to your world.',
+  'auth.entry.apiHint':
+    'Enter the API address. Same-origin deployments usually need no changes.',
+  'auth.entry.advanced': 'Advanced connection settings',
+  'auth.entry.saveConnect': 'Save and connect',
+  'auth.entry.setupInfo': 'Setup details and preview',
+  'auth.entry.heroFirst': 'A home for your words.',
+  'auth.entry.heroSecond': 'A space for your ideas.',
+  'auth.entry.heroDescriptionFirst':
+    'Capture the everyday. Connect your ideas.',
+  'auth.entry.heroDescriptionSecond': 'Let the things worth remembering grow.',
+  'auth.entry.independent': 'Independent words. Room to grow.',
+  'auth.entry.interact': 'Move / drag',
+  'auth.entry.ripple': 'Make a ripple',
+  'auth.entry.rippleLabel': 'Create a ripple at the center',
+  'auth.entry.reducedMotion': 'Reduced motion',
+  'auth.entry.currentService': 'Current Mix Space service',
+  'auth.entry.help': 'Need help',
+  'auth.entry.lightTheme': 'Switch to light mode',
+  'auth.entry.darkTheme': 'Switch to dark mode',
+  'auth.entry.footer': 'Collect life in words.',
+  'auth.entry.switchService': 'Switch service',
+  'auth.entry.backToLogin': 'Back to sign in',
+  'auth.entry.scene.login': 'Home',
+  'auth.entry.scene.connect': 'Connection',
+  'auth.entry.scene.welcome': 'A beginning',
+  'auth.entry.scene.account': 'Identity',
+  'auth.entry.scene.site': 'Your place',
+  'auth.entry.scene.ai-providers': 'Resonance',
+  'auth.entry.scene.ai-models': 'Order',
+  'auth.entry.scene.ai-features': 'Growth',
+  'auth.entry.scene.ready': 'Ready',
   'write.agent.dynamic.replace': 'Upload new version and replace',
   'write.agent.dynamic.updated': 'Draft updated',
   'write.agent.dynamic.versionHint':
@@ -4659,6 +4700,10 @@ export const enUS = {
   'settings.schema.mediaProcessingOptions.imageLossless.title': 'Lossless WebP',
   'settings.schema.mediaProcessingOptions.imageLossless.description':
     'Encode without quality loss; quality is ignored.',
+  'settings.schema.mediaProcessingOptions.imageKeepMetadata.title':
+    'Keep image metadata',
+  'settings.schema.mediaProcessingOptions.imageKeepMetadata.description':
+    'Carry EXIF (camera, lens, capture time, GPS) and the color profile into the WebP. Comment uploads are always stripped.',
   'settings.schema.mediaProcessingOptions.imageMaxDimension.title':
     'Max image edge (px)',
   'settings.schema.mediaProcessingOptions.imageMaxDimension.description':

@@ -1,3 +1,23 @@
+## [16.2.0](https://github.com/mx-space/core/compare/v16.1.0...v16.2.0) (2026-10-31)
+
+### Features
+
+* **admin:** add a persistent interactive WebGL ripple background with smooth scene transitions ([8ac2d8e](https://github.com/mx-space/core/commit/8ac2d8e9fa10c09994e8ff2490cfd8bec482e2e0))
+* **admin:** unify login, server connection, and onboarding in a shared entry experience ([d0441f2](https://github.com/mx-space/core/commit/d0441f21763f85cef81863fcf5dd80a4e46cf376))
+
+### Bug Fixes
+
+* **admin:** keep setup panels readable in dark mode and reserve text space for password controls ([370b743](https://github.com/mx-space/core/commit/370b743421355771234a792d7711407f746b0241))
+
+## [16.1.0](https://github.com/mx-space/core/compare/v16.0.1...v16.1.0) (2026-10-30)
+
+
+### Features
+
+* **draft:** sync draft fields through Loro and keep the row in step ([88045d4](https://github.com/mx-space/core/commit/88045d4e1acea853e145430a062951e2a38ad936))
+* **files:** keep-original uploads from the image dialog and optional image metadata ([bf14f3f](https://github.com/mx-space/core/commit/bf14f3fd5ea4231de1a418527a6de4ec13bc0e52))
+* **gateway:** accept bearer session tokens on /ws/admin ([8c36cec](https://github.com/mx-space/core/commit/8c36cec693a32ac2fb5cb23c0c76ce12d98f44f5))
+
 ## [16.0.1](https://github.com/mx-space/core/compare/v16.0.0...v16.0.1) (2026-10-29)
 
 ### Chores

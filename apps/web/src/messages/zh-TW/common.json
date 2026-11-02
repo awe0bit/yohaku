@@ -229,6 +229,7 @@
   "pagination_next": "下一頁",
   "pagination_page_info": "第 {current} 頁，共 {total} 頁",
   "pagination_prev": "上一頁",
+  "paper_egg_exit": "回到正文",
   "pinned_label": "置頂",
   "posts_heading": "文章",
   "posts_total_count": "共 {count} 篇",

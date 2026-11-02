@@ -21,6 +21,7 @@ uniform sampler2D tFiber; uniform sampler2D tFlake; uniform sampler2D tSuki; uni
 uniform sampler2D tFlakeB; uniform sampler2D tSukiB; uniform sampler2D tElemB; uniform sampler2D tWither;
 uniform float uPaperK; uniform vec2 uDyeBand;
 uniform vec3 uRoot; uniform vec4 uIn; uniform vec4 uIn2; uniform vec4 uLeaf;
+uniform sampler2D tFlow; uniform float uFlowOn;
 
 float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
 float vnoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);
@@ -135,6 +136,7 @@ void main(){
   float mask = exp(-dist * dist / (uRadius * uRadius));
 
   vec4 rp = press(css);
+  if (uFlowOn > 0.0) rp.xy += (texture2D(tFlow, uv).rg - 0.5) * 120.0 * uFlowOn;
   float ms = stagger(css);
   vec2 sheet = sheetField(css);
   float keep = 1.0 - sheet.x;

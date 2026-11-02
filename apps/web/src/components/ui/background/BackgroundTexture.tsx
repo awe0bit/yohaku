@@ -14,6 +14,7 @@ import { paperTermAtom } from '~/atoms/paper'
 import { useIsHydrationEnded } from '~/components/common/HydrationEndDetector'
 import { useIsDark } from '~/hooks/common/use-is-dark'
 
+import { PaperEgg } from './paper/egg/PaperEgg'
 import { PaperBackground } from './paper/PaperBackground'
 import { PaperSeason } from './paper/PaperSeason'
 
@@ -37,14 +38,19 @@ const PaperLayer = () => {
   if (!mounted || term === null) return null
 
   return (
-    <PaperBackground
-      dark={isDark}
-      page={isImmersive ? 'immersive' : isInReading ? 'read' : 'browse'}
-      reduceMotion={reduceMotion}
-      term={term}
-      visible={wanted}
-      onExited={() => setMounted(false)}
-    />
+    <>
+      <PaperBackground
+        dark={isDark}
+        page={isImmersive ? 'immersive' : isInReading ? 'read' : 'browse'}
+        reduceMotion={reduceMotion}
+        term={term}
+        visible={wanted}
+        onExited={() => setMounted(false)}
+      />
+      {wanted && !reduceMotion && (
+        <PaperEgg dark={isDark} reduceMotion={reduceMotion} term={term} />
+      )}
+    </>
   )
 }
 

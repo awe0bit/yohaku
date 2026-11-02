@@ -1,0 +1,2830 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>余白の紙 · 静置彩蛋</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500&family=Noto+Serif+SC:wght@400;600&display=swap">
+<style>
+/* Layout: the stage is the paper itself, edge to edge; a quiet bench panel sits to its right (below on phones). */
+:root {
+  --bg: #efeee9;
+  --surface: #f6f5f1;
+  --fg: #24231f;
+  --muted: #77736a;
+  --line: rgba(36, 35, 31, 0.13);
+  --accent: #a8473b;
+  --ink: #2a2824;
+  --ink-soft: #6a665e;
+  --serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --sans: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --paper-accent: #b4452f;
+  --mock-root: #fefefb;
+  --mock-sheet: #ffffff;
+  --seal: #b04a3c;
+  --seal-text: #f6f1e8;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141413; --surface: #1b1a19; --fg: #e7e3db; --muted: #9b968c;
+    --line: rgba(231, 227, 219, 0.12); --accent: #d27d6b; --ink: #e4dfd6;
+    --ink-soft: #a29c92; --mock-root: rgb(28, 28, 30); --mock-sheet: #2a2a2c;
+    --seal: #9e4638; --seal-text: #1c1a18; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141413; --surface: #1b1a19; --fg: #e7e3db; --muted: #9b968c;
+  --line: rgba(231, 227, 219, 0.12); --accent: #d27d6b; --ink: #e4dfd6;
+  --ink-soft: #a29c92; --mock-root: rgb(28, 28, 30); --mock-sheet: #2a2a2c;
+  --seal: #9e4638; --seal-text: #1c1a18; color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 340px; height: 100%; }
+.stage { position: relative; overflow: hidden; min-width: 0; background: var(--mock-root); }
+.stage canvas.legacy-in { animation: legacyIn 1000ms ease-out both; }
+@keyframes legacyIn { from { opacity: 0; } to { opacity: 1; } }
+.tl { width: 100%; height: auto; display: block; margin-top: 10px; font-family: var(--sans); }
+.tl .lab { font-size: 9.5px; fill: var(--muted); }
+.tl .axis { font-size: 8.5px; fill: var(--muted); font-family: var(--mono); }
+.tl .track { fill: var(--line); }
+.tl .bar { fill: var(--paper-accent); opacity: 0.55; }
+.tl .fill { fill: var(--paper-accent); }
+.tl .head { stroke: var(--fg); stroke-width: 1; }
+.tl .grid { stroke: var(--line); stroke-width: 1; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.sample {
+  position: relative; max-width: 34em; margin: 0 auto;
+  padding-block: 11vh 4rem;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  font-family: var(--serif); color: var(--ink);
+  transition: opacity 0.4s ease;
+}
+.sample.off { opacity: 0; }
+.sample .tag { font: 11px/1 var(--sans); letter-spacing: 0.12em; color: var(--ink-soft); margin: 0 0 1.2rem; }
+.sample h1 { font-size: 1.95rem; font-weight: 600; letter-spacing: 0.03em; margin: 0 0 0.6rem; text-wrap: balance; }
+.sample .date { font: 13px/1.4 var(--sans); color: var(--ink-soft); margin: 0 0 2.2rem; }
+.sample p { font-size: 1.0625rem; line-height: 1.95; margin: 0 0 1.15em; }
+.cap {
+  position: absolute; right: 16px; bottom: 32px; z-index: 3; text-align: right;
+  font: 11.5px/1.3 var(--mono); letter-spacing: 0.02em; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.nogl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; color: var(--muted); text-align: center; }
+
+.panel {
+  border-left: 1px solid var(--line); background: var(--surface); overflow: auto;
+  padding-block: 22px 32px; padding-inline: 22px;
+  display: flex; flex-direction: column; gap: 24px; min-width: 0;
+}
+.ph h2 { font: 600 1.25rem/1.2 var(--serif); letter-spacing: 0.06em; margin: 0 0 0.5rem; }
+.ph p, .desc { font-size: 12.5px; line-height: 1.7; color: var(--muted); margin: 0; }
+.grp { display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.lbl { font-size: 11px; font-weight: 500; letter-spacing: 0.14em; color: var(--muted); }
+.val { font: 500 15px/1.2 var(--serif); color: var(--fg); font-variant-numeric: tabular-nums; }
+.meta { font: 11.5px/1.6 var(--mono); color: var(--muted); }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: 1px solid var(--line); border-radius: 6px; padding: 2px; gap: 2px; }
+.seg button {
+  font: 13px/1 var(--sans); color: var(--muted); background: transparent; border: 0;
+  padding: 8px 6px; border-radius: 4px; cursor: pointer; white-space: nowrap;
+}
+.seg button[aria-pressed="true"] { background: var(--bg); color: var(--fg); box-shadow: inset 0 0 0 1px var(--line); }
+input[type="range"] { width: 100%; accent-color: var(--accent); margin: 0; }
+.link { font: 12px/1 var(--sans); color: var(--accent); background: none; border: 0; padding: 4px 0; cursor: pointer; white-space: nowrap; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg); cursor: pointer; }
+.chk input, .layer input { accent-color: var(--accent); margin: 0; }
+.layer { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; padding-block: 2px; }
+.layer input { margin-top: 3px; }
+.layer .t { display: block; font-size: 13.5px; color: var(--fg); }
+.layer .t em { font-style: normal; font-family: var(--serif); margin-left: 6px; color: var(--muted); font-size: 12px; }
+.layer .d { display: block; font-size: 12px; line-height: 1.6; color: var(--muted); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.info { font: 11.5px/1.75 var(--mono); color: var(--muted); margin: 0; overflow-wrap: anywhere; }
+
+.scroller { position: absolute; inset: 0; overflow-y: auto; z-index: 1; }
+.scroller .sample { padding-bottom: 140px; }
+.sample figure { margin: 2.2rem 0; }
+.sample figure img { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 2px; background: var(--line); }
+.sample figcaption { margin-top: 8px; font: 12px/1.5 var(--sans); color: var(--ink-soft); text-align: center; }
+.mock-header {
+  position: absolute; inset: 0 0 auto; height: 52px; z-index: 3;
+  display: flex; align-items: center; gap: 28px; padding-inline: 24px;
+  background: color-mix(in oklab, var(--paper-accent) 5%, var(--mock-root));
+  border-bottom: 1px solid color-mix(in oklab, var(--paper-accent) 14%, transparent);
+  font-size: 13px; color: var(--ink-soft); transition: background 0.6s ease;
+}
+.mock-header b { font: 600 16px/1 var(--serif); color: var(--ink); letter-spacing: 0.04em; }
+.mock-header nav { display: flex; gap: 18px; }
+.mock-header nav span.on { color: var(--paper-accent); box-shadow: inset 0 -2px 0 var(--paper-accent); padding-bottom: 4px; }
+.mock-footer {
+  position: absolute; inset: auto 0 0; height: 84px; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between; padding-inline: 24px;
+  font-size: 12px; color: var(--ink-soft);
+}
+.mock-footer.old { background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--paper-accent) 5%, var(--mock-root))); }
+.mock-footer .colophon { display: flex; align-items: center; gap: 14px; }
+.seal {
+  width: 36px; height: 36px; display: grid; place-items: center; background: var(--seal); color: var(--seal-text);
+  font: 600 12.5px/1 var(--serif); writing-mode: vertical-rl; letter-spacing: 0.06em;
+  border-radius: 3px; transform: rotate(-2deg); filter: url(#stamp); opacity: 0.88; transition: opacity 0.6s ease;
+}
+.mock-link { color: var(--paper-accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; position: relative; }
+.hcard {
+  position: absolute; z-index: 4; width: 300px; padding: 14px 16px; font-family: var(--sans);
+  opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; transform: translateY(4px);
+}
+.hcard.show { opacity: 1; transform: none; }
+.hcard .t { font: 600 14px/1.4 var(--serif); color: var(--ink); margin: 0 0 6px; }
+.hcard .d { font-size: 12.5px; line-height: 1.6; color: var(--ink-soft); margin: 0 0 8px; }
+.hcard .u { font: 11px var(--mono); color: var(--paper-accent); }
+.hcard.old { background: var(--mock-sheet); border-radius: 12px; box-shadow: 0 10px 30px rgb(0 0 0 / 0.12), 0 0 0 1px rgb(0 0 0 / 0.05); }
+.hcard.washi { background: transparent; }
+.hcard.washi::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: var(--card-fiber, none), color-mix(in oklab, var(--paper-accent) 3%, var(--mock-sheet));
+  background-size: 256px 256px, auto;
+  filter: url(#deckle); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 6px 18px rgb(0 0 0 / 0.06);
+}
+.sheet {
+  position: relative; isolation: isolate; margin-top: 2.2rem; padding: 18px 20px; font-family: var(--sans); font-size: 13.5px; line-height: 1.8; color: var(--ink);
+}
+.sheet::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; background: var(--mock-sheet);
+  filter: url(#deckle); box-shadow: 0 1px 1.5px rgb(0 0 0 / 0.06);
+}
+.sheet .m { font-size: 11.5px; color: var(--ink-soft); margin: 0 0 6px; }
+.sheet .tag { display: inline-block; margin-top: 8px; font-size: 11.5px; color: var(--paper-accent); border: 1px solid color-mix(in oklab, var(--paper-accent) 40%, transparent); padding: 1px 7px; border-radius: 3px; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.swatches button { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; padding: 0; }
+.swatches button[aria-pressed="true"] { border-color: var(--fg); }
+.accent-chip { display: inline-flex; align-items: center; gap: 8px; font: 12px var(--mono); color: var(--muted); }
+.accent-chip i { width: 16px; height: 16px; border-radius: 4px; background: var(--paper-accent); display: inline-block; }
+.split-tag { position: absolute; top: 64px; left: 0; right: 0; z-index: 3; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; font: 11.5px/1 var(--mono); letter-spacing: 0.08em; color: var(--ink-soft); text-align: center; }
+.strip { display: flex; flex-direction: column; gap: 5px; background: var(--mock-root); padding: 8px; border-radius: 6px; border: 1px solid var(--line); }
+.strip .k { font: 10.5px/1 var(--sans); color: var(--muted); margin-top: 3px; }
+.strip .r { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 2px; }
+.strip .r i { height: 20px; border-radius: 2px; cursor: pointer; }
+.strip .r i.on { box-shadow: inset 0 0 0 1.5px var(--fg); }
+
+@media (max-width: 820px) {
+  html, body { height: auto; }
+  .app { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .stage { height: 74svh; }
+  .panel {
+    border-left: 0; border-top: 1px solid var(--line); overflow: visible;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .sample h1 { font-size: 1.6rem; }
+  .sample p { font-size: 1rem; }
+}
+@media (prefers-reduced-motion: reduce) { .sample { transition: none; } }
+</style>
+
+<style>
+.egg-layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; }
+.stage.egg-ink .scroller, .stage.egg-ink .mock-header, .stage.egg-ink .mock-footer,
+.stage.egg-ink .cap, .stage.egg-ink .split-tag, .stage.egg-ink .hcard { visibility: hidden; }
+.stage.egg-immersed { cursor: crosshair; }
+.egg-exit {
+  position: absolute; left: 50%; bottom: 28px; z-index: 7; transform: translate(-50%, 6px);
+  font: 13px/1 var(--serif); letter-spacing: 0.12em; color: var(--ink-soft);
+  padding: 9px 16px 9px 18px; border: 1px solid var(--line); border-radius: 2px;
+  background: color-mix(in oklab, var(--mock-root) 72%, transparent); cursor: pointer;
+  opacity: 0; pointer-events: none; transition: opacity 0.9s ease, transform 0.9s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.egg-exit.show { opacity: 0.7; pointer-events: auto; transform: translate(-50%, 0); }
+.egg-exit.show:hover { opacity: 1; color: var(--ink); border-color: color-mix(in oklab, var(--ink) 30%, transparent); }
+.stage .cap, .stage .split-tag { display: none; }
+.egg-grp + .grp .desc b { color: var(--fg); font-weight: 500; }
+.egg-grp { padding: 14px; margin: -6px -8px 0; border-radius: 8px; background: color-mix(in oklab, var(--paper-accent) 6%, var(--surface)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--paper-accent) 18%, transparent); }
+.egg-status { margin: 0; font: 500 14px/1.5 var(--serif); color: var(--fg); font-variant-numeric: tabular-nums; }
+.egg-grp .desc b { color: var(--fg); font-weight: 500; }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="stamp">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" result="n"/>
+    <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.7 0 0 0 1.5" result="m"/>
+    <feComposite in="SourceGraphic" in2="m" operator="in"/>
+  </filter>
+  <filter id="deckle" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" seed="9" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="5" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<div class="app">
+  <main class="stage" id="stage">
+    <canvas id="paper"></canvas>
+    <div class="scroller" id="scroller">
+    <article class="sample" id="sample">
+      <p class="tag">示例正文</p>
+      <h1>寒露以后</h1>
+      <p class="date">2026 年 10 月 12 日 · 随笔</p>
+      <p>早上推开窗，楼下那棵桂花已经过了最香的几天，空气里只剩一点甜味的尾巴。气温掉得很快，昨天还穿短袖的人，今天都把外套翻了出来。</p>
+      <p>写东西和晾衣服有点像：写完先挂一挂，等风吹过几轮，再收回来看哪里起了皱。大部分文章隔一天再看都不太一样，有的变好了，有的只是变旧了。</p>
+      <p>今年秋天打算少写一点，多读一点。书架上<span class="mock-link" id="mockLink">那几本买了一年还没拆封的</span>，先从最薄的那本开始。</p>
+      <div class="sheet" id="sheet">
+        <p class="m">思考 · 10 月 15 日（PaperSheet 示例）</p>
+        桂花落了一地，扫地的人说今年开得晚，谢得也快。
+        <div><span class="tag">#季节</span></div>
+      </div>
+      <p>傍晚去河边走了一圈。水位比夏天低了很多，露出一片铺满卵石的滩，几个小孩在上面找扁平的石头打水漂。</p>
+      <figure data-dye="0"><img alt="示例配图：傍晚的青灰色河面" id="fig0"><figcaption>配图一 · 青瓦（示例图，主色偏青灰）</figcaption></figure>
+      <p>回来的路上经过一家老裁缝铺，门口挂着改到一半的旧大衣，袖口用粉笔画了两道线。老板说天一冷，来改衣服的人就多起来。</p>
+      <p>想起小时候家里也有一台缝纫机，踏板踩起来咔哒咔哒响。那台机器后来被收走了，只留下一个装纽扣的铁皮盒子。</p>
+      <figure data-dye="1"><img alt="示例配图：挂满柿子的院子" id="fig1"><figcaption>配图二 · 柿色（示例图，主色偏橙）</figcaption></figure>
+      <p>隔壁院子的柿子熟了，挂在光秃秃的枝上，一个比一个红。没人去摘，鸟倒是天天来。</p>
+      <p>这个季节最适合晒东西：被子、书、腌好的萝卜干。阳光斜斜地照进来，在地板上铺出一块暖色的长方形。</p>
+      <p>下午把书架上的书搬出来晒了一遍。有几本书页已经泛黄，翻开有一股旧纸的味道，说不上好闻，但很熟悉。</p>
+      <figure data-dye="2"><img alt="示例配图：长满苔藓的石阶" id="fig2"><figcaption>配图三 · 苔绿（示例图，主色偏绿）</figcaption></figure>
+      <p>后山的石阶上长满了苔，下过雨之后绿得发亮。走得小心一点，鞋底还是会打滑。</p>
+      <p>山顶的亭子里有人在下棋，旁边围了一圈看的人，没人说话，只有落子的声音。</p>
+      <figure data-dye="3"><img alt="示例配图：紫色的暮色天空" id="fig3"><figcaption>配图四 · 藤紫（示例图，主色偏紫）</figcaption></figure>
+      <p>天黑得越来越早了。六点不到，路灯就亮了起来，天边还剩一点紫色。</p>
+      <p>写到这里，窗外起风了。明天大概会更冷一些，记得把厚一点的被子拿出来。</p>
+    </article>
+    </div>
+    <div class="hcard washi" id="hcard"><p class="t">读书笔记：那几本没拆封的书</p><p class="d">链接预览卡示例。书单、摘抄和一点读后感，按读完的顺序排。</p><span class="u">innei.in/notes/reading</span></div>
+    <header class="mock-header"><b>Yohaku</b><nav><span class="on">文章</span><span>日记</span><span>思考</span><span>关于</span></nav></header>
+    <footer class="mock-footer" id="mockFooter"><span>© 2026 Innei · 页脚示例</span></footer>
+    <div class="cap" id="cap"></div>
+    <div class="split-tag" id="splitTag"><span>现状</span><span>建议</span></div>
+  </main>
+
+  <aside class="panel">
+    <header class="ph">
+      <h2>纸槽 · 静置彩蛋</h2>
+      <p>页面静置后，背景一边还原到全部图层，整张纸一边慢慢化回纸浆：墨化进水里，花叶浮起来。</p>
+    </header>
+
+    <section class="grp egg-grp">
+      <div class="row"><span class="lbl">状态</span><span class="meta" id="eggKou"></span></div>
+      <p class="egg-status" id="eggStatus">准备中…</p>
+      <p class="info" id="eggLayers"></p>
+      <div class="row">
+        <button type="button" class="link" id="eggEnter">▶ 立即进入</button>
+        <button type="button" class="link" id="eggLeave">退出（模拟滚动）</button>
+      </div>
+      <div class="row"><label for="eggIdle" class="lbl">静置多久进入</label><span class="val" id="eggIdleLabel"></span></div>
+      <input type="range" id="eggIdle" min="3" max="90" step="1" value="8">
+      <div class="row"><label for="eggSinkS" class="lbl">化回纸浆时长</label><span class="val" id="eggSinkLabel"></span></div>
+      <input type="range" id="eggSinkS" min="5" max="60" step="1" value="22">
+      <div class="row"><label for="eggInk" class="lbl">墨留在水里</label><span class="val" id="eggInkLabel"></span></div>
+      <input type="range" id="eggInk" min="0" max="100" step="5" value="60">
+      <div class="row"><label for="eggStir" class="lbl">划水力度</label><span class="val" id="eggStirLabel"></span></div>
+      <input type="range" id="eggStir" min="0.3" max="2.5" step="0.1" value="1">
+      <div class="row"><label for="eggDrift" class="lbl">纸层随水漂移</label><span class="val" id="eggDriftLabel"></span></div>
+      <input type="range" id="eggDrift" min="0" max="2" step="0.1" value="1">
+    </section>
+    <section class="grp">
+      <div class="row"><span class="lbl">性能</span></div>
+      <p class="info" id="perfRead">进入彩蛋后显示</p>
+      <div class="row"><span class="lbl">彩蛋帧率</span></div>
+      <div class="seg" role="group" aria-label="彩蛋帧率"><button type="button" data-perf="fps" data-v="20">20</button><button type="button" data-perf="fps" data-v="30">30</button><button type="button" data-perf="fps" data-v="60">60</button></div>
+      <div class="row"><span class="lbl">纸张背景渲染倍率</span></div>
+      <div class="seg" role="group" aria-label="纸张背景渲染倍率"><button type="button" data-perf="paper" data-v="auto">跟随屏幕</button><button type="button" data-perf="paper" data-v="1">1×</button><button type="button" data-perf="paper" data-v="0.75">0.75×</button><button type="button" data-perf="paper" data-v="0.5">0.5×</button></div>
+      <div class="row"><span class="lbl">墨的分辨率</span></div>
+      <div class="seg" role="group" aria-label="墨的分辨率"><button type="button" data-perf="ink" data-v="1">1×</button><button type="button" data-perf="ink" data-v="0.75">0.75×</button><button type="button" data-perf="ink" data-v="0.5">0.5×</button></div>
+      <div class="row"><span class="lbl">墨的采样</span></div>
+      <div class="seg" role="group" aria-label="墨的采样"><button type="button" data-perf="sharp" data-v="true">锐利（三次）</button><button type="button" data-perf="sharp" data-v="false">普通（线性）</button></div>
+      <div class="row"><span class="lbl">墨层输出分辨率</span></div>
+      <div class="seg" role="group" aria-label="墨层输出分辨率"><button type="button" data-perf="overlay" data-v="hi">始终屏幕</button><button type="button" data-perf="overlay" data-v="auto">字清晰时屏幕</button><button type="button" data-perf="overlay" data-v="low">1×</button><button type="button" data-perf="overlay" data-v="half">0.6×</button></div>
+      <div class="row"><span class="lbl">流体网格</span></div>
+      <div class="seg" role="group" aria-label="流体网格"><button type="button" data-perf="grid" data-v="64">64</button><button type="button" data-perf="grid" data-v="96">96</button><button type="button" data-perf="grid" data-v="128">128</button></div>
+      <div class="row"><span class="lbl">花叶投影</span></div>
+      <div class="seg" role="group" aria-label="花叶投影"><button type="button" data-perf="shadow" data-v="true">开</button><button type="button" data-perf="shadow" data-v="false">关</button></div>
+      <p class="desc">「纸张背景渲染倍率」是线上背景本身的开销，不进彩蛋也生效，默认 1×。墨的分辨率和流体网格切换会清空当前的墨。</p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">怎么玩</div>
+      <p class="desc"><b>进入</b>：还原图层和化回纸浆同时开始。前 3 秒背景各层错峰回到全部图层，整个过程约 20 秒慢慢化回纸浆。先是墨被水泡软、晕开（文字还在原地），接着纸色泛起乳白、纤维散开悬浮，墨开始松动漂走，最后花叶一片片浮上水面。</p>
+      <p class="desc"><b>划水</b>：墨搅成墨流し，纤维、碎屑、砂子跟着走，停手后沉回。<b>点一下</b>：轮流落墨 / 清水 / 当季色 / 清水，清水把墨推成年轮。<b>退出</b>：点底部的「回到正文」，或者滚轮、任意键。纸浆原地澄清，花叶压回纸里，文字复印回来。</p>
+      <p class="desc"><b>落进水里</b>：沉浸后每隔几秒有当季的花瓣或叶子从上方飘落，影子随高度收拢，落水时溅起一到三圈小涟漪（大小、圈数、快慢都随机），轻轻推开墨。水面上积多了（超过 14 片），或者一片漂了半分多钟，最早落下的会慢慢沉下去、变模糊，最后消失。</p>
+      <p class="desc"><b>季节限定</b><br>春 · 梅桃樱梨搅急了掉花瓣，静水里聚成花筏<br>夏 · 点紫阳花整簇转色；夏至到大暑鼠标停住，萤聚过来<br>秋 · 急流掀翻枫叶银杏露出叶背；点叶子提前走一个节气；桂花搅散拖金粉<br>冬 · 六花被鼠标体温化开再冻上；蜡梅靠近时被照透</p>
+    </section>
+
+    <section class="grp">
+      <div class="row"><label for="jq" class="lbl">节气</label><span class="val" id="jqLabel"></span></div>
+      <input type="range" id="jq" min="0" max="23" step="1" value="16">
+      <div class="row"><span class="meta" id="jqDate"></span><button type="button" class="link" id="jqToday">回到今天</button></div>
+      <div hidden class="row"><button type="button" class="link" id="jqNext">▶ 过渡到下一个节气</button><label class="chk"><input type="checkbox" id="jqAuto"> 自动连播</label></div>
+      <div class="row"><button type="button" class="link" id="jqGroup">▶ 跳到下一组花叶</button></div>
+      <div hidden class="seg" role="group" aria-label="花叶出场">
+        <button type="button" data-wither="1" aria-pressed="true">凋谢</button>
+        <button type="button" data-wither="0" aria-pressed="false">淡出（现状）</button>
+      </div>
+      <p hidden class="desc">离场的花叶原地不动：先褪成枯茶色，再从叶缘往里被纤维吃掉，融进纸里。六花不枯，是慢慢化掉。同科叶子仍原地转色。上面的「慢放」也作用于节气过渡，¼ 慢放最容易看清。</p>
+      <p class="info" id="jqInfo"></p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">进入前的页面状态</div>
+      <div class="seg" role="group" aria-label="页面状态">
+        <button type="button" data-page="browse" aria-pressed="true">浏览</button>
+        <button type="button" data-page="read" aria-pressed="false">阅读</button>
+        <button type="button" data-page="immersive" aria-pressed="false">沉浸</button>
+      </div>
+      <label hidden class="chk"><input hidden type="checkbox" id="autoImm" checked> 阅读时鼠标移入正文自动沉浸</label>
+      <p class="desc" id="pageDesc"></p>
+      <div hidden class="row"><label hidden for="readK" class="lbl">阅读态纹理浓度</label><span class="val" id="readKLabel"></span></div>
+      <input hidden type="range" id="readK" min="0.3" max="1.5" step="0.05" value="1">
+      <label hidden class="chk"><input hidden type="checkbox" id="readOld"> 换回旧的阅读态数值对比</label>
+      <p hidden class="desc">只作用于阅读和沉浸：纸色、纤维、碎屑、砂子、ぼかし 一起乘这个系数。纸色变淡是往页面底色退，纸的厚薄和时刻光跟着退，颗粒不动。旧值是纸色 100%、纤维 100%、碎屑 50%、砂子 100%、ぼかし 100%。</p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">主题</div>
+      <div class="seg" role="group" aria-label="主题">
+        <button type="button" data-th="system" aria-pressed="true">跟随系统</button>
+        <button type="button" data-th="light" aria-pressed="false">浅</button>
+        <button type="button" data-th="dark" aria-pressed="false">深</button>
+      </div>
+    </section>
+
+    <div hidden>
+    <section class="grp">
+      <div class="row"><span class="lbl">入场 / 出场</span><button type="button" class="link" id="presReplay">↻ 重播入场</button></div>
+      <div class="seg" role="group" aria-label="过渡方式">
+        <button type="button" data-pmode="layered" aria-pressed="true">分层渐进</button>
+        <button type="button" data-pmode="legacy" aria-pressed="false">现状</button>
+      </div>
+      <div class="seg" role="group" aria-label="慢放">
+        <button type="button" data-pslow="1" aria-pressed="true">1×</button>
+        <button type="button" data-pslow="0.5" aria-pressed="false">½ 慢放</button>
+        <button type="button" data-pslow="0.25" aria-pressed="false">¼ 慢放</button>
+      </div>
+      <div class="row"><button type="button" class="link" id="presToggle">关闭背景（出场）</button></div>
+      <svg class="tl" id="presTL" role="img" aria-label="各图层的入场 / 出场时间轴"></svg>
+      <p class="desc" id="presDesc"></p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">纸色方案</div>
+      <div class="seg" role="group" aria-label="纸色方案">
+        <button type="button" data-paper="split" aria-pressed="true">左右对照</button>
+        <button type="button" data-paper="now" aria-pressed="false">现状</button>
+        <button type="button" data-paper="new" aria-pressed="false">建议</button>
+      </div>
+      <p class="desc">建议（第二版，取现状和上一版建议的中点）：彩度超出 0.006 的部分减半，秋天从 0.013 降到约 0.009；浅色下纸色比页面底色暗约 3%（现状约 4%）。深色只动彩度。左右对照时纸面左半是现状、右半是建议，其它图层两边相同。下面色条点任意一格可跳到那个节气。</p>
+      <div class="strip" id="paperStrip"></div>
+    </section>
+
+    <section class="grp">
+      <div class="row"><label for="hr" class="lbl">时刻</label><span class="val" id="hrLabel"></span></div>
+      <input type="range" id="hr" min="0" max="24" step="0.25" value="9">
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="follow"> 光跟随鼠标</label>
+        <button type="button" class="link" id="hrNow">现在</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="hrPlay"> 时刻快进（1 秒 = 1 小时）</label>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">动态</div>
+      <div class="seg" role="group" aria-label="速度">
+        <button type="button" data-speed="1" aria-pressed="false">1×</button>
+        <button type="button" data-speed="3" aria-pressed="true">3× 上线</button>
+        <button type="button" data-speed="8" aria-pressed="false">8×</button>
+      </div>
+      <label class="layer"><input type="checkbox" id="M_fiber" checked><span><span class="t">纤维摇曳<em>流し漉き</em></span><span class="d">纤维像还在纸槽里，各处轻轻晃，幅度约 4px。</span></span></label>
+      <label class="layer"><input type="checkbox" id="M_suki" checked><span><span class="t">碎屑漂浮</span><span class="d">漉き込み 悬得比纤维浅，漂得更远，约 7px。</span></span></label>
+      <label class="layer"><input type="checkbox" id="M_sunago" checked><span><span class="t">箔片翻转</span><span class="d">砂子原地慢漂、各自慢转，转到对光的角度就亮一下。</span></span></label>
+      <label class="layer"><input type="checkbox" id="M_bok" checked><span><span class="t">刷痕流动</span><span class="d">ぼかし 的刷边横向慢慢流，深浅约 40 秒呼吸一次。</span></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">点击效果</div>
+      <div class="opts" role="radiogroup" aria-label="点击效果">
+        <label class="layer"><input type="radio" name="click" value="press" checked><span><span class="t">按压</span><span class="d">指尖按出一个浅窝，周围微微内收，窝边一圈明暗，附近箔片被压斜闪一下，约 1.5 秒弹回。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="blow"><span><span class="t">吹气</span><span class="d">轻吹一口，箔片和碎屑被吹得远，纤维只晃一下，再落回原处。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="crumple"><span><span class="t">揉皱</span><span class="d">点击处起一小片皱褶，碎成许多小折面，约 3 秒慢慢舒平。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="seal"><span><span class="t">落印</span><span class="d">盖下一枚淡朱的「余白」小印，约 5 秒后褪去。最多同时 4 枚。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="ripple"><span><span class="t">水波</span><span class="d">上一版的效果，留作对照。</span></span></label>
+        <label class="layer"><input type="radio" name="click" value="none"><span><span class="t">无</span><span class="d">点击不产生任何效果。</span></span></label>
+      </div>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">图层</div>
+      <label class="layer"><input type="checkbox" id="L_fiber" checked><span><span class="t">楮纤维<em>楮</em></span><span class="d">长短纤维、树皮碎点、纸的厚薄不匀。全年都在，只有纸色随节气变。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_sunago" checked><span><span class="t">砂子<em>すなご</em></span><span class="d">稀疏的金银箔碎，冬密夏疏。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_suki" checked><span><span class="t">漉き込み<em>すきこみ</em></span><span class="d">抄进纸里的极小碎屑，小到认不出是什么。冬天没有。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_elem" checked><span><span class="t">季节花叶<em>花入り</em></span><span class="d">抄进纸里的整片花瓣和叶子，被纤维压着、半透。梅、桃、樱、牡丹、紫阳花、荷、石蒜、桂、红叶、银杏、蜡梅、六花，按江南物候随节气轮换。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_bok" checked><span><span class="t">ぼかし<em>一文字</em></span><span class="d">页面顶边一道刷出来的渐层，晨昏最明显。</span></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">Accent</div>
+      <div class="row"><span class="accent-chip"><i></i><span id="accentHex"></span></span><label class="chk"><input type="checkbox" id="accentDrive" checked> 由背景驱动</label></div>
+      <p class="desc">每组花叶对应一个 accent，明度和彩度固定，只有色相跟着季节变；节气过渡时它在 OKLab 里同步渐变。关掉则回到一个固定的示意 accent，用来对比。页头、链接、标签、页脚都吃这个颜色。</p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">小口染め · 配图染色</div>
+      <label class="layer"><input type="checkbox" id="L_dye" checked><span><span class="t">小口染め</span><span class="d">替代 AmbientImageSides。在左边纸面上往下滚动文章：哪张配图经过视口中央，左右书口就被它的颜色染上，染料沿纤维往里渗。没有配图在视野里时褪掉，快速滚动时也会淡下去。</span></span></label>
+      <div class="seg" role="group" aria-label="小口染め形态">
+        <button type="button" data-dyeshape="1" aria-pressed="true">A 细条全高</button>
+        <button type="button" data-dyeshape="2" aria-pressed="false">B 随配图 · 选定</button>
+        <button type="button" data-dyeshape="0" aria-pressed="false">旧版</button>
+      </div>
+      <p class="desc" id="dyeShapeDesc"></p>
+      <p class="info" id="dyeInfo"></p>
+    </section>
+
+    <section class="grp">
+      <div class="lbl">点缀</div>
+      <label class="layer"><input type="checkbox" id="L_foot" checked><span><span class="t">页脚地ぼかし</span><span class="d">关掉时是现在的页脚渐变色带；打开后改由背景在底部刷一道渐层，颜色取时刻色与 accent 的混合。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_card" checked><span><span class="t">和纸片悬停卡</span><span class="d">关掉时是现在的圆角白卡。把鼠标移到正文第三段的链接上看。</span></span></label>
+      <label class="layer"><input type="checkbox" id="L_sheet" checked><span><span class="t">PaperSheet 压纸</span><span class="d">示例卡片底下一圈很淡的接触阴影，砂子、碎屑和花叶在边缘附近让开。</span></span></label>
+    </section>
+
+    <section class="grp">
+      <div class="row"><label for="gain" class="lbl">强度</label><span class="val" id="gainLabel"></span></div>
+      <input type="range" id="gain" min="0.5" max="3" step="0.1" value="1">
+      <label class="chk"><input type="checkbox" id="showText" checked> 叠上示例正文</label>
+      <p class="desc">叠字测试：段落后面不应认出任何形状。</p>
+    </section>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const JIEQI = [
+    ['立春', 2, 4], ['雨水', 2, 18], ['惊蛰', 3, 5], ['春分', 3, 20], ['清明', 4, 5], ['谷雨', 4, 20],
+    ['立夏', 5, 5], ['小满', 5, 21], ['芒种', 6, 5], ['夏至', 6, 21], ['小暑', 7, 7], ['大暑', 7, 22],
+    ['立秋', 8, 7], ['处暑', 8, 23], ['白露', 9, 7], ['秋分', 9, 23], ['寒露', 10, 8], ['霜降', 10, 23],
+    ['立冬', 11, 7], ['小雪', 11, 22], ['大雪', 12, 7], ['冬至', 12, 21], ['小寒', 1, 5], ['大寒', 1, 20],
+  ]
+  const SEASON_NAME = ['春', '夏', '秋', '冬']
+  const PAPER = {
+    light: [[0.962, 0.946, 0.940], [0.938, 0.951, 0.944], [0.958, 0.941, 0.906], [0.944, 0.947, 0.952]],
+    dark: [[0.112, 0.103, 0.106], [0.093, 0.106, 0.103], [0.116, 0.104, 0.088], [0.095, 0.099, 0.111]],
+  }
+  const SUKI = [
+    { label: '梅、樱与桃的碎瓣', colors: ['#d79aa2', '#e4b9bb', '#c7848e'], kind: 'petal', amt: 1 },
+    { label: '青竹纤维', colors: ['#8fae94', '#a3bfae', '#7d9c8e'], kind: 'fiber', amt: 0.75 },
+    { label: '枫与银杏的碎屑', colors: ['#b2603c', '#c88a3a', '#97452f', '#cfa14a'], kind: 'petal', amt: 1 },
+    { label: '无', colors: [], kind: 'none', amt: 0 },
+  ]
+  const ELEM_COLORS = {
+    petal: ['#f1c6cf', '#ebb3c0', '#f5d5dc'],
+    sakura: ['#f1c6cf', '#ebb3c0', '#f5d5dc'],
+    ume: ['#e9a3b3', '#f2e2e2', '#dd8ea0'],
+    roundPetal: ['#e9a3b3', '#f2e2e2', '#dd8ea0'],
+    peach: ['#e8879c', '#f0a3b4', '#dc7590'],
+    peachPetal: ['#e8879c', '#f0a3b4', '#dc7590'],
+    pear: ['#f6f3ec', '#f1eee6'],
+    pearPetal: ['#f6f3ec', '#f1eee6'],
+    peony: ['#e59ab8', '#d97aa0', '#f0b8cc'],
+    wisteria: ['#a996cf', '#b8a8da', '#9583c4'],
+    lotus: ['#efb7c6', '#f3c9d4', '#e8a3b6'],
+    osmanthus: ['#e3a23c', '#eab24f', '#d9902e'],
+    wintersweet: ['#e6c25a', '#eccd6e', '#dcb447'],
+    'maple:green': ['#8fb07a', '#7aa067', '#a3bd86'],
+    'maple:turning': ['#a7b06a', '#cf8d42', '#c45b3a'],
+    'maple:red': ['#c4493a', '#d0653a', '#b03a32', '#d9883e'],
+    ginkgo: ['#e2bf4e', '#d8ae3a', '#ead07a'],
+    'ginkgo:fallen': ['#c79a45', '#b88a3c', '#d2a958'],
+    'ginkgo:turning': ['#b9bf5a', '#cdbf4e', '#a9b55c'],
+    lycoris: ['#c23b3b', '#d04a44', '#b83236'],
+    ajisai: ['#9db0d8', '#b3a5d6', '#8aa6cc', '#d3a9c9'],
+    snow: ['#a9b6c8', '#bcc7d6'],
+  }
+  const ELEM_SIZE = {
+    petal: [10, 16], roundPetal: [8, 12], sakura: [18, 26], ume: [14, 20], peach: [18, 26], peachPetal: [10, 15],
+    pear: [16, 22], pearPetal: [9, 13], peony: [16, 26], wisteria: [9, 13], lotus: [16, 26],
+    osmanthus: [8, 13], wintersweet: [13, 18],
+    'maple:green': [24, 38], 'maple:turning': [24, 38], 'maple:red': [24, 38],
+    ginkgo: [18, 28], 'ginkgo:fallen': [18, 26], 'ginkgo:turning': [18, 28], lycoris: [20, 30], ajisai: [10, 15], snow: [10, 18],
+  }
+  const ELEM_GROUPS = [
+    { at: [0, 1], label: '梅', mix: [['ume', 1], ['roundPetal', 2]] },
+    { at: [2], label: '桃（桃始华）', mix: [['peachPetal', 3], ['peach', 1]] },
+    { at: [3], label: '樱', mix: [['petal', 4], ['sakura', 1]] },
+    { at: [4], label: '梨花，夹几片落樱', mix: [['pearPetal', 3], ['pear', 1.2], ['petal', 0.6]] },
+    { at: [5], label: '牡丹与藤', mix: [['peony', 1.4], ['wisteria', 2]] },
+    { at: [6], label: '藤与青枫', mix: [['wisteria', 1.5], ['maple:green', 1]] },
+    { at: [7], label: '青枫，紫阳花初开', mix: [['maple:green', 1], ['ajisai', 0.5]] },
+    { at: [8, 9], label: '紫阳花与青枫', mix: [['ajisai', 3], ['maple:green', 0.5]] },
+    { at: [10, 11], label: '荷与青枫', mix: [['lotus', 1.4], ['maple:green', 1]] },
+    { at: [12, 13], label: '青枫，夹几片落荷', mix: [['maple:green', 1.5], ['lotus', 0.4]] },
+    { at: [14], label: '石蒜与青枫', mix: [['lycoris', 1], ['maple:green', 0.8]] },
+    { at: [15], label: '桂花，夹几簇石蒜', mix: [['osmanthus', 1], ['lycoris', 0.3]] },
+    { at: [16, 17], label: '落桂与转色的枫', mix: [['osmanthus', 1.2], ['maple:turning', 1]] },
+    { at: [18], label: '转色的枫与初黄的银杏', mix: [['maple:turning', 1.2], ['ginkgo:turning', 1]] },
+    { at: [19], label: '红叶与银杏', mix: [['maple:red', 1.2], ['ginkgo', 1]] },
+    { at: [20], label: '落银杏与晚红叶', mix: [['ginkgo:fallen', 1.2], ['maple:red', 0.6]] },
+    { at: [21], label: '落银杏、残红与初开的蜡梅，偶见六花', mix: [['ginkgo:fallen', 1.2], ['maple:red', 0.4], ['wintersweet', 0.5], ['snow', 0.3]] },
+    { at: [22, 23], label: '蜡梅与六花', mix: [['wintersweet', 1.4], ['snow', 1]] },
+  ]
+  const elemGroup = (i) => ELEM_GROUPS.find((g) => g.at.includes(i))
+
+  const LIGHT_KEYS = [
+    [0, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+    [5, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+    [6.5, { src: [-0.1, -0.15], radius: 1.25, color: [1, 0.9, 0.86], bok: [0.86, 0.62, 0.6], amt: 0.11 }],
+    [9, { src: [0.15, -0.3], radius: 1.4, color: [1, 0.97, 0.93], bok: [0.45, 0.55, 0.68], amt: 0.05 }],
+    [12, { src: [0.5, -0.4], radius: 1.6, color: [1, 1, 0.98], bok: [0.45, 0.55, 0.68], amt: 0.04 }],
+    [15, { src: [0.85, -0.3], radius: 1.4, color: [1, 0.95, 0.88], bok: [0.5, 0.56, 0.66], amt: 0.05 }],
+    [17.5, { src: [1.1, -0.12], radius: 1.25, color: [1, 0.84, 0.68], bok: [0.82, 0.5, 0.36], amt: 0.12 }],
+    [19, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+    [24, { src: [0.84, 0.1], radius: 0.6, color: [1, 0.82, 0.6], bok: [0.2, 0.25, 0.38], amt: 0.09 }],
+  ]
+
+  const lerp = (a, b, t) => a + (b - a) * t
+  const lerpArr = (a, b, t) => a.map((v, i) => lerp(v, b[i], t))
+  const smooth = (t) => t * t * (3 - 2 * t)
+  const hexToRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
+  const toHex = (c) => '#' + c.map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, '0')).join('')
+
+  function rng(seed) {
+    return () => {
+      seed |= 0; seed = (seed + 0x6d2b79f5) | 0
+      let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+    }
+  }
+
+  function lightFor(h) {
+    let k = 0
+    while (k < LIGHT_KEYS.length - 2 && LIGHT_KEYS[k + 1][0] <= h) k++
+    const [h0, a] = LIGHT_KEYS[k], [h1, b] = LIGHT_KEYS[k + 1]
+    const t = smooth(Math.min(1, Math.max(0, (h - h0) / (h1 - h0 || 1))))
+    return {
+      src: lerpArr(a.src, b.src, t), radius: lerp(a.radius, b.radius, t),
+      color: lerpArr(a.color, b.color, t), bok: lerpArr(a.bok, b.bok, t), amt: lerp(a.amt, b.amt, t),
+    }
+  }
+  const hourWord = (h) => (h >= 5 && h < 8 ? '晨' : h >= 8 && h < 16 ? '昼' : h >= 16 && h < 19 ? '暮' : '夜')
+  const fmtHour = (h) => {
+    const hh = Math.floor(h) % 24, mm = Math.round((h - Math.floor(h)) * 60)
+    return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+  }
+
+  const seasonOf = (i) => Math.floor(i / 6)
+  const PAPER_CAP = { C: 0.006, dL: 0.02 }
+  let paperNew = null
+  function makePaperNew() {
+    const rootL = rgbToOklab([254 / 255, 254 / 255, 251 / 255])[0]
+    const shape = (rgb, dark) => {
+      const [L, a, b] = rgbToOklab(rgb), C = Math.hypot(a, b), k = (1 + (C > PAPER_CAP.C ? PAPER_CAP.C / C : 1)) / 2
+      return oklabToRgb([dark ? L : (L + rootL - PAPER_CAP.dL) / 2, a * k, b * k])
+    }
+    return { light: PAPER.light.map((c) => shape(c, false)), dark: PAPER.dark.map((c) => shape(c, true)) }
+  }
+  function paperColor(i, dark, plan = 'now') {
+    const src = plan === 'new' ? (paperNew ||= makePaperNew()) : PAPER
+    const a = dark ? src.dark : src.light
+    const t = ((i - 3 + 24) % 24) / 6, s = Math.floor(t), f = smooth(t - s)
+    return lerpArr(a[s % 4], a[(s + 1) % 4], f)
+  }
+  const sunagoDensity = (i) => 0.35 + 1.65 * Math.pow((1 + Math.cos((2 * Math.PI * (i - 21)) / 24)) / 2, 1.5)
+  const goldness = (i) => (1 + Math.cos((2 * Math.PI * (i - 17)) / 24)) / 2
+  const sukiDensity = (i) => SUKI[seasonOf(i)].amt * (0.55 + 0.45 * Math.sin((Math.PI * ((i % 6) + 0.5)) / 6))
+
+  function todayIndex(d = new Date()) {
+    const v = (d.getMonth() + 1) * 100 + d.getDate()
+    let best = -1, bestV = -1
+    JIEQI.forEach(([, m, day], i) => { const jv = m * 100 + day; if (jv <= v && jv > bestV) { bestV = jv; best = i } })
+    return best < 0 ? 21 : best
+  }
+
+  function makeCanvas(W, H, dpr) {
+    const c = document.createElement('canvas')
+    c.width = Math.max(1, Math.round(W * dpr)); c.height = Math.max(1, Math.round(H * dpr))
+    return c
+  }
+
+  function makeFibers(W, H, dpr) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.fillStyle = 'rgb(128,128,128)'; x.fillRect(0, 0, c.width, c.height)
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.lineCap = 'round'
+    const r = rng(7), n = Math.round((W * H) / 1300)
+    for (let i = 0; i < n; i++) {
+      const len = 24 + Math.pow(r(), 2.2) * 170, a = r() * Math.PI * 2
+      const x0 = r() * W, y0 = r() * H, x1 = x0 + Math.cos(a) * len, y1 = y0 + Math.sin(a) * len
+      const bend = (r() - 0.5) * len * 0.5
+      const mx = (x0 + x1) / 2 - Math.sin(a) * bend, my = (y0 + y1) / 2 + Math.cos(a) * bend
+      x.strokeStyle = r() < 0.58 ? `rgba(255,255,255,${0.16 + r() * 0.3})` : `rgba(0,0,0,${0.08 + r() * 0.2})`
+      x.lineWidth = 0.35 + r() * 0.6
+      x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(mx, my, x1, y1); x.stroke()
+    }
+    const m = Math.round((W * H) / 11000)
+    for (let i = 0; i < m; i++) {
+      const s = 0.5 + r() * 1.2
+      x.fillStyle = `rgba(0,0,0,${0.2 + r() * 0.3})`
+      x.beginPath(); x.ellipse(r() * W, r() * H, s, s * (0.4 + r() * 0.6), r() * 3.14, 0, Math.PI * 2); x.fill()
+    }
+    return c
+  }
+
+  function makeSuki(W, H, dpr, i) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0); x.lineCap = 'round'
+    const spec = SUKI[seasonOf(i)]
+    if (spec.kind === 'none') return c
+    const r = rng(31 + seasonOf(i)), n = Math.round((W * H) / 6500), keepBelow = sukiDensity(i)
+    for (let k = 0; k < n; k++) {
+      x.globalAlpha = r() < keepBelow ? 1 : 0
+      const [cr, cg, cb] = hexToRgb(spec.colors[Math.floor(r() * spec.colors.length)])
+      const px = r() * W, py = r() * H
+      if (spec.kind === 'fiber') {
+        const len = 5 + r() * 13, a = r() * Math.PI * 2
+        x.strokeStyle = `rgba(${cr},${cg},${cb},${0.45 + r() * 0.3})`; x.lineWidth = 0.5 + r() * 0.4
+        x.beginPath(); x.moveTo(px, py)
+        x.quadraticCurveTo(px + Math.cos(a) * len * 0.5 + (r() - 0.5) * 3, py + Math.sin(a) * len * 0.5 + (r() - 0.5) * 3, px + Math.cos(a) * len, py + Math.sin(a) * len)
+        x.stroke()
+        continue
+      }
+      const rr = 1.1 + Math.pow(r(), 1.6) * 3.2, rot = r() * Math.PI, stretch = 0.55 + r() * 0.45
+      x.fillStyle = `rgba(${cr},${cg},${cb},${0.4 + r() * 0.4})`
+      x.beginPath()
+      for (let v = 0; v < 9; v++) {
+        const a = (v / 9) * Math.PI * 2, d = rr * (0.55 + r() * 0.6)
+        const lx = Math.cos(a) * d, ly = Math.sin(a) * d * stretch
+        const qx = px + lx * Math.cos(rot) - ly * Math.sin(rot), qy = py + lx * Math.sin(rot) + ly * Math.cos(rot)
+        v === 0 ? x.moveTo(qx, qy) : x.lineTo(qx, qy)
+      }
+      x.closePath(); x.fill()
+      if (r() < 0.3) {
+        const a = r() * Math.PI * 2, len = 3 + r() * 5
+        x.strokeStyle = `rgba(${cr},${cg},${cb},0.3)`; x.lineWidth = 0.45
+        x.beginPath(); x.moveTo(px, py); x.lineTo(px + Math.cos(a) * len, py + Math.sin(a) * len); x.stroke()
+      }
+    }
+    return c
+  }
+
+  function makeFlakes(W, H, dpr, i) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const r = rng(101), M = Math.max(W, H), sig = 0.2 * M
+    const blobs = Array.from({ length: 7 }, () => [r() * W, r() * H])
+    const field = (px, py) => {
+      let s = 0
+      for (const [bx, by] of blobs) { const dx = px - bx, dy = py - by; s += Math.exp(-(dx * dx + dy * dy) / (sig * sig)) }
+      return Math.min(1, s)
+    }
+    const n = Math.round(((W * H) / 4200) * 2), keepBelow = sunagoDensity(i) / 2
+    let placed = 0, guard = 0
+    while (placed < n && guard++ < n * 6) {
+      const px = r() * W, py = r() * H
+      if (r() > 0.3 + 0.7 * field(px, py)) continue
+      x.globalAlpha = r() < keepBelow ? 1 : 0
+      const o = Math.floor(r() * 255), spin = Math.floor(r() * 255)
+      const base = 0.5 + Math.pow(r(), 2) * 2.2, a0 = r() * Math.PI * 2
+      x.fillStyle = `rgb(${o},${spin},0)`
+      x.beginPath()
+      for (let v = 0; v < 4; v++) {
+        const a = a0 + v * (Math.PI / 2) + (r() - 0.5) * 0.9, d = base * (0.6 + r() * 0.7)
+        const qx = px + Math.cos(a) * d, qy = py + Math.sin(a) * d
+        v === 0 ? x.moveTo(qx, qy) : x.lineTo(qx, qy)
+      }
+      x.closePath(); x.fill(); placed++
+    }
+    return c
+  }
+
+  function drawPetal(x, s) {
+    const w = s * 0.36, h = s * 0.5
+    x.beginPath(); x.moveTo(0, h)
+    x.bezierCurveTo(w * 1.15, h * 0.55, w * 1.05, -h * 0.85, w * 0.38, -h)
+    x.lineTo(0, -h * 0.74); x.lineTo(-w * 0.38, -h)
+    x.bezierCurveTo(-w * 1.05, -h * 0.85, -w * 1.15, h * 0.55, 0, h)
+    x.fill()
+  }
+  function drawPeachPetal(x, s) {
+    const w = s * 0.34, h = s * 0.5
+    x.beginPath(); x.moveTo(0, h)
+    x.bezierCurveTo(w * 1.2, h * 0.6, w * 1.1, -h * 0.55, 0, -h)
+    x.bezierCurveTo(-w * 1.1, -h * 0.55, -w * 1.2, h * 0.6, 0, h)
+    x.fill()
+  }
+  function drawMaple(x, s) {
+    const R = s * 0.5
+    const lobes = [[-202, 0.45], [-166, 0.68], [-128, 0.86], [-90, 1], [-52, 0.86], [-14, 0.68], [22, 0.45]]
+    const at = (deg, r) => [Math.cos((deg * Math.PI) / 180) * R * r, Math.sin((deg * Math.PI) / 180) * R * r]
+    x.beginPath(); x.moveTo(0, R * 0.12)
+    lobes.forEach(([deg, len], k) => {
+      const prev = k === 0 ? deg - 34 : (lobes[k - 1][0] + deg) / 2
+      const valley = at(prev, 0.4), tip = at(deg, len)
+      const mid = [(valley[0] + tip[0]) / 2, (valley[1] + tip[1]) / 2]
+      const side = at(deg - 90, 0.15)
+      x.lineTo(valley[0], valley[1]); x.lineTo(mid[0] + side[0], mid[1] + side[1]); x.lineTo(tip[0], tip[1])
+      const next = k === lobes.length - 1 ? deg + 34 : (lobes[k + 1][0] + deg) / 2
+      const v2 = at(next, 0.4), m2 = [(v2[0] + tip[0]) / 2, (v2[1] + tip[1]) / 2]
+      x.lineTo(m2[0] - side[0], m2[1] - side[1])
+    })
+    x.closePath(); x.fill()
+    x.save(); x.globalAlpha = 0.35; x.strokeStyle = 'rgba(0,0,0,0.5)'; x.lineWidth = 0.5
+    x.beginPath()
+    for (const [deg, len] of lobes) { const t = at(deg, len * 0.85); x.moveTo(0, 0); x.lineTo(t[0], t[1]) }
+    x.stroke(); x.restore()
+    x.save(); x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.8, s * 0.03)
+    x.beginPath(); x.moveTo(0, R * 0.1); x.quadraticCurveTo(R * 0.02, R * 0.35, R * 0.08, R * 0.55); x.stroke(); x.restore()
+  }
+  function drawGinkgo(x, s) {
+    const R = s * 0.55
+    x.beginPath(); x.moveTo(0, 0)
+    x.quadraticCurveTo(-R * 0.35, -R * 0.2, -R * 0.9, -R * 0.62)
+    x.quadraticCurveTo(-R * 0.6, -R * 1.05, -R * 0.08, -R * 0.98)
+    x.lineTo(0, -R * 0.8); x.lineTo(R * 0.08, -R * 0.98)
+    x.quadraticCurveTo(R * 0.6, -R * 1.05, R * 0.9, -R * 0.62)
+    x.quadraticCurveTo(R * 0.35, -R * 0.2, 0, 0)
+    x.fill()
+    x.save(); x.strokeStyle = 'rgba(0,0,0,0.12)'; x.lineWidth = 0.4; x.beginPath()
+    for (let k = 0; k < 9; k++) { const a = (-150 + k * 15) * Math.PI / 180; x.moveTo(0, 0); x.lineTo(Math.cos(a) * R * 0.9, Math.sin(a) * R * 0.9) }
+    x.stroke(); x.restore()
+    x.save(); x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.8, s * 0.035)
+    x.beginPath(); x.moveTo(0, 0); x.lineTo(R * 0.04, R * 0.42); x.stroke(); x.restore()
+  }
+  function drawExtra(x, type, s, r) {
+    if (type === 'pear' || type === 'pearPetal') {
+      x.strokeStyle = 'rgba(90,80,70,0.28)'; x.lineWidth = 0.5
+      const petals = type === 'pear' ? 5 : 1
+      for (let k = 0; k < petals; k++) {
+        x.save(); x.rotate((k * Math.PI * 2) / 5); if (petals > 1) x.translate(0, -s * 0.24)
+        x.beginPath(); x.ellipse(0, 0, s * (petals > 1 ? 0.2 : 0.42), s * (petals > 1 ? 0.22 : 0.5), 0, 0, Math.PI * 2); x.fill(); x.stroke(); x.restore()
+      }
+      if (type === 'pear') {
+        x.fillStyle = '#6b2a3a'
+        for (let k = 0; k < 9; k++) { const a = (k / 9) * Math.PI * 2 + r() * 0.3, d = s * (0.08 + r() * 0.05); x.beginPath(); x.arc(Math.cos(a) * d, Math.sin(a) * d, 0.8, 0, Math.PI * 2); x.fill() }
+      }
+      return true
+    }
+    if (type === 'peony') {
+      const w = s * 0.42, h = s * 0.5
+      x.beginPath(); x.moveTo(0, h)
+      x.quadraticCurveTo(-w * 1.1, h * 0.1, -w, -h * 0.45)
+      for (let k = 0; k < 5; k++) {
+        const x0 = -w + (k * 2 * w) / 5, x1 = -w + ((k + 1) * 2 * w) / 5
+        x.quadraticCurveTo((x0 + x1) / 2, -h * (0.95 + r() * 0.15), x1, -h * (0.5 + r() * 0.12))
+      }
+      x.quadraticCurveTo(w * 1.1, h * 0.1, 0, h); x.fill()
+      x.save(); x.strokeStyle = 'rgba(120,30,60,0.14)'; x.lineWidth = 0.45; x.beginPath()
+      for (let k = 0; k < 6; k++) { const ex = -w * 0.8 + (k * 1.6 * w) / 5; x.moveTo(0, h * 0.85); x.quadraticCurveTo(ex * 0.4, 0, ex, -h * 0.6) }
+      x.stroke(); x.restore(); return true
+    }
+    if (type === 'wisteria') {
+      x.beginPath(); x.ellipse(0, -s * 0.12, s * 0.32, s * 0.28, 0, 0, Math.PI * 2); x.fill()
+      x.save(); x.globalAlpha *= 0.85
+      x.fillStyle = '#7d69b3'; x.beginPath(); x.ellipse(0, s * 0.2, s * 0.15, s * 0.2, 0, 0, Math.PI * 2); x.fill()
+      x.fillStyle = '#e8d98a'; x.beginPath(); x.ellipse(0, -s * 0.06, s * 0.06, s * 0.09, 0, 0, Math.PI * 2); x.fill()
+      x.restore(); return true
+    }
+    if (type === 'lotus') {
+      const w = s * 0.28, h = s * 0.5
+      x.beginPath(); x.moveTo(0, h)
+      x.bezierCurveTo(w * 1.25, h * 0.3, w * 0.85, -h * 0.7, 0, -h)
+      x.bezierCurveTo(-w * 0.85, -h * 0.7, -w * 1.25, h * 0.3, 0, h); x.fill()
+      x.save(); x.strokeStyle = 'rgba(150,50,80,0.15)'; x.lineWidth = 0.45; x.beginPath()
+      for (const ex of [-0.5, -0.2, 0.2, 0.5]) { x.moveTo(0, h * 0.9); x.quadraticCurveTo(ex * w, 0, ex * w * 0.6, -h * 0.85) }
+      x.stroke(); x.restore(); return true
+    }
+    if (type === 'osmanthus') {
+      const n = 3 + Math.floor(r() * 3)
+      for (let j = 0; j < n; j++) {
+        x.save(); x.translate((r() - 0.5) * s * 0.7, (r() - 0.5) * s * 0.7); x.rotate(r() * Math.PI)
+        for (let k = 0; k < 4; k++) { x.save(); x.rotate((k * Math.PI) / 2); x.beginPath(); x.ellipse(0, -s * 0.07, s * 0.055, s * 0.075, 0, 0, Math.PI * 2); x.fill(); x.restore() }
+        x.restore()
+      }
+      return true
+    }
+    if (type === 'wintersweet') {
+      for (let k = 0; k < 8; k++) {
+        x.save(); x.rotate((k * Math.PI * 2) / 8 + (k % 2) * 0.2); x.translate(0, -s * 0.2)
+        x.beginPath(); x.ellipse(0, 0, s * 0.13, s * 0.22, 0, 0, Math.PI * 2); x.fill(); x.restore()
+      }
+      x.save(); x.fillStyle = '#7a4a3a'; x.beginPath(); x.arc(0, 0, s * 0.11, 0, Math.PI * 2); x.fill(); x.restore()
+      return true
+    }
+    if (type === 'lycoris') {
+      for (let k = 0; k < 6; k++) {
+        x.save(); x.rotate((k * Math.PI) / 3 + (r() - 0.5) * 0.3)
+        x.beginPath(); x.ellipse(0, -s * 0.17, s * 0.045, s * 0.17, 0, 0, Math.PI * 2); x.fill()
+        x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.5, s * 0.015)
+        x.beginPath(); x.moveTo(0, 0); x.quadraticCurveTo(s * 0.12, -s * 0.3, s * 0.06, -s * 0.5); x.stroke()
+        x.restore()
+      }
+      return true
+    }
+    return false
+  }
+  function drawElem(x, type, s, r) {
+    if (drawExtra(x, type, s, r)) return
+    if (type === 'petal') return drawPetal(x, s)
+    if (type === 'peachPetal') return drawPeachPetal(x, s)
+    if (type === 'roundPetal') { x.beginPath(); x.ellipse(0, 0, s * 0.42, s * 0.5, 0, 0, Math.PI * 2); x.fill(); return }
+    if (type === 'sakura' || type === 'ume' || type === 'peach') {
+      for (let k = 0; k < 5; k++) {
+        x.save(); x.rotate((k * Math.PI * 2) / 5); x.translate(0, -s * 0.27)
+        if (type === 'sakura') drawPetal(x, s * 0.55)
+        else if (type === 'peach') drawPeachPetal(x, s * 0.55)
+        else { x.beginPath(); x.arc(0, 0, s * 0.2, 0, Math.PI * 2); x.fill() }
+        x.restore()
+      }
+      x.save(); x.fillStyle = type === 'sakura' ? '#c97b8c' : type === 'peach' ? '#c2566e' : '#c98a3a'
+      for (let k = 0; k < 7; k++) { const a = r() * Math.PI * 2, d = s * (0.06 + r() * 0.08); x.beginPath(); x.arc(Math.cos(a) * d, Math.sin(a) * d, 0.7, 0, Math.PI * 2); x.fill() }
+      x.restore(); return
+    }
+    if (type.startsWith('maple')) return drawMaple(x, s)
+    if (type.startsWith('ginkgo')) return drawGinkgo(x, s)
+    if (type === 'ajisai') {
+      for (let k = 0; k < 4; k++) {
+        x.save(); x.rotate((k * Math.PI) / 2 + Math.PI / 4)
+        x.beginPath(); x.ellipse(0, -s * 0.24, s * 0.17, s * 0.24, 0, 0, Math.PI * 2); x.fill(); x.restore()
+      }
+      return
+    }
+    if (type === 'snow') {
+      x.strokeStyle = x.fillStyle; x.lineWidth = Math.max(0.8, s * 0.05); x.lineCap = 'round'
+      x.beginPath()
+      for (let k = 0; k < 6; k++) {
+        const a = (k * Math.PI) / 3, ux = Math.cos(a), uy = Math.sin(a)
+        x.moveTo(0, 0); x.lineTo(ux * s * 0.5, uy * s * 0.5)
+        for (const t of [0.24, 0.38]) {
+          const bx = ux * s * t, by = uy * s * t, bl = s * 0.11
+          for (const sgn of [-1, 1]) {
+            const b = a + sgn * Math.PI / 3
+            x.moveTo(bx, by); x.lineTo(bx + Math.cos(b) * bl, by + Math.sin(b) * bl)
+          }
+        }
+      }
+      x.stroke()
+    }
+  }
+  const strHash = (str) => { let h = 2166136261; for (const ch of str) h = Math.imul(h ^ ch.charCodeAt(0), 16777619); return h >>> 0 }
+  const elemType = (group, k) => {
+    let type = group.mix[0][0], best = -1
+    for (const [t, w] of group.mix) {
+      const score = Math.pow(rng(strHash(t) ^ Math.imul(k + 1, 2654435761))(), 1 / w)
+      if (score > best) { best = score; type = t }
+    }
+    return type
+  }
+  function makeElems(W, H, dpr, i, leaveTo) {
+    const c = makeCanvas(W, H, dpr), x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0)
+    const group = elemGroup(i), r = rng(211)
+    const next = leaveTo === undefined ? null : elemGroup(leaveTo)
+    const n = Math.round((W * H) / 40000), placed = []
+    for (let tries = 0; placed.length < n && tries < n * 20; tries++) {
+      const px = r() * W, py = r() * H
+      if (placed.some(([qx, qy]) => Math.hypot(qx - px, qy - py) < 90)) continue
+      placed.push([px, py])
+    }
+    const rec = []
+    placed.forEach(([px, py], k) => {
+      const type = elemType(group, k)
+      const family = type.split(':')[0], seed = strHash(family) + k * 7919, g = rng(seed)
+      if (next && elemType(next, k).split(':')[0] === family) return
+      const [s0, s1] = ELEM_SIZE[type], colors = ELEM_COLORS[type]
+      const tx = px + (g() - 0.5) * 50, ty = py + (g() - 0.5) * 50, rot = g() * Math.PI * 2
+      const flip = g() < 0.5, alpha = 0.82 + g() * 0.15, color = colors[Math.floor(g() * colors.length)]
+      rec.push({ type, x: tx, y: ty, rot, flip, alpha, color, size: 0, seed })
+      x.save(); x.translate(tx, ty); x.rotate(rot)
+      if (flip) x.scale(-1, 1)
+      x.globalAlpha = alpha
+      x.fillStyle = color
+      // The mask encodes melt vs. wither in red (snow black, others white); drawElem's own sub-part colors all keep red above 0.4.
+      if (next) { x.globalAlpha = 1; x.fillStyle = type === 'snow' ? '#000' : '#fff' }
+      const size = s0 + g() * (s1 - s0)
+      rec[rec.length - 1].size = size
+      drawElem(x, type, size, g)
+      x.restore()
+    })
+    if (!next) { window.__benchElemSets = window.__benchElemSets || {}; window.__benchElemSets[i] = rec }
+    return c
+  }
+
+  const VS = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }'
+  const FS = `
+precision highp float;
+uniform vec2 uRes; uniform float uDpr; uniform float uT;
+uniform vec3 uPaper; uniform float uDark; uniform float uGain;
+uniform vec4 uLayers; uniform vec4 uMotion; uniform vec4 uBok;
+uniform float uGlint; uniform float uSpinT; uniform float uBokT;
+uniform sampler2D tFlakeB; uniform sampler2D tSukiB; uniform sampler2D tElemB; uniform float uMix; uniform float uGoldB;
+uniform vec3 uAccent; uniform vec3 uDyeA; uniform vec3 uDyeB; uniform float uDyeMix; uniform vec4 uDeco; uniform vec4 uSheet; uniform vec2 uRule; uniform float uFootAmt;
+uniform vec2 uSrc; uniform float uRadius; uniform vec3 uLC; uniform float uGold;
+uniform sampler2D tFiber; uniform sampler2D tFlake; uniform sampler2D tSuki; uniform sampler2D tElem;
+uniform vec4 uRip[4]; uniform float uClick; uniform sampler2D tSeal;
+uniform vec3 uRoot; uniform vec4 uIn; uniform vec4 uIn2; uniform vec2 uLeaf;
+uniform sampler2D tFlow; uniform float uFlowOn;
+uniform sampler2D tWither; uniform float uWither; uniform vec3 uDyeShape; uniform float uPaperK; uniform vec3 uPaperB; uniform float uSplit;
+
+float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+float vnoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }
+float fbm(vec2 p){ float v = 0.0; float a = 0.5; for (int i = 0; i < 5; i++){ v += a*vnoise(p); p = p*2.03 + vec2(17.1, 9.2); a *= 0.5; } return v; }
+vec2 drift(vec2 css, float scale, float t, vec2 seed){
+  vec2 q = css / scale + seed;
+  return vec2(vnoise(q + vec2(t, 0.37 * t)), vnoise(q.yx + vec2(-0.41 * t, t) + 5.3)) * 2.0 - 1.0;
+}
+vec2 hash2(vec2 p){ return vec2(hash(p), hash(p + 17.3)); }
+vec4 clickFx(vec2 css){
+  vec2 acc = vec2(0.0);
+  float sh = 0.0;
+  float gl = 0.0;
+  for (int i = 0; i < 4; i++) {
+    vec4 r = uRip[i];
+    if (r.w <= 0.0) continue;
+    vec2 d = css - r.xy;
+    float dist = length(d);
+    vec2 dir = d / max(dist, 1.0);
+    float t = r.z;
+    if (uClick < 0.5) {
+      float R = t * 240.0;
+      float x = dist - R;
+      float env = exp(-x * x / 4900.0) * exp(-t / 1.3) / sqrt(1.0 + R / 220.0);
+      acc += dir * sin(x * 0.075) * env * 9.0;
+      sh += cos(x * 0.075) * env * 0.45;
+      gl += cos(x * 0.075) * env * 2.5;
+    } else if (uClick < 1.5) {
+      float q = dist / 60.0;
+      float k = q * exp(-q * q);
+      float depth = smoothstep(0.0, 0.12, t) * exp(-max(t - 0.15, 0.0) / 0.45);
+      acc -= dir * k * depth * 7.0;
+      float s = dot(dir, vec2(0.7071)) * k * depth;
+      sh += s * 3.0;
+      gl += s * 5.0;
+    } else if (uClick < 2.5) {
+      float q = dist / 140.0;
+      float k = q * exp(-q * q) * 1.6;
+      float push = t < 0.22 ? smoothstep(0.0, 0.22, t) : exp(-(t - 0.22) / 0.5) * cos((t - 0.22) * 4.5);
+      acc += dir * k * push * 12.0;
+      gl += k * push * 3.0;
+    } else if (uClick < 3.5) {
+      float m = 1.0 - smoothstep(55.0, 120.0, dist + (vnoise(css / 25.0) - 0.5) * 40.0);
+      if (m > 0.0) {
+        float relax = smoothstep(0.0, 0.08, t) * exp(-t / 0.9);
+        vec2 p = d / 18.0 + r.xy * 0.013;
+        vec2 ip = floor(p);
+        vec2 fp = fract(p);
+        float best = 9.0;
+        float second = 9.0;
+        vec2 bid = vec2(0.0);
+        for (int yy = -1; yy <= 1; yy++) {
+          for (int xx = -1; xx <= 1; xx++) {
+            vec2 o = vec2(float(xx), float(yy));
+            float dd = length(fp - o - hash2(ip + o));
+            if (dd < best) { second = best; best = dd; bid = ip + o; }
+            else if (dd < second) { second = dd; }
+          }
+        }
+        float facet = hash(bid + 3.1) - 0.5;
+        float crease = 1.0 - smoothstep(0.0, 0.06, second - best);
+        sh += (facet * 2.0 - crease) * m * relax;
+        gl += facet * m * relax * 6.0;
+        acc += (hash2(bid) - 0.5) * 3.0 * m * relax;
+      }
+    }
+  }
+  return vec4(acc, sh, gl);
+}
+float sealInk(vec2 css){
+  float a = 0.0;
+  for (int i = 0; i < 4; i++) {
+    vec4 r = uRip[i];
+    if (r.w <= 0.0) continue;
+    float ang = (hash(r.xy) - 0.5) * 0.14;
+    vec2 d = css - r.xy;
+    d = mat2(cos(ang), sin(ang), -sin(ang), cos(ang)) * d;
+    vec2 st = d / 34.0 + 0.5;
+    if (st.x < 0.0 || st.y < 0.0 || st.x > 1.0 || st.y > 1.0) continue;
+    float fade = smoothstep(0.0, 0.1, r.z) * (1.0 - smoothstep(2.5, 5.5, r.z));
+    a = max(a, texture2D(tSeal, st).a * fade);
+  }
+  return a;
+}
+
+float gFlash;
+float wash(float p, float k){
+  return smoothstep(0.0, 1.0, clamp((p * 1.25 - k) / 0.45, 0.0, 1.0));
+}
+float arrive(float p, vec2 css, float seed){
+  return smoothstep(0.0, 1.0, clamp(p * 1.6 - vnoise(css / 240.0 + seed) * 0.6, 0.0, 1.0));
+}
+float stagger(vec2 css){
+  return smoothstep(0.0, 1.0, clamp(uMix * 1.6 - vnoise(css / 380.0 + 7.7) * 0.6, 0.0, 1.0));
+}
+vec3 tone(vec4 t, bool dark, float desat, float darkMul){
+  vec3 r = t.rgb / max(t.a, 0.001);
+  return dark ? r * darkMul : mix(r, vec3(dot(r, vec3(0.299, 0.587, 0.114))), desat);
+}
+vec4 wither(vec2 css, vec2 euv, vec2 size, float a0, vec3 base, float f, float p, bool melt, bool dark){
+  float lum = dot(base, vec3(0.299, 0.587, 0.114));
+  float dc = smoothstep(0.0, 0.45, p);
+  if (melt) {
+    return vec4(mix(base, vec3(lum), dc * 0.5), a0 * (1.0 - smoothstep(0.05, 0.85, p)));
+  }
+  vec3 dry = dark ? vec3(0.46, 0.36, 0.27) : vec3(0.60, 0.47, 0.34);
+  vec3 dried = mix(vec3(lum), dry, 0.65) * (dark ? 1.0 : 0.94);
+  float er = smoothstep(0.35, 1.0, p);
+  float R = er * 7.0 * (0.6 + 0.8 * vnoise(css / 6.0 + 1.9));
+  float a = a0;
+  for (int i = 0; i < 8; i++) {
+    float ang = float(i) * 0.7854;
+    a = min(a, texture2D(tElem, euv + vec2(cos(ang), sin(ang)) * R / size).a);
+  }
+  float n = 0.08 + 0.92 * clamp(vnoise(css / 2.5 + 4.1) * 0.7 + 0.3 - abs(f) * 1.2, 0.0, 1.0);
+  a *= smoothstep(er * 1.05 - 0.06, er * 1.05 + 0.06, n);
+  a *= 1.0 - smoothstep(0.85, 1.0, p);
+  return vec4(mix(base, dried, dc), a);
+}
+vec3 flakeLayer(vec3 col, vec4 fl, float w, float gold, bool dark, float mask, float ang, float spinOff, float g){
+  float a = fl.a * uLayers.y * w;
+  vec3 leaf = dark ? mix(vec3(0.42, 0.42, 0.43), vec3(0.50, 0.40, 0.22), gold)
+                   : mix(vec3(0.82, 0.82, 0.81), vec3(0.83, 0.75, 0.60), gold);
+  float spin = uSpinT * (0.15 + fl.g * 0.6) + spinOff;
+  float glint = pow(max(0.0, cos(fl.r * 6.2832 - ang + spin)), 40.0);
+  float own = clamp(gFlash * 1.5 - fl.g * 0.5, 0.0, 1.0);
+  float spark = 4.0 * own * (1.0 - own) * uIn2.w;
+  a *= smoothstep(0.0, 0.6, own);
+  col = mix(col, leaf * (0.9 + 0.25 * mask), a * (dark ? 0.6 : 0.42) * min(g, 1.5));
+  col += a * spark * (dark ? 0.5 : 0.35) * vec3(1.0, 0.92, 0.74);
+  return col + a * glint * (0.12 + 0.5 * mask) * uLC * g * (dark ? 1.0 : 0.6) * uGlint;
+}
+
+void main(){
+  vec2 px = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+  vec2 size = uRes / uDpr;
+  vec2 uv = px / uRes;
+  vec2 css = px / uDpr;
+  float g = uGain;
+  bool dark = uDark > 0.5;
+  float wk = uv.y * 0.55 + (fbm(css / 140.0 + 2.1) - 0.5) * 0.5 + 0.15;
+  vec3 paper = uSplit > 0.0 && css.x > uSplit ? uPaperB : uPaper;
+  vec3 col = mix(uRoot, mix(uRoot, paper, uPaperK), wash(uIn.x, wk));
+  col *= 1.0 + (fbm(css / 220.0) - 0.5) * 0.07 * g * uIn.y * uPaperK;
+
+  vec2 ld = (uSrc - uv) * uRes;
+  vec2 ldir = ld / max(length(ld), 0.001);
+  float dist = length((uv - uSrc) * vec2(uRes.x / uRes.y, 1.0));
+  float mask = exp(-dist * dist / (uRadius * uRadius));
+
+  vec4 rp = clickFx(css);
+  rp.xy += (texture2D(tFlow, uv).rg - 0.5) * 120.0 * uFlowOn;
+  float ms = stagger(css);
+  float avoid = 0.0;
+  float shadow = 0.0;
+  if (uDeco.w > 0.001) {
+    vec2 sc = (uSheet.xy + uSheet.zw) * 0.5;
+    vec2 sq = abs(css - sc) - (uSheet.zw - uSheet.xy) * 0.5;
+    float sd = length(max(sq, 0.0)) + min(max(sq.x, sq.y), 0.0);
+    float settle = max(uIn2.z, 0.04);
+    avoid = (1.0 - smoothstep(0.0, 26.0, sd)) * uDeco.w * uIn2.z;
+    shadow = sd > 0.0 ? exp(-sd / (7.0 * settle)) * uDeco.w * uIn2.z * (0.55 + 0.45 * smoothstep(-20.0, 20.0, css.y - sc.y)) : 0.0;
+  }
+
+  float aF = arrive(uIn.z, css * 0.5, 1.3);
+  vec2 dF = drift(css, 200.0, uT * 0.08, vec2(0.0)) * 4.0 * uMotion.x;
+  dF += drift(css, 150.0, uIn.z * 1.7 + 4.0, vec2(9.1, 1.7)) * 34.0 * (1.0 - aF) * (1.0 - aF);
+  float f = texture2D(tFiber, (css + dF - rp.xy * 0.6) / size).r - 0.5;
+
+  vec2 dS = drift(css, 260.0, uT * 0.07, vec2(3.1, 8.7)) * 7.0 * uMotion.y;
+  float aS = arrive(uIn.w, css, 5.1);
+  dS += vec2(0.0, 22.0 * (1.0 - aS) * (1.0 - aS));
+  vec2 suv = (css + dS - rp.xy * 1.2) / size;
+  vec4 sk = texture2D(tSuki, suv);
+  vec4 skB = texture2D(tSukiB, suv);
+  float kS = uLayers.z * (dark ? 0.5 : 0.36) * min(g, 1.6) * (1.0 - avoid) * aS;
+  col = mix(col, tone(sk, dark, 0.4, 1.0), sk.a * kS * (1.0 - ms));
+  col = mix(col, tone(skB, dark, 0.4, 1.0), skB.a * kS * ms);
+
+  vec2 dE = drift(css, 280.0, uT * 0.05, vec2(6.1, 2.3)) * 5.0 * uMotion.y;
+  float lDelay = vnoise(css / 240.0 + 2.9);
+  float swayPh = vnoise(css / 90.0 + 3.7) * 6.2832;
+  float aE;
+  if (uLeaf.y > 0.5) {
+    float lt = max(0.0, uLeaf.x - lDelay * 0.9);
+    float rest = (1.0 + 3.2 * lt) * exp(-3.2 * lt);
+    float ph = lt * 2.3 + swayPh;
+    dE += vec2(sin(ph) * 20.0 * rest, 96.0 * rest + cos(ph * 2.0) * 6.0 * rest);
+    aE = smoothstep(0.0, 0.5, lt);
+  } else {
+    float lt = max(0.0, uLeaf.x - lDelay * 0.35);
+    float u = clamp(lt / 0.9, 0.0, 1.0);
+    float ph = lt * 2.3 + swayPh;
+    dE += vec2(sin(ph) * 14.0 * u, 70.0 * u * u);
+    aE = 1.0 - smoothstep(0.2, 1.0, u);
+  }
+  vec2 euv = (css + dE - rp.xy) / size;
+  vec4 el = texture2D(tElem, euv);
+  vec4 elB = texture2D(tElemB, euv);
+  float occ = 1.0 - clamp(abs(f) * 1.5, 0.0, 0.45);
+  float kE = uLayers.w * occ * (dark ? 0.4 : 0.45) * min(g, 1.6) * (1.0 - avoid) * aE;
+  vec3 oc = tone(el, dark, 0.2, 0.85);
+  float oa = el.a * (1.0 - ms);
+  if (uWither > 0.5 && uMix > 0.0001) {
+    vec4 wm = texture2D(tWither, euv);
+    if (wm.a > 0.01) {
+      vec4 w = wither(css, euv, size, el.a, oc, f, ms, wm.r / wm.a < 0.3, dark);
+      oc = mix(oc, w.rgb, wm.a);
+      oa = mix(oa, w.a, wm.a);
+    }
+  }
+  col = mix(col, oc, oa * kE);
+  col = mix(col, tone(elB, dark, 0.2, 0.85), elB.a * kE * ms);
+
+  col += f * (dark ? 0.22 : 0.24) * uLayers.x * g * aF;
+  col += rp.z * 0.025 * g;
+  if (uClick > 3.5) col = mix(col, dark ? vec3(0.74, 0.33, 0.27) : vec3(0.70, 0.25, 0.20), sealInk(css) * occ * (dark ? 0.42 : 0.5));
+
+  col += uLC * mask * (dark ? 0.03 : 0.014) * uIn.y * uPaperK;
+
+  vec2 dA = drift(css, 320.0, uT * 0.06, vec2(11.3, 4.2)) * 10.0 * uMotion.z;
+  float fIn = arrive(uIn2.x, css, 8.7);
+  gFlash = fIn;
+  dA += vec2(0.0, 30.0 * (1.0 - fIn) * (1.0 - fIn));
+  vec2 fuv = (css + dA - rp.xy * 1.4) / size;
+  float ang = atan(ldir.y, ldir.x);
+  col = flakeLayer(col, texture2D(tFlake, fuv), (1.0 - ms) * (1.0 - avoid), uGold, dark, mask, ang, rp.w, g);
+  col = flakeLayer(col, texture2D(tFlakeB, fuv), ms * (1.0 - avoid), uGoldB, dark, mask, ang, rp.w, g);
+
+  if (uDeco.x > 0.001) {
+    bool legacy = uDyeShape.x < 0.5;
+    float D = legacy ? clamp(size.x * 0.18, 140.0, 300.0) : clamp(size.x * 0.025, 20.0, 32.0);
+    float dx = min(css.x, size.x - css.x);
+    float jag = (fbm(css / (legacy ? 40.0 : 16.0) + 3.3) - 0.5) * D * 0.5;
+    float wick = 1.0 - smoothstep(0.0, D * max(uIn2.z, 0.02), dx + jag * uIn2.z);
+    float body = pow(wick, 1.5) * (0.5 + 0.5 * clamp(abs(f) * 5.0 + sk.a, 0.0, 1.0));
+    if (uDyeShape.x > 1.5) {
+      float outside = max(uDyeShape.y - css.y, css.y - uDyeShape.z);
+      body *= 1.0 - smoothstep(0.0, 90.0, outside + (fbm(css / 30.0 + 6.1) - 0.5) * 40.0);
+    }
+    float front = uDyeMix * D * 1.25;
+    float soft = min(30.0, D * 0.3);
+    float inB = 1.0 - smoothstep(front - soft, front, dx + jag);
+    float kD = (legacy ? (dark ? 0.34 : 0.32) : (dark ? 0.22 : 0.2)) * uDeco.x * g;
+    col = mix(col, uDyeA, body * kD * (1.0 - uDyeMix));
+    col = mix(col, uDyeB, body * kD * inB);
+  }
+  if (uDeco.z > 0.001) {
+    float rd = min(abs(css.x - uRule.x), abs(css.x - uRule.y));
+    float line = 1.0 - smoothstep(0.4, 1.0 + (hash(px) - 0.5) * 0.5, rd);
+    float skip = smoothstep(0.2, 0.5, vnoise(vec2(css.y / 7.0, floor(css.x / 400.0) * 3.0)));
+    col = mix(col, uAccent, line * skip * (dark ? 0.2 : 0.16) * uDeco.z);
+  }
+  if (uDeco.y > 0.001) {
+    float eN = fbm(vec2(css.x / 90.0 - uBokT * 0.1, css.y / 30.0 + 4.0));
+    float yb = (1.0 - uv.y) + (eN - 0.5) * 0.05;
+    float tf = 1.0 - smoothstep(0.0, 0.16 * max(uIn2.z, 0.02), yb);
+    tf *= 0.7 + 0.3 * vnoise(vec2(css.x / 260.0 - uBokT * 0.05, css.y / 2.2 + 9.0));
+    col = mix(col, mix(uBok.rgb, uAccent, 0.45), tf * uFootAmt * uDeco.y * g);
+  }
+  col *= 1.0 - shadow * (dark ? 0.12 : 0.07);
+
+  if (uBok.a > 0.0) {
+    float tb = uBokT;
+    float streak = vnoise(vec2(css.x / 260.0 + tb * 0.05, css.y / 2.2));
+    float edgeN = fbm(vec2(css.x / 90.0 + tb * 0.12, css.y / 30.0 - tb * 0.02));
+    float depth = (0.24 + 0.035 * sin(tb * 6.2832 / 40.0)) * max(uIn.y, 0.02);
+    float y = uv.y + (edgeN - 0.5) * 0.07;
+    float t = 1.0 - smoothstep(0.0, depth, y);
+    t *= 0.7 + 0.3 * streak;
+    col = mix(col, uBok.rgb, t * uBok.a * g);
+  }
+
+  col += (hash(px + 0.37) - 0.5) * 0.03 * g * uIn.y;
+  if (uSplit > 0.0) col = mix(col, dark ? vec3(1.0) : vec3(0.0), (1.0 - smoothstep(0.0, 0.8, abs(css.x - uSplit))) * 0.14);
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`
+
+  const stage = $('stage'), canvas = $('paper')
+  const gl = canvas.getContext('webgl', { antialias: false, premultipliedAlpha: false })
+  if (!gl) {
+    const d = document.createElement('div'); d.className = 'nogl'; d.textContent = '这个浏览器没有开启 WebGL，纸张预览画不出来。换一个浏览器再打开试试。'
+    stage.appendChild(d); return
+  }
+  const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s)); return s }
+  const prog = gl.createProgram()
+  gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog)
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(prog))
+  gl.useProgram(prog)
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
+  const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0)
+  const U = {}
+  for (const n of ['uRes', 'uDpr', 'uT', 'uPaper', 'uDark', 'uGain', 'uLayers', 'uMotion', 'uBok', 'uGlint', 'uSpinT', 'uBokT', 'uSrc', 'uRadius', 'uLC', 'uGold', 'uRip', 'uClick', 'tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB', 'uMix', 'uGoldB', 'uAccent', 'uDyeA', 'uDyeB', 'uDyeMix', 'uDeco', 'uSheet', 'uRule', 'uFootAmt', 'uRoot', 'uIn', 'uIn2', 'uLeaf', 'tWither', 'uWither', 'uDyeShape', 'uPaperK', 'uPaperB', 'uSplit', 'tFlow', 'uFlowOn']) U[n] = gl.getUniformLocation(prog, n)
+  const TEX = {}
+  ;['tFiber', 'tFlake', 'tSuki', 'tElem', 'tSeal', 'tFlakeB', 'tSukiB', 'tElemB', 'tWither', 'tFlow'].forEach((n, unit) => {
+    const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
+    gl.uniform1i(U[n], unit); TEX[n] = { t, unit }
+  })
+  const upload = (n, src) => {
+    gl.activeTexture(gl.TEXTURE0 + TEX[n].unit); gl.bindTexture(gl.TEXTURE_2D, TEX[n].t)
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, n !== 'tFiber' && n !== 'tFlake' && n !== 'tFlakeB')
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, src)
+    if (n === 'tElem') { window.__benchElem = src; window.__egg?.elemChanged() }
+  }
+
+  const CLICK_CODE = { ripple: 0, press: 1, blow: 2, crumple: 3, seal: 4 }
+  const CLICK_LIFE = { ripple: 4500, press: 1800, blow: 2200, crumple: 3200, seal: 5600 }
+  const CLICK_NAME = { ripple: '水波', press: '按压', blow: '吹气', crumple: '揉皱', seal: '落印', none: '无' }
+  function makeSeal() {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 128
+    const x = c.getContext('2d'), r = rng(5)
+    x.fillStyle = '#000'
+    x.beginPath(); x.roundRect ? x.roundRect(10, 10, 108, 108, 6) : x.rect(10, 10, 108, 108); x.fill()
+    x.globalCompositeOperation = 'destination-out'
+    x.font = '600 46px "Noto Serif SC", "Songti SC", serif'; x.textAlign = 'center'; x.textBaseline = 'middle'
+    x.fillText('余', 64, 40); x.fillText('白', 64, 89)
+    for (let k = 0; k < 260; k++) {
+      x.globalAlpha = 0.25 + r() * 0.6
+      x.beginPath(); x.arc(r() * 128, r() * 128, 0.6 + r() * 2.2, 0, Math.PI * 2); x.fill()
+    }
+    return c
+  }
+  const GROUP_ACCENT = ['#b5536b', '#c25a77', '#b56a7f', '#7c8f5c', '#8463ad', '#7a68a8', '#5b8a55', '#5f74b0', '#b85f7c', '#5f8a5a', '#b8434a', '#c0852a', '#b56a35', '#b07a3a', '#b4452f', '#a87b34', '#a07a3c', '#b08a2a']
+  const FIXED_ACCENT = '#3f7f8f'
+  const DYES = [['青瓦', '#5d7a8c'], ['柿色', '#c47a3c'], ['苔绿', '#6d8a4f'], ['藤紫', '#8a6fae']]
+  const toLin = (c) => (c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4))
+  const toSrgb = (c) => (c <= 0.0031308 ? 12.92 * c : 1.055 * Math.pow(c, 1 / 2.4) - 0.055)
+  function rgbToOklab(rgb) {
+    const [r, g, b] = rgb.map(toLin)
+    const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+    const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+    const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+    return [0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s, 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s]
+  }
+  function oklabToRgb([L, a, b]) {
+    const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3, m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3, s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3
+    return [4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s, -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s, -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s]
+      .map((v) => Math.min(1, Math.max(0, toSrgb(Math.max(0, v)))))
+  }
+  const hexRgb = (h) => hexToRgb(h).map((v) => v / 255)
+  const shapeLab = (hex, L, C) => {
+    const [, a, b] = rgbToOklab(hexRgb(hex)), c = Math.hypot(a, b) || 1
+    return [L, (a / c) * C, (b / c) * C]
+  }
+  const groupIndex = (i) => ELEM_GROUPS.findIndex((g) => g.at.includes(i))
+  const accentLab = (i, dark) => shapeLab(GROUP_ACCENT[groupIndex(i)], dark ? 0.74 : 0.56, dark ? 0.1 : 0.12)
+  const dyeLab = (hex, dark) => shapeLab(hex, dark ? 0.46 : 0.62, 0.075)
+  const PAGE = {
+    browse: {
+      name: '浏览', desc: '首页、列表等。所有图层都在，花叶、碎屑、砂子都在动，点击按压。',
+      vis: { paper: 1, fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1, click: true,
+    },
+    read: {
+      name: '阅读', desc: '文章、页面、日记。花叶隐藏，纸色往页面底色退一半，纹理整体压淡（系数 1.0× 时）：纤维 70%、碎屑 30%、砂子 50% 且不闪、ぼかし 60%，所有微动停下。点击仍是按压。',
+      vis: { paper: 0.5, fiber: 0.7, suki: 0.3, sunago: 0.5, elem: 0, bok: 0.6, dye: 1, foot: 1, rule: 1, sheet: 1 },
+      visOld: { paper: 1, fiber: 1, suki: 0.5, sunago: 1, elem: 0, bok: 1, dye: 1, foot: 1, rule: 1, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
+    },
+    immersive: {
+      name: '沉浸', desc: '鼠标停在正文里（只有文章和页面）。纸色只留 30%，此外只剩颗粒，以及更淡的纤维（45%）和ぼかし（35%）。点击仍是按压。',
+      vis: { paper: 0.3, fiber: 0.45, suki: 0, sunago: 0, elem: 0, bok: 0.35, dye: 0.6, foot: 0.5, rule: 0, sheet: 1 },
+      visOld: { paper: 1, fiber: 0.6, suki: 0, sunago: 0, elem: 0, bok: 0.5, dye: 0.6, foot: 0.5, rule: 0, sheet: 1 }, move: { fiber: 0, suki: 0, sunago: 0, bok: 0 }, glint: 0, click: true,
+    },
+  }
+  const READ_SCALED = new Set(['paper', 'fiber', 'suki', 'sunago', 'bok'])
+  const DYE_SHAPE_DESC = {
+    1: 'A：书口只染约 20–32px 宽的一条，贴着左右边缘，从上到下都有；位置固定，滚动时只有颜色在变。浓度比旧版低约 40%。',
+    2: 'B：同样的细条，但只染在当前配图的上下范围里（上下再各晕开约 90px），跟着配图一起滚走。',
+    0: '旧版：140–300px 宽、整屏高，留作对照。',
+  }
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)')
+  const mqDark = matchMedia('(prefers-color-scheme: dark)')
+  const isDark = () => { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : mqDark.matches }
+  const now = new Date()
+  const state = {
+    jq: todayIndex(now), hour: now.getHours() + Math.round(now.getMinutes() / 15) / 4,
+    follow: false, pointer: null, light: null, gain: 1, speed: 3, themeSet: 'system', T: 0,
+    layers: { paper: true, fiber: true, sunago: true, suki: true, bok: true, elem: true, dye: true, foot: true, rule: false, sheet: true },
+    accentDrive: true, dye: 0, dyePrev: 0, dyeStart: -1e9, dyeFrom: null, dyeTo: null, cand: -1, candSince: 0, dyeAmp: 0, dyeGate: 1, dyeVel: 0, lastScroll: 0,
+    motion: { fiber: true, suki: true, sunago: true, bok: true },
+    click: 'press',
+    W: 0, H: 0, dpr: 1, ripples: [],
+    trans: null, mix: 0, jqAuto: false, autoNext: 0, hrPlay: false, lastSync: 0,
+    wither: true, dyeShape: 2, paperPlan: 'new', readK: 1, readOld: false,
+    page: 'read', autoImm: false, hoverText: false, spinT: 0, bokT: 0,
+    anim: { vis: { paper: 1, fiber: 1, suki: 1, sunago: 1, elem: 1, bok: 1, dye: 1, foot: 1, rule: 0, sheet: 1 }, move: { fiber: 1, suki: 1, sunago: 1, bok: 1 }, glint: 1 },
+  }
+  let dirty = true
+  window.__bench = { state, markDirty: () => { dirty = true }, setRenderScale: (k) => {
+    state.renderScale = k
+    const w = Math.round(state.W * Math.min(k, state.dpr)), h = Math.round(state.H * Math.min(k, state.dpr))
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; dirty = true }
+  }, drawElem: (...a) => drawElem(...a), rng: (sd) => rng(sd), ELEM_COLORS, uploadFlow: (c) => upload('tFlow', c), jqName: (i) => JIEQI[i][0], groupLabel: (i) => elemGroup(i).label }
+
+  const PRES_KEYS = ['base', 'tone', 'fiber', 'suki', 'sunago', 'elem', 'deco']
+  const PRES_LABEL = { base: '纸色 · 洇开', tone: '厚薄 · 刷下ぼかし', fiber: '楮纤维 · 沉定', suki: '漉き込み · 沉入', sunago: '砂子 · 撒落', elem: '押し花 · 飘落（弹簧）', deco: '书口 · 页脚 · 纸影' }
+  const TIMELINE = {
+    in: { base: [0, 1100], tone: [150, 1250], fiber: [350, 1450], suki: [700, 1800], sunago: [1000, 2000], elem: [1150, 4000], deco: [1500, 2500] },
+    out: { elem: [0, 1250], deco: [0, 600], sunago: [100, 650], suki: [200, 750], fiber: [350, 950], tone: [500, 1100], base: [600, 1300] },
+  }
+  const TL_END = { in: 4000, out: 1300 }
+  const REDUCED_SPAN = 400
+  const LEGACY_BUILD_MS = 450
+  const easeInOut = (t) => t * t * t * (t * (t * 6 - 15) + 10)
+  const easeIn = (t) => t * t * (2 - t) * t
+  const pres = {
+    mode: 'layered', phase: 'in', start: performance.now(), slow: 1,
+    from: Object.fromEntries(PRES_KEYS.map((k) => [k, 0])),
+    v: Object.fromEntries(PRES_KEYS.map((k) => [k, 0])),
+  }
+  function presElapsed(t) { return (t - pres.start) * pres.slow }
+  function leafClock() {
+    if (pres.mode === 'legacy' || reduce.matches) return 99
+    return (presElapsed(performance.now()) - TIMELINE[pres.phase].elem[0]) / 1000
+  }
+  function stepPresence(t) {
+    const el = presElapsed(t)
+    if (pres.mode === 'legacy') {
+      const on = pres.phase === 'in' && el >= LEGACY_BUILD_MS
+      for (const k of PRES_KEYS) pres.v[k] = on ? 1 : 0
+      canvas.style.visibility = on ? 'visible' : 'hidden'
+      return pres.phase === 'in' && el < LEGACY_BUILD_MS + 1100
+    }
+    canvas.style.visibility = 'visible'
+    const tl = TIMELINE[pres.phase]
+    let busy = false
+    for (const k of PRES_KEYS) {
+      const [a, b] = reduce.matches ? [0, REDUCED_SPAN] : tl[k]
+      const r = Math.min(1, Math.max(0, (el - a) / (b - a)))
+      if (r < 1) busy = true
+      const from = pres.from[k]
+      pres.v[k] = pres.phase === 'in' ? from + (1 - from) * easeInOut(r) : from * (1 - easeIn(r))
+    }
+    return busy
+  }
+  function startPresence(phase) {
+    for (const k of PRES_KEYS) pres.from[k] = pres.v[k]
+    if (pres.mode === 'legacy' && phase === 'in') {
+      for (const k of PRES_KEYS) pres.from[k] = 0
+      canvas.classList.remove('legacy-in'); void canvas.offsetWidth
+      canvas.style.animationDelay = '0ms'
+      canvas.classList.add('legacy-in')
+      canvas.style.animationDuration = `${1000 / pres.slow}ms`
+    }
+    if (pres.mode === 'layered') canvas.classList.remove('legacy-in')
+    pres.phase = phase; pres.start = performance.now(); dirty = true
+    syncPresUI()
+  }
+  function buildTimeline() {
+    const svg = $('presTL'), W = 300, L = 92, R = 8, rowH = 15, top = 6
+    const phase = pres.phase, end = TL_END[phase], tl = TIMELINE[phase]
+    const x = (ms) => L + (ms / end) * (W - L - R)
+    let h = ''
+    const step = phase === 'in' ? 500 : 200
+    for (let ms = 0; ms <= end; ms += step) h += `<line class="grid" x1="${x(ms)}" x2="${x(ms)}" y1="${top}" y2="${top + rowH * PRES_KEYS.length}"/><text class="axis" x="${x(ms)}" y="${top + rowH * PRES_KEYS.length + 10}" text-anchor="middle">${ms}</text>`
+    PRES_KEYS.forEach((k, i) => {
+      const y = top + i * rowH, [a, b] = tl[k]
+      h += `<text class="lab" x="0" y="${y + 10}">${PRES_LABEL[k]}</text>`
+      h += `<rect class="track" x="${L}" y="${y + 4}" width="${W - L - R}" height="4" rx="2"/>`
+      h += `<rect class="bar" x="${x(a)}" y="${y + 3}" width="${x(b) - x(a)}" height="6" rx="3"/>`
+      h += `<rect class="fill" data-k="${k}" x="${x(a)}" y="${y + 3}" width="0" height="6" rx="3"/>`
+    })
+    h += `<line class="head" id="presHead" x1="${L}" x2="${L}" y1="${top - 3}" y2="${top + rowH * PRES_KEYS.length + 1}"/>`
+    svg.setAttribute('viewBox', `0 0 ${W} ${top + rowH * PRES_KEYS.length + 14}`)
+    svg.innerHTML = h
+    svg.dataset.phase = phase
+  }
+  function drawTimeline(t) {
+    const svg = $('presTL')
+    if (svg.dataset.phase !== pres.phase) buildTimeline()
+    const W = 300, L = 92, R = 8, end = TL_END[pres.phase], tl = TIMELINE[pres.phase]
+    const el = Math.min(end, presElapsed(t))
+    const x = (ms) => L + (ms / end) * (W - L - R)
+    const head = $('presHead'); head.setAttribute('x1', x(el)); head.setAttribute('x2', x(el))
+    svg.querySelectorAll('.fill').forEach((r) => {
+      const [a, b] = tl[r.dataset.k]
+      r.setAttribute('width', Math.max(0, x(Math.min(b, Math.max(a, el))) - x(a)))
+    })
+  }
+  function syncPresUI() {
+    document.querySelectorAll('[data-pmode]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.pmode === pres.mode)))
+    document.querySelectorAll('[data-pslow]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.pslow === pres.slow)))
+    $('presToggle').textContent = pres.phase === 'in' ? '关闭背景（出场）' : '打开背景（入场）'
+    $('presDesc').textContent = pres.mode === 'legacy'
+      ? '现状：画布挂载即开始 1s 透明度淡入，但纹理要先在主线程生成（这里模拟 450ms），等第一帧画出来时淡入已过半，整屏颜色一下子跳过去；关闭时直接卸载，硬切回底色。'
+      : pres.phase === 'in'
+        ? '入场 ≈4s（押し花最后落定）：第一帧与页面底色一致。纸色从上往下洇开（边缘是纤维毛边，不是羽化）；顶边ぼかし一刷往下带；纤维从纸槽里的漂动沉定到位；漉き込み往下沉入；砂子撒落，每片落定时闪一下；押し花各自错开起落，从上方约 96px 摇摆着飘下，用近临界阻尼弹簧（ω=3.2，无回弹）：起步慢、中段最快、落地前一直在减速，约 2s 才完全停稳；最后书口从边缘往里洇、页脚ぼかし往上升、纸影从无到有像纸落到桌面。'
+        : '出场 1.3s：反向、更快。押し花先被风托起，缓缓加速往上飘走，书口和页脚往边缘收回，砂子不再闪、直接上浮淡去，纤维重新漂起散开，最后纸色从下往上干回页面底色，然后才卸载画布。'
+  }
+
+  function seasonalCanvases(i) {
+    return { flake: makeFlakes(state.W, state.H, state.dpr, i), suki: makeSuki(state.W, state.H, state.dpr, i), elem: makeElems(state.W, state.H, state.dpr, i) }
+  }
+  function startTransition(to) {
+    if (!state.W) return
+    if (state.trans) commitTransition()
+    const c = seasonalCanvases(to)
+    upload('tFlakeB', c.flake); upload('tSukiB', c.suki); upload('tElemB', c.elem)
+    upload('tWither', makeElems(state.W, state.H, state.dpr, state.jq, to))
+    state.trans = { to, start: performance.now(), c }
+    syncUI()
+  }
+  function commitTransition() {
+    const { to, c } = state.trans
+    upload('tFlake', c.flake); upload('tSuki', c.suki); upload('tElem', c.elem)
+    upload('tWither', EMPTY)
+    state.jq = to; state.trans = null; state.mix = 0; dirty = true
+    syncUI()
+  }
+  function regenSeasonal() {
+    if (!state.W) return
+    state.trans = null; state.mix = 0
+    upload('tWither', EMPTY)
+    upload('tFlake', makeFlakes(state.W, state.H, state.dpr, state.jq))
+    upload('tSuki', makeSuki(state.W, state.H, state.dpr, state.jq))
+    upload('tElem', makeElems(state.W, state.H, state.dpr, state.jq))
+    dirty = true
+  }
+  function resize() {
+    const r = stage.getBoundingClientRect()
+    state.W = Math.max(1, Math.round(r.width)); state.H = Math.max(1, Math.round(r.height))
+    state.dpr = Math.min(2, window.devicePixelRatio || 1)
+    const rs = Math.min(state.renderScale || state.dpr, state.dpr)
+    canvas.width = Math.round(state.W * rs); canvas.height = Math.round(state.H * rs)
+    upload('tFiber', makeFibers(state.W, state.H, state.dpr))
+    regenSeasonal()
+  }
+  const EMPTY = makeCanvas(1, 1, 1)
+  { const f = makeCanvas(1, 1, 1), fx = f.getContext('2d'); fx.fillStyle = 'rgb(128,128,0)'; fx.fillRect(0, 0, 1, 1); upload('tFlow', f) }
+  upload('tWither', EMPTY)
+  upload('tSeal', makeSeal())
+  if (document.fonts) document.fonts.load('600 46px "Noto Serif SC"', '余白').then(() => upload('tSeal', makeSeal())).catch(() => {})
+  let rT = 0
+  new ResizeObserver(() => { clearTimeout(rT); rT = setTimeout(resize, 120) }).observe(stage)
+  resize()
+
+  function render() {
+    const dark = isDark()
+    const L = lightFor(state.hour)
+    let src = L.src, radius = L.radius
+    if (state.follow && state.light) { src = state.light; radius = 0.5 }
+    const bok = dark ? lerpArr(L.bok, [0.72, 0.74, 0.8], 0.3) : L.bok
+    const av = state.anim.vis, am = state.anim.move
+    gl.viewport(0, 0, canvas.width, canvas.height)
+    gl.uniform2f(U.uRes, canvas.width, canvas.height); gl.uniform1f(U.uDpr, canvas.width / state.W)
+    gl.uniform1f(U.uT, state.T)
+    const toJq = state.trans ? state.trans.to : state.jq
+    const planA = state.paperPlan === 'new' ? 'new' : 'now'
+    gl.uniform3fv(U.uPaper, lerpArr(paperColor(state.jq, dark, planA), paperColor(toJq, dark, planA), state.mix))
+    gl.uniform3fv(U.uPaperB, lerpArr(paperColor(state.jq, dark, 'new'), paperColor(toJq, dark, 'new'), state.mix))
+    gl.uniform1f(U.uSplit, state.paperPlan === 'split' ? state.W / 2 : -1)
+    const accLab = state.accentDrive
+      ? lerpArr(accentLab(state.jq, dark), accentLab(toJq, dark), state.mix)
+      : rgbToOklab(hexRgb(FIXED_ACCENT))
+    const acc = oklabToRgb(accLab)
+    const accHex = toHex(acc)
+    if (accHex !== state.accHex) { state.accHex = accHex; document.documentElement.style.setProperty('--paper-accent', accHex); $('accentHex').textContent = accHex }
+    gl.uniform3fv(U.uAccent, acc)
+    const dyeT = Math.min(1, (performance.now() - state.dyeStart) / 3000)
+    if (!state.dyeFrom) { state.dyeFrom = dyePair(state.dye); state.dyeTo = dyePair(state.dye) }
+    gl.uniform3fv(U.uDyeA, oklabToRgb(state.dyeFrom[dark ? 1 : 0]))
+    gl.uniform3fv(U.uDyeB, oklabToRgb(state.dyeTo[dark ? 1 : 0]))
+    gl.uniform1f(U.uDyeMix, smooth(dyeT))
+    const pv = pres.v
+    gl.uniform4f(U.uDeco, av.dye * state.dyeAmp * state.dyeGate * Math.sqrt(pv.deco), av.foot * Math.sqrt(pv.deco), av.rule * pv.deco, av.sheet)
+    gl.uniform3fv(U.uRoot, dark ? [28 / 255, 28 / 255, 30 / 255] : [254 / 255, 254 / 255, 251 / 255])
+    gl.uniform4f(U.uIn, pv.base, pv.tone, pv.fiber, pv.suki)
+    gl.uniform4f(U.uIn2, pv.sunago, pv.elem, pv.deco, pres.phase === 'in' ? 1 : 0)
+    gl.uniform2f(U.uLeaf, leafClock(), pres.phase === 'in' ? 1 : 0)
+    const sr = stage.getBoundingClientRect(), shr = $('sheet').getBoundingClientRect(), sa = $('sample').getBoundingClientRect()
+    gl.uniform4f(U.uSheet, shr.left - sr.left, shr.top - sr.top, shr.right - sr.left, shr.bottom - sr.top)
+    gl.uniform2f(U.uRule, sa.left - sr.left + 16 - 28, sa.right - sr.left - 16 + 28)
+    gl.uniform1f(U.uFootAmt, L.amt + 0.04)
+    gl.uniform1f(U.uMix, state.mix); gl.uniform1f(U.uGoldB, goldness(toJq)); gl.uniform1f(U.uDark, dark ? 1 : 0); gl.uniform1f(U.uGain, state.gain)
+    gl.uniform4f(U.uLayers, av.fiber, av.sunago, av.suki, av.elem)
+    const rip = new Float32Array(16), tNow = performance.now()
+    state.ripples = state.ripples.filter((r) => tNow - r.t0 < (CLICK_LIFE[state.click] || 0))
+    gl.uniform1f(U.uClick, CLICK_CODE[state.click] ?? 0)
+    state.ripples.forEach((r, k) => rip.set([r.x, r.y, (tNow - r.t0) / 1000, 1], k * 4))
+    gl.uniform4fv(U.uRip, rip)
+    gl.uniform4f(U.uMotion, am.fiber, am.suki, am.sunago, am.bok)
+    gl.uniform1f(U.uGlint, state.anim.glint); gl.uniform1f(U.uSpinT, state.spinT); gl.uniform1f(U.uBokT, state.bokT)
+    gl.uniform4f(U.uBok, bok[0], bok[1], bok[2], L.amt * av.bok * Math.sqrt(pv.tone))
+    gl.uniform2fv(U.uSrc, src); gl.uniform1f(U.uRadius, radius)
+    gl.uniform3fv(U.uLC, dark ? L.color.map((v) => v * 0.9) : L.color)
+    gl.uniform1f(U.uGold, goldness(state.jq))
+    gl.uniform1f(U.uWither, state.wither ? 1 : 0)
+    gl.uniform1f(U.uPaperK, av.paper)
+    gl.uniform1f(U.uFlowOn, window.__benchFlowOn || 0)
+    let band = [0, 0]
+    if (state.dyeShape === 2) {
+      const fr = $('fig' + state.dye).getBoundingClientRect()
+      band = [fr.top - sr.top, fr.bottom - sr.top]
+    }
+    gl.uniform3f(U.uDyeShape, state.dyeShape, band[0], band[1])
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+  }
+
+  let last = performance.now(), lastDraw = 0
+  function frame(t) {
+    requestAnimationFrame(frame)
+    const dt = Math.min(0.1, (t - last) / 1000)
+    last = t
+    if (!reduce.matches) state.T += dt * state.speed
+    if (state.trans) {
+      const m = Math.min(1, (t - state.trans.start) / (10000 / pres.slow))
+      state.mix = reduce.matches ? 1 : smooth(m)
+      dirty = true
+      if (m >= 1 || reduce.matches) commitTransition()
+    }
+    if (state.jqAuto && !state.trans && t >= state.autoNext) { startTransition((state.jq + 1) % 24); state.autoNext = t + 13000 }
+    {
+      const sc = $('scroller'), vr = sc.getBoundingClientRect(), vh = vr.height
+      const raw = dt > 0 ? Math.abs(sc.scrollTop - state.lastScroll) / dt : 0
+      state.lastScroll = sc.scrollTop
+      state.dyeVel += (raw - state.dyeVel) * (1 - Math.exp(-dt / 0.09))
+      let best = 0, bestK = -1
+      document.querySelectorAll('figure[data-dye]').forEach((fig) => {
+        const r = fig.getBoundingClientRect(), tt = (vr.bottom - r.top) / (vh + r.height)
+        if (tt <= 0 || tt >= 1) return
+        const w = Math.sin(Math.PI * tt) ** 2
+        if (w > best) { best = w; bestK = +fig.dataset.dye }
+      })
+      if (bestK >= 0 && bestK !== state.dye) {
+        if (state.dyeAmp < 0.05) {
+          state.dye = bestK; state.dyeFrom = dyePair(bestK); state.dyeTo = dyePair(bestK); state.cand = -1
+        } else if (state.cand !== bestK) { state.cand = bestK; state.candSince = t }
+        else if (t - state.candSince > 350) { setDye(bestK); state.cand = -1 }
+      } else state.cand = -1
+      state.dyeAmp += (best - state.dyeAmp) * (1 - Math.exp(-dt / 0.6))
+      const gateT = 1 - 0.55 * smooth(Math.min(1, Math.max(0, (state.dyeVel - 1200) / 2800)))
+      state.dyeGate += (gateT - state.dyeGate) * (1 - Math.exp(-dt / (gateT < state.dyeGate ? 0.7 : 1.1)))
+      if (t - (state.dyeInfoAt || 0) > 200) {
+        state.dyeInfoAt = t
+        $('dyeInfo').textContent = bestK >= 0 || state.dyeAmp > 0.02
+          ? `当前配图：${DYES[state.dye][0]} · 染色 ${(state.dyeAmp * state.dyeGate).toFixed(2)}${state.page === 'browse' ? '' : ''}`
+          : '视野里没有配图，书口未染色。往下滚动正文。'
+      }
+    }
+    if (performance.now() - state.dyeStart < 3100) dirty = true
+    if (state.hrPlay) {
+      state.hour = (state.hour + dt) % 24; dirty = true
+      if (t - state.lastSync > 200) { state.lastSync = t; syncUI() }
+    }
+    const prof = window.__egg?.wantFull() ? PAGE.browse : PAGE[effectivePage()]
+    const k = reduce.matches ? 1 : 1 - Math.exp(-dt / 0.2)
+    let moving = false
+    const pvis = state.readOld && prof.visOld ? prof.visOld : prof.vis
+    for (const key of Object.keys(state.anim.vis)) {
+      const scale = prof.visOld && !state.readOld && READ_SCALED.has(key) ? state.readK : 1
+      const target = Math.min(1, pvis[key] * scale) * (state.layers[key] ? 1 : 0)
+      const d = target - state.anim.vis[key]
+      if (Math.abs(d) > 0.001) { state.anim.vis[key] += d * k; moving = true } else state.anim.vis[key] = target
+    }
+    for (const key of Object.keys(state.anim.move)) {
+      const target = prof.move[key] * (state.motion[key] ? 1 : 0)
+      const d = target - state.anim.move[key]
+      if (Math.abs(d) > 0.001) { state.anim.move[key] += d * k; moving = true } else state.anim.move[key] = target
+    }
+    const gd = prof.glint - state.anim.glint
+    if (Math.abs(gd) > 0.001) { state.anim.glint += gd * k; moving = true } else state.anim.glint = prof.glint
+    if (window.__egg?.override(state.anim, t)) moving = true
+    if (moving) dirty = true
+    if (!reduce.matches) {
+      state.spinT += dt * state.speed * state.anim.move.sunago
+      state.bokT += dt * state.speed * state.anim.move.bok
+    }
+    if (state.follow && state.pointer) {
+      if (!state.light) state.light = state.pointer.slice()
+      const k = reduce.matches ? 1 : 0.07
+      const dx = state.pointer[0] - state.light[0], dy = state.pointer[1] - state.light[1]
+      if (Math.abs(dx) + Math.abs(dy) > 0.0005) { state.light = [state.light[0] + dx * k, state.light[1] + dy * k]; dirty = true }
+    }
+    if (stepPresence(t)) dirty = true
+    drawTimeline(t)
+    const idle = pres.phase === 'out' && pres.v.base < 0.001 && pres.mode === 'layered'
+    if (pres.mode === 'legacy' && pres.phase === 'out') canvas.style.visibility = 'hidden'
+    if (!idle && (dirty || (!reduce.matches && t - lastDraw >= 33))) { render(); lastDraw = t; dirty = false }
+    if (idle) canvas.style.visibility = 'hidden'
+  }
+  buildTimeline(); syncPresUI()
+  requestAnimationFrame(frame)
+
+  stage.addEventListener('pointermove', (e) => {
+    const r = stage.getBoundingClientRect()
+    state.pointer = [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]
+  })
+  stage.addEventListener('pointerdown', (e) => {
+    if (window.__egg?.busy()) return
+    if (state.click === 'none' || reduce.matches || !PAGE[effectivePage()].click) return
+    const r = stage.getBoundingClientRect()
+    state.ripples = [...state.ripples, { x: e.clientX - r.left, y: e.clientY - r.top, t0: performance.now() }].slice(-4)
+  })
+  stage.addEventListener('pointerleave',() => { state.pointer = null; state.light = null; dirty = true })
+
+  const effectivePage = () => (state.page === 'read' && state.autoImm && state.hoverText ? 'immersive' : state.page)
+  function dyePair(k) { return [dyeLab(DYES[k][1], false), dyeLab(DYES[k][1], true)] }
+  function setDye(k) {
+    if (k === state.dye) return
+    const m = smooth(Math.min(1, (performance.now() - state.dyeStart) / 3000))
+    state.dyeFrom = state.dyeFrom.map((lab, th) => lerpArr(lab, state.dyeTo[th], m))
+    state.dyeTo = dyePair(k); state.dye = k; state.dyeStart = performance.now()
+  }
+  function syncDeco() {
+    $('mockFooter').classList.toggle('old', !state.layers.foot)
+    const card = $('hcard')
+    card.classList.toggle('washi', state.layers.card !== false)
+    card.classList.toggle('old', state.layers.card === false)
+    card.classList.toggle('show', state.cardPin || state.cardHover)
+    const lr = $('mockLink').getBoundingClientRect(), sr = stage.getBoundingClientRect()
+    card.style.left = `${Math.min(lr.left - sr.left, sr.width - 316)}px`
+    card.style.top = `${lr.bottom - sr.top + 10}px`
+  }
+  function syncUI() {
+    const ep = effectivePage()
+    $('pageDesc').textContent = PAGE[ep].desc
+    document.querySelectorAll('[data-page]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.page === state.page)))
+    const [name, m, d] = JIEQI[state.jq]
+    const season = seasonOf(state.jq)
+    const dens = sunagoDensity(state.jq), gold = goldness(state.jq)
+    $('jqLabel').textContent = state.trans ? `${name} → ${JIEQI[state.trans.to][0]}` : `${name} · ${SEASON_NAME[season]}`
+    $('jqDate').textContent = `${m} 月 ${d} 日起`
+    $('jqInfo').innerHTML = [
+      `纸色 ${toHex(paperColor(state.jq, isDark()))} → 建议 ${toHex(paperColor(state.jq, isDark(), 'new'))}`,
+      `砂子 ${dens < 0.7 ? '疏' : dens < 1.3 ? '中' : '密'} · ${gold > 0.5 ? '金' : '银'}`,
+      `漉き込み ${SUKI[season].label}`,
+      `花叶 ${elemGroup(state.jq).label}`,
+    ].join('<br>')
+    $('hrLabel').textContent = `${fmtHour(state.hour)} ${hourWord(state.hour)}`
+    $('gainLabel').textContent = `${state.gain.toFixed(1)}×${Math.abs(state.gain - 1) < 0.01 ? ' 上线值' : ''}`
+    $('cap').textContent = `${name} · ${m}月${d}日起 · ${fmtHour(state.hour)} ${hourWord(state.hour)} · 动态 ${reduce.matches ? '已按系统设置暂停' : state.speed + '×'}${state.follow ? ' · 光随鼠标' : ''} · ${PAGE[ep].name}${ep !== state.page ? '（自动）' : ''} · 点击 ${PAGE[ep].click ? CLICK_NAME[state.click] : '关'}`
+    document.querySelectorAll('[data-speed]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.speed === state.speed)))
+    document.querySelectorAll('[data-th]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.th === state.themeSet)))
+    document.querySelectorAll('[data-wither]').forEach((b) => b.setAttribute('aria-pressed', String(!!+b.dataset.wither === state.wither)))
+    document.querySelectorAll('[data-dyeshape]').forEach((b) => b.setAttribute('aria-pressed', String(+b.dataset.dyeshape === state.dyeShape)))
+    $('dyeShapeDesc').textContent = DYE_SHAPE_DESC[state.dyeShape]
+    document.querySelectorAll('[data-paper]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.paper === state.paperPlan)))
+    $('splitTag').hidden = state.paperPlan !== 'split'
+    const dk = isDark(), cell = (plan) => JIEQI.map(([n], k) => `<i data-i="${k}" title="${n} ${toHex(paperColor(k, dk, plan))}" class="${k === state.jq ? 'on' : ''}" style="background:${toHex(paperColor(k, dk, plan))}"></i>`).join('')
+    $('paperStrip').innerHTML = `<span class="k">现状（立春 → 大寒）</span><div class="r">${cell('now')}</div><span class="k">建议</span><div class="r">${cell('new')}</div>`
+    $('readKLabel').textContent = state.readOld ? '旧值' : `${state.readK.toFixed(2)}×${Math.abs(state.readK - 1) < 0.01 ? ' 推荐' : ''}`
+    $('readK').disabled = state.readOld
+    $('jq').value = state.jq; $('hr').value = Math.round(state.hour * 4) / 4; $('gain').value = state.gain
+  }
+
+  document.querySelectorAll('[data-speed]').forEach((b) => b.addEventListener('click', () => { state.speed = +b.dataset.speed; syncUI() }))
+  document.querySelectorAll('[data-th]').forEach((b) => b.addEventListener('click', () => {
+    state.themeSet = b.dataset.th
+    if (state.themeSet === 'system') document.documentElement.removeAttribute('data-theme')
+    else document.documentElement.setAttribute('data-theme', state.themeSet)
+    dirty = true; syncUI()
+  }))
+  $('jq').addEventListener('input', (e) => { state.jq = +e.target.value; regenSeasonal(); syncUI() })
+  $('jqNext').addEventListener('click', () => startTransition((state.jq + 1) % 24))
+  document.querySelectorAll('[data-paper]').forEach((b) => b.addEventListener('click', () => { state.paperPlan = b.dataset.paper; dirty = true; syncUI() }))
+  $('paperStrip').addEventListener('click', (e) => {
+    const i = e.target.dataset?.i
+    if (i === undefined) return
+    state.jq = +i; regenSeasonal(); syncUI()
+  })
+  $('jqGroup').addEventListener('click', () => {
+    const from = state.trans ? state.trans.to : state.jq, gi = groupIndex(from)
+    let j = (from + 1) % 24
+    while (groupIndex(j) === gi) j = (j + 1) % 24
+    startTransition(j)
+  })
+  document.querySelectorAll('[data-wither]').forEach((b) => b.addEventListener('click', () => { state.wither = !!+b.dataset.wither; dirty = true; syncUI() }))
+  document.querySelectorAll('[data-dyeshape]').forEach((b) => b.addEventListener('click', () => { state.dyeShape = +b.dataset.dyeshape; dirty = true; syncUI() }))
+  $('readK').addEventListener('input', (e) => { state.readK = +e.target.value; syncUI() })
+  $('readOld').addEventListener('change', (e) => { state.readOld = e.target.checked; syncUI() })
+  $('jqAuto').addEventListener('change', (e) => { state.jqAuto = e.target.checked; state.autoNext = 0 })
+  $('hrPlay').addEventListener('change', (e) => { state.hrPlay = e.target.checked })
+  $('jqToday').addEventListener('click', () => { state.jq = todayIndex(); regenSeasonal(); syncUI() })
+  $('hr').addEventListener('input', (e) => { state.hour = +e.target.value; dirty = true; syncUI() })
+  $('hrNow').addEventListener('click', () => { const d = new Date(); state.hour = d.getHours() + Math.round(d.getMinutes() / 15) / 4; dirty = true; syncUI() })
+  $('follow').addEventListener('change', (e) => { state.follow = e.target.checked; state.light = null; dirty = true; syncUI() })
+  $('gain').addEventListener('input', (e) => { state.gain = +e.target.value; dirty = true; syncUI() })
+  $('showText').addEventListener('change', (e) => $('sample').classList.toggle('off', !e.target.checked))
+  function makePhoto(hex, seed) {
+    const c = document.createElement('canvas'); c.width = 960; c.height = 540
+    const x = c.getContext('2d'), r = rng(seed), base = rgbToOklab(hexRgb(hex))
+    const shade = (dL) => toHex(oklabToRgb([Math.min(0.97, Math.max(0.15, base[0] + dL)), base[1], base[2]]))
+    const sky = x.createLinearGradient(0, 0, 0, 540)
+    sky.addColorStop(0, shade(0.3)); sky.addColorStop(1, shade(0.08))
+    x.fillStyle = sky; x.fillRect(0, 0, 960, 540)
+    for (let layer = 0; layer < 4; layer++) {
+      const y0 = 260 + layer * 70, amp = 50 - layer * 8, ph = r() * 10, f1 = 0.004 + r() * 0.004, f2 = 0.013 + r() * 0.01
+      x.fillStyle = shade(0.02 - layer * 0.12)
+      x.beginPath(); x.moveTo(0, 540)
+      for (let px = 0; px <= 960; px += 8) x.lineTo(px, y0 - Math.sin(px * f1 + ph) * amp - Math.sin(px * f2 + ph * 2) * amp * 0.35)
+      x.lineTo(960, 540); x.closePath(); x.fill()
+    }
+    const img = x.getImageData(0, 0, 960, 540), d = img.data
+    for (let k = 0; k < d.length; k += 4) { const n = (r() - 0.5) * 14; d[k] += n; d[k + 1] += n; d[k + 2] += n }
+    x.putImageData(img, 0, 0)
+    return c.toDataURL('image/jpeg', 0.85)
+  }
+  DYES.forEach(([, hex], k) => { $('fig' + k).src = makePhoto(hex, 400 + k) })
+  $('scroller').addEventListener('scroll', syncDeco, { passive: true })
+  $('accentDrive').addEventListener('change', (e) => { state.accentDrive = e.target.checked; dirty = true })
+  state.cardPin = false; state.cardHover = false
+  $('mockLink').addEventListener('pointerenter', () => { state.cardHover = true; syncDeco() })
+  $('mockLink').addEventListener('pointerleave', () => { state.cardHover = false; syncDeco() })
+  for (const k of ['card']) {
+    state.layers[k] = true
+    $('L_' + k).addEventListener('change', (e) => { state.layers[k] = e.target.checked; syncDeco() })
+  }
+  const tile = document.createElement('canvas')
+  tile.width = 256; tile.height = 256
+  {
+    const x = tile.getContext('2d'), r = rng(77)
+    x.lineCap = 'round'
+    for (let i = 0; i < 70; i++) {
+      const len = 16 + Math.pow(r(), 2) * 120, a = r() * Math.PI * 2, x0 = r() * 256, y0 = r() * 256
+      x.strokeStyle = r() < 0.5 ? `rgba(0,0,0,${0.04 + r() * 0.06})` : `rgba(255,255,255,${0.25 + r() * 0.3})`
+      x.lineWidth = 0.4 + r() * 0.6
+      x.beginPath(); x.moveTo(x0, y0); x.quadraticCurveTo(x0 + (r() - 0.5) * len, y0 + (r() - 0.5) * len, x0 + Math.cos(a) * len, y0 + Math.sin(a) * len); x.stroke()
+    }
+  }
+  $('hcard').style.setProperty('--card-fiber', `url(${tile.toDataURL()})`)
+  new ResizeObserver(syncDeco).observe(stage)
+  for (const k of ['dye', 'foot', 'sheet']) {
+    $('L_' + k).addEventListener('change', (e) => { state.layers[k] = e.target.checked; dirty = true; syncDeco() })
+  }
+  for (const k of ['fiber', 'sunago', 'suki', 'bok', 'elem']) {
+    $('L_' + k).addEventListener('change', (e) => { state.layers[k] = e.target.checked; dirty = true })
+  }
+  document.querySelectorAll('[data-pmode]').forEach((b) => b.addEventListener('click', () => { pres.mode = b.dataset.pmode; for (const k of PRES_KEYS) pres.v[k] = 0; startPresence('in') }))
+  document.querySelectorAll('[data-pslow]').forEach((b) => b.addEventListener('click', () => { pres.slow = +b.dataset.pslow; syncPresUI() }))
+  $('presReplay').addEventListener('click', () => { for (const k of PRES_KEYS) pres.v[k] = 0; startPresence('in') })
+  $('presToggle').addEventListener('click', () => startPresence(pres.phase === 'in' ? 'out' : 'in'))
+  document.querySelectorAll('[data-page]').forEach((b) => b.addEventListener('click', () => { state.page = b.dataset.page; state.ripples = []; syncUI() }))
+  $('autoImm').addEventListener('change', (e) => { state.autoImm = e.target.checked; syncUI() })
+  $('sample').addEventListener('pointerenter', () => { state.hoverText = true; syncUI() })
+  $('sample').addEventListener('pointerleave', () => { state.hoverText = false; syncUI() })
+  document.querySelectorAll('input[name="click"]').forEach((el) => el.addEventListener('change', () => {
+    state.click = el.value; state.ripples = []; dirty = true; syncUI()
+  }))
+  for (const k of ['fiber', 'sunago', 'suki', 'bok']) {
+    $('M_' + k).addEventListener('change', (e) => { state.motion[k] = e.target.checked; dirty = true })
+  }
+  mqDark.addEventListener('change', () => { dirty = true; syncUI() })
+  new MutationObserver(() => {
+    const t = document.documentElement.getAttribute('data-theme')
+    state.themeSet = t === 'dark' || t === 'light' ? t : 'system'
+    dirty = true; syncUI()
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+
+  syncUI()
+  syncDeco()
+})()
+</script>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id)
+  const bench = window.__bench
+  const stage = $('stage')
+  const scroller = $('scroller')
+
+  const RESTORE = {
+    'vis.paper': [0, 1.2], 'vis.fiber': [0.3, 1.4], 'vis.sunago': [0.8, 1.4], 'vis.suki': [0.9, 1.4],
+    'vis.bok': [1.2, 1.4], 'vis.elem': [1.6, 1.6],
+    'move.fiber': [2.2, 1.0], 'move.suki': [2.2, 1.0], 'move.sunago': [2.2, 1.0], 'move.bok': [2.2, 1.0], glint: [2.2, 1.0],
+  }
+  const RESTORE_S = 3.2
+  const HOLD_S = 0.8
+  const EXIT_S = 2.4
+  const LAYER_NAMES = [['vis.paper', '纸色'], ['vis.fiber', '纤维'], ['vis.suki', '漉き込み'], ['vis.sunago', '砂子'], ['vis.elem', '花叶'], ['vis.bok', 'ぼかし'], ['move.fiber', '微动']]
+
+  const PETAL_OF = { sakura: 'petal', ume: 'roundPetal', peach: 'peachPetal', pear: 'pearPetal', peony: 'petal', lotus: 'petal' }
+  const LOOSE = new Set(['petal', 'roundPetal', 'peachPetal', 'pearPetal', 'wisteria'])
+  const MAPLE_NEXT = { 'maple:green': 'maple:turning', 'maple:turning': 'maple:red', 'maple:red': 'maple:dry' }
+  const GINKGO_NEXT = { 'ginkgo:turning': 'ginkgo', ginkgo: 'ginkgo:fallen' }
+  const EXTRA_COLORS = { 'maple:dry': ['#9a6b3e', '#a8794a', '#8c5f36'] }
+
+  let FRAME_MS = 33
+  const perf = { fps: 30, ink: 1, sharp: true, overlay: 'auto', grid: 96, paper: 1, shadow: true }
+  const opts = { idle: 8, sinkS: 22, ink: 0.6, stir: 1, drift: 1 }
+  let phase = 'reading'
+  let sink = 0
+  let sinkDir = 0
+  let exitT = 0
+  let lastActive = performance.now()
+  let restoreAt = 0
+  let restoreFrom = null
+  let moved = 0
+  let pointer = null
+  let pointerStillAt = 0
+  let W = 0, H = 0, dpr = 1
+  let dropTurn = 0
+  let hint = ''
+
+  const getPath = (o, path) => path.split('.').reduce((v, k) => v[k], o)
+  const setPath = (o, path, val) => { const ks = path.split('.'); const last = ks.pop(); ks.reduce((v, k) => v[k], o)[last] = val }
+  const ease = (t) => t * t * (3 - 2 * t)
+  const clamp01 = (v) => Math.min(1, Math.max(0, v))
+  const isDark = () => { const t = document.documentElement.getAttribute('data-theme'); return t ? t === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches }
+  const cssRgb = (str) => {
+    const probe = document.createElement('canvas').getContext('2d')
+    probe.fillStyle = str
+    const h = probe.fillStyle
+    if (h.startsWith('#')) return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+    const m = h.match(/[\d.]+/g)
+    return m ? m.slice(0, 3).map((v) => +v / 255) : [0.5, 0.5, 0.5]
+  }
+  const accentRgb = () => cssRgb(getComputedStyle(document.documentElement).getPropertyValue('--paper-accent').trim() || '#b4452f')
+  const currentJq = () => (bench.state.trans ? bench.state.trans.to : bench.state.jq)
+
+  let GX = 96
+  let GY = 64, cs = 10, U, V, U0, V0, P, DIV, DX, DY
+  const alloc = () => {
+    GY = Math.max(16, Math.round((GX * H) / W))
+    cs = W / GX
+    const n = GX * GY
+    U = new Float32Array(n); V = new Float32Array(n); U0 = new Float32Array(n); V0 = new Float32Array(n)
+    P = new Float32Array(n); DIV = new Float32Array(n); DX = new Float32Array(n); DY = new Float32Array(n)
+  }
+  const sample = (F, x, y) => {
+    let gx = x / cs - 0.5, gy = y / cs - 0.5
+    gx = Math.min(GX - 1.001, Math.max(0, gx)); gy = Math.min(GY - 1.001, Math.max(0, gy))
+    const i = gx | 0, j = gy | 0, fx = gx - i, fy = gy - j, k = i + j * GX
+    return (F[k] * (1 - fx) + F[k + 1] * fx) * (1 - fy) + (F[k + GX] * (1 - fx) + F[k + GX + 1] * fx) * fy
+  }
+  const drops = []
+  const dropVel = (x, y, now) => {
+    let vx = 0, vy = 0
+    for (const d of drops) {
+      const age = (now - d.t0) / 1000
+      if (age > 0.9) continue
+      const Q = d.q * Math.exp(-age / 0.28)
+      const dx = x - d.x, dy = y - d.y, r2 = Math.max(dx * dx + dy * dy, 144)
+      const k = Q / (2 * Math.PI * r2)
+      vx += dx * k; vy += dy * k
+    }
+    return [vx, vy]
+  }
+  const splats = []
+  const stepFluid = (dt, now, ambient) => {
+    for (const s of splats) {
+      const R = s.r, R2 = R * R
+      const i0 = Math.max(0, Math.floor((s.x - 2 * R) / cs)), i1 = Math.min(GX - 1, Math.ceil((s.x + 2 * R) / cs))
+      const j0 = Math.max(0, Math.floor((s.y - 2 * R) / cs)), j1 = Math.min(GY - 1, Math.ceil((s.y + 2 * R) / cs))
+      for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+        const dx = (i + 0.5) * cs - s.x, dy = (j + 0.5) * cs - s.y
+        const w = Math.exp(-(dx * dx + dy * dy) / R2)
+        const k = i + j * GX
+        U[k] += s.vx * w * 0.4 * opts.stir; V[k] += s.vy * w * 0.4 * opts.stir
+      }
+    }
+    splats.length = 0
+    if (ambient > 0) {
+      const t = now / 1000
+      for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
+        const k = i + j * GX
+        U[k] += Math.sin(j * 0.21 + t * 0.13) * Math.cos(i * 0.07 - t * 0.09) * ambient * dt
+        V[k] += Math.cos(i * 0.19 - t * 0.11) * Math.sin(j * 0.09 + t * 0.07) * ambient * dt
+      }
+    }
+    U0.set(U); V0.set(V)
+    for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
+      const k = i + j * GX
+      const x = (i + 0.5) * cs - dt * U0[k], y = (j + 0.5) * cs - dt * V0[k]
+      U[k] = sample(U0, x, y); V[k] = sample(V0, x, y)
+    }
+    for (let j = 1; j < GY - 1; j++) for (let i = 1; i < GX - 1; i++) {
+      const k = i + j * GX
+      DIV[k] = (U[k + 1] - U[k - 1] + V[k + GX] - V[k - GX]) / (2 * cs)
+      P[k] = 0
+    }
+    for (let it = 0; it < 18; it++) {
+      for (let j = 1; j < GY - 1; j++) for (let i = 1; i < GX - 1; i++) {
+        const k = i + j * GX
+        P[k] = (P[k - 1] + P[k + 1] + P[k - GX] + P[k + GX] - DIV[k] * cs * cs) / 4
+      }
+    }
+    const damp = Math.exp(-dt * 0.55)
+    for (let j = 1; j < GY - 1; j++) for (let i = 1; i < GX - 1; i++) {
+      const k = i + j * GX
+      U[k] = (U[k] - (P[k + 1] - P[k - 1]) / (2 * cs)) * damp
+      V[k] = (V[k] - (P[k + GX] - P[k - GX]) / (2 * cs)) * damp
+      U[k] = Math.max(-1400, Math.min(1400, U[k])); V[k] = Math.max(-1400, Math.min(1400, V[k]))
+    }
+    for (let i = 0; i < GX; i++) { U[i] = V[i] = 0; U[i + (GY - 1) * GX] = V[i + (GY - 1) * GX] = 0 }
+    for (let j = 0; j < GY; j++) { U[j * GX] = V[j * GX] = 0; U[GX - 1 + j * GX] = V[GX - 1 + j * GX] = 0 }
+  }
+
+  let velBuf = null
+  const velBytes = () => {
+    if (!velBuf || velBuf.length !== GX * GY * 4) velBuf = new Uint8Array(GX * GY * 4)
+    const out = velBuf
+    for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
+      const k = i + j * GX, o = (i + (GY - 1 - j) * GX) * 4
+      const eu = Math.sign(U[k]) * Math.sqrt(Math.min(1, Math.abs(U[k]) / 1500))
+      const ev = -Math.sign(V[k]) * Math.sqrt(Math.min(1, Math.abs(V[k]) / 1500))
+      out[o] = Math.round(128 + eu * 127)
+      out[o + 1] = Math.round(128 + ev * 127)
+      out[o + 3] = 255
+    }
+    return out
+  }
+  const NO_DROP = [0, 0]
+  const flowCanvas = document.createElement('canvas')
+  const flowCtx = flowCanvas.getContext('2d')
+  let flowImg = null
+  const stepDisplacement = (dt, now, settle) => {
+    const back = Math.exp(-dt * (settle ? 4 : 0.32))
+    const anyDrop = drops.some((d) => now - d.t0 < 900)
+    for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) {
+      const k = i + j * GX
+      const [dvx, dvy] = anyDrop ? dropVel((i + 0.5) * cs, (j + 0.5) * cs, now) : NO_DROP
+      DX[k] = Math.max(-58, Math.min(58, (DX[k] + (U[k] * 0.16 + dvx * 0.5) * opts.drift * dt) * back))
+      DY[k] = Math.max(-58, Math.min(58, (DY[k] + (V[k] * 0.16 + dvy * 0.5) * opts.drift * dt) * back))
+    }
+    if (flowCanvas.width !== GX || flowCanvas.height !== GY) { flowCanvas.width = GX; flowCanvas.height = GY }
+    if (!flowImg || flowImg.width !== GX || flowImg.height !== GY) flowImg = flowCtx.createImageData(GX, GY)
+    const img = flowImg
+    for (let k = 0; k < GX * GY; k++) {
+      img.data[k * 4] = Math.round(clamp01(DX[k] / 120 + 0.5) * 255)
+      img.data[k * 4 + 1] = Math.round(clamp01(DY[k] / 120 + 0.5) * 255)
+      img.data[k * 4 + 3] = 255
+    }
+    flowCtx.putImageData(img, 0, 0)
+    bench.uploadFlow(flowCanvas)
+  }
+
+  const exitBtn = document.createElement('button')
+  exitBtn.type = 'button'
+  exitBtn.className = 'egg-exit'
+  exitBtn.textContent = '回到正文'
+  exitBtn.addEventListener('click', () => leave())
+  const glCanvas = document.createElement('canvas')
+  glCanvas.className = 'egg-layer'
+  const spriteCanvas = document.createElement('canvas')
+  spriteCanvas.className = 'egg-layer'
+  stage.append(glCanvas, spriteCanvas, exitBtn)
+  const sp = spriteCanvas.getContext('2d')
+  const ink = document.createElement('canvas')
+
+  const gl = glCanvas.getContext('webgl', { premultipliedAlpha: false, antialias: false })
+  const VS = 'attribute vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }'
+  const COMMON = `
+precision highp float;
+float hash(vec2 p){ vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z); }
+float vnoise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);
+  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }
+float fbm(vec2 p){ float v = 0.0; float a = 0.5; for (int i = 0; i < 4; i++){ v += a*vnoise(p); p = p*2.03 + vec2(17.1, 9.2); a *= 0.5; } return v; }
+mat2 rot(float a){ float c = cos(a); float s = sin(a); return mat2(c, -s, s, c); }
+`
+  const ADVECT = COMMON + `
+uniform sampler2D tDye; uniform sampler2D tVel; uniform vec2 uSize; uniform float uDt; uniform float uScale;
+uniform float uDecay; uniform float uDiff; uniform float uFrame;
+uniform vec4 uDrops[4];
+uniform vec4 uSplat; uniform vec4 uSplatCol; uniform float uSharp;
+vec4 sampleSharp(vec2 uv){
+  vec2 p = uv * uSize;
+  vec2 tc = floor(p - 0.5) + 0.5;
+  vec2 f = p - tc;
+  vec2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));
+  vec2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);
+  vec2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));
+  vec2 w3 = f * f * (-0.5 + 0.5 * f);
+  vec2 w12 = w1 + w2;
+  vec2 t0 = (tc - 1.0) / uSize;
+  vec2 t3 = (tc + 2.0) / uSize;
+  vec2 t12 = (tc + w2 / w12) / uSize;
+  vec4 r = texture2D(tDye, vec2(t12.x, t0.y)) * (w12.x * w0.y)
+         + texture2D(tDye, vec2(t0.x, t12.y)) * (w0.x * w12.y)
+         + texture2D(tDye, t12) * (w12.x * w12.y)
+         + texture2D(tDye, vec2(t3.x, t12.y)) * (w3.x * w12.y)
+         + texture2D(tDye, vec2(t12.x, t3.y)) * (w12.x * w3.y);
+  r /= w12.x * w0.y + w0.x * w12.y + w12.x * w12.y + w3.x * w12.y + w12.x * w3.y;
+  vec4 a = texture2D(tDye, tc / uSize);
+  vec4 b = texture2D(tDye, (tc + vec2(1.0, 0.0)) / uSize);
+  vec4 c = texture2D(tDye, (tc + vec2(0.0, 1.0)) / uSize);
+  vec4 d = texture2D(tDye, (tc + vec2(1.0, 1.0)) / uSize);
+  return clamp(r, min(min(a, b), min(c, d)), max(max(a, b), max(c, d)));
+}
+void main(){
+  vec2 uv = gl_FragCoord.xy / uSize;
+  vec2 css = vec2(gl_FragCoord.x, uSize.y - gl_FragCoord.y) * uScale;
+  vec2 ve = (texture2D(tVel, uv).rg * 255.0 - 128.0) / 127.0;
+  vec2 vel = sign(ve) * ve * ve * 1500.0;
+  for (int i = 0; i < 4; i++) {
+    vec4 d = uDrops[i];
+    if (d.z <= 0.0) continue;
+    vec2 dv = css - d.xy;
+    float r2 = max(dot(dv, dv), 144.0);
+    vec2 v = dv * d.z / (6.2832 * r2);
+    vel += vec2(v.x, -v.y);
+  }
+  vec2 puv = uv - vel * uDt / (uSize * uScale);
+  vec4 c = uSharp > 0.5 ? sampleSharp(puv) : texture2D(tDye, puv);
+  vec2 px = 1.0 / uSize;
+  float inside = step(0.0, puv.x) * step(puv.x, 1.0) * step(0.0, puv.y) * step(puv.y, 1.0);
+  vec4 nb = (texture2D(tDye, puv + vec2(px.x, 0.0)) + texture2D(tDye, puv - vec2(px.x, 0.0)) + texture2D(tDye, puv + vec2(0.0, px.y)) + texture2D(tDye, puv - vec2(0.0, px.y))) * 0.25;
+  c = mix(c, nb, uDiff) * inside;
+  float dec = step(hash(gl_FragCoord.xy + uFrame * 7.13), uDecay) / 255.0;
+  float na = max(c.a - dec, 0.0);
+  c = c.a > 0.0 ? c * (na / c.a) : vec4(0.0);
+  if (uSplat.w > 0.0) {
+    float d = length(css - uSplat.xy);
+    float k = 1.0 - smoothstep(uSplat.z * 0.75, uSplat.z, d + (vnoise(css * 0.3) - 0.5) * 3.0);
+    if (uSplat.w > 1.5) c *= 1.0 - k;
+    else c = c * (1.0 - k * uSplatCol.a) + vec4(uSplatCol.rgb, 1.0) * k * uSplatCol.a;
+  }
+  gl_FragColor = c;
+}`
+  const COPY = `
+precision highp float;
+uniform sampler2D tInk; uniform vec2 uSize;
+void main(){ vec4 c = texture2D(tInk, gl_FragCoord.xy / uSize); gl_FragColor = vec4(c.rgb * c.a, c.a); }`
+  const SHOW = COMMON + `
+uniform vec2 uRes; uniform float uDpr;
+uniform sampler2D tDye; uniform sampler2D tInk;
+uniform float uCrisp; uniform float uDyeK; uniform float uRe; uniform float uDark; uniform vec3 uAccent;
+uniform float uT; uniform float uVeil; uniform vec3 uMilk;
+vec2 uvOf(vec2 css){ return vec2(css.x / uRes.x, 1.0 - css.y / uRes.y); }
+vec4 inkAt(vec2 css){ return texture2D(tInk, uvOf(css)); }
+vec4 over(vec4 dst, vec3 c, float a){ float na = a + dst.a * (1.0 - a); return vec4((c * a + dst.rgb * dst.a * (1.0 - a)) / max(na, 1e-4), na); }
+void main(){
+  vec2 css = vec2(gl_FragCoord.x, uRes.y * uDpr - gl_FragCoord.y) / uDpr;
+  vec4 o = vec4(0.0);
+  vec4 d = texture2D(tDye, uvOf(css));
+  if (uVeil > 0.0) {
+    float turb = fbm(css / 110.0 + vec2(uT * 0.05, uT * 0.03));
+    float seep = smoothstep(0.0, 0.35, uVeil - (1.0 - turb) * 0.25) * (uDark > 0.5 ? 0.42 : 1.0);
+    o = over(o, uMilk, seep * (0.22 + 0.18 * turb));
+    vec2 fq = rot(turb * 6.0 + uT * 0.02) * css;
+    float fib = smoothstep(0.8, 0.95, vnoise(vec2(fq.x / 30.0, fq.y / 1.5)));
+    o = over(o, uMilk, seep * fib * 0.35);
+  }
+  if (d.a > 0.0) {
+    float grain = 0.85 + 0.3 * vnoise(css * 0.7);
+    o = over(o, d.rgb / d.a, clamp(d.a * uDyeK * grain * (uDark > 0.5 ? 0.6 : 1.0), 0.0, 1.0));
+  }
+  if (uCrisp > 0.0) { vec4 k = inkAt(css); o = over(o, k.rgb, k.a * uCrisp); }
+  if (uRe > 0.0) {
+    float ang = vnoise(css / 220.0 + 3.1) * 4.4;
+    vec2 fl = rot(ang) * css;
+    float thr = 0.55 * fbm(vec2(fl.x / 26.0, fl.y / 3.5)) + 0.45 * vnoise(css / 320.0 + 1.7);
+    float dens = (inkAt(css + vec2(5.0, 0.0)).a + inkAt(css - vec2(5.0, 0.0)).a + inkAt(css + vec2(0.0, 5.0)).a + inkAt(css - vec2(0.0, 5.0)).a) * 0.25;
+    float solid = smoothstep(0.7, 0.95, min(dens, inkAt(css).a));
+    float q = 1.0 - uRe;
+    float qa = smoothstep(thr * 0.7, thr * 0.7 + 0.3, q * 1.35);
+    float qk = mix(smoothstep(thr * 0.7 + 0.22, thr * 0.7 + 0.55, q * 1.35), smoothstep(0.3, 0.9, q), solid);
+    float A = inkAt(css - vec2(4.0, -3.0) * (1.0 - q)).a * qa * 0.8 * (1.0 - smoothstep(0.75, 1.0, q)) * (1.0 - solid);
+    vec4 K = inkAt(css - vec2(-2.5, 1.5) * (1.0 - q) * (1.0 - q));
+    o = over(o, uAccent, A);
+    o = over(o, K.rgb, K.a * qk);
+  }
+  gl_FragColor = o;
+}`
+  const program = (fs, names) => {
+    const compile = (type, code) => {
+      const s = gl.createShader(type); gl.shaderSource(s, code); gl.compileShader(s)
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s))
+      return s
+    }
+    const pr = gl.createProgram()
+    gl.attachShader(pr, compile(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, compile(gl.FRAGMENT_SHADER, fs)); gl.linkProgram(pr)
+    const u = {}
+    for (const n of names) u[n] = gl.getUniformLocation(pr, n)
+    return { pr, u }
+  }
+  const pAdvect = program(ADVECT, ['tDye', 'tVel', 'uSize', 'uScale', 'uSharp', 'uDt', 'uDecay', 'uDiff', 'uFrame', 'uDrops', 'uSplat', 'uSplatCol'])
+  const pCopy = program(COPY, ['tInk', 'uSize'])
+  const pShow = program(SHOW, ['uRes', 'uDpr', 'tDye', 'tInk', 'uCrisp', 'uDyeK', 'uRe', 'uDark', 'uAccent', 'uT', 'uVeil', 'uMilk'])
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
+  gl.enableVertexAttribArray(0)
+  gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
+  for (const p of [pAdvect, pCopy, pShow]) gl.bindAttribLocation(p.pr, 0, 'p')
+
+  const mkTex = (w, h) => {
+    const t = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, t)
+    for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.UNSIGNED_BYTE, null)
+    return t
+  }
+  let inkTex = mkTex(1, 1), velTex = mkTex(1, 1)
+  let dye = [], fbo = [], DW = 1, DH = 1, cur = 0
+  const setupDye = () => {
+    DW = Math.max(1, Math.round(W * perf.ink)); DH = Math.max(1, Math.round(H * perf.ink))
+    for (const t of dye) gl.deleteTexture(t)
+    for (const f of fbo) gl.deleteFramebuffer(f)
+    dye = [mkTex(DW, DH), mkTex(DW, DH)]
+    fbo = dye.map((t) => { const f = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); return f })
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+  const bindTex = (unit, t) => { gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t) }
+  const clearDye = () => {
+    for (const f of fbo) { gl.bindFramebuffer(gl.FRAMEBUFFER, f); gl.viewport(0, 0, DW, DH); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT) }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+  const seedDye = () => {
+    gl.useProgram(pCopy.pr)
+    bindTex(0, inkTex); gl.uniform1i(pCopy.u.tInk, 0)
+    gl.uniform2f(pCopy.u.uSize, DW, DH)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[cur]); gl.viewport(0, 0, DW, DH)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+  let frameNo = 0
+  const pendingDye = []
+  const advect = (dt, now, decay, diff) => {
+    bindTex(1, velTex)
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, GX, GY, 0, gl.RGBA, gl.UNSIGNED_BYTE, velBytes())
+    const dropArr = new Float32Array(16)
+    drops.filter((d) => now - d.t0 < 900).slice(-4).forEach((d, i) => dropArr.set([d.x, d.y, d.q * Math.exp(-((now - d.t0) / 1000) / 0.28), 1], i * 4))
+    const passes = Math.max(1, pendingDye.length)
+    for (let pass = 0; pass < passes; pass++) {
+      const sp0 = pendingDye[pass]
+      gl.useProgram(pAdvect.pr)
+      bindTex(0, dye[cur]); gl.uniform1i(pAdvect.u.tDye, 0)
+      bindTex(1, velTex); gl.uniform1i(pAdvect.u.tVel, 1)
+      gl.uniform2f(pAdvect.u.uSize, DW, DH)
+      gl.uniform1f(pAdvect.u.uScale, W / DW)
+      gl.uniform1f(pAdvect.u.uSharp, perf.sharp ? 1 : 0)
+      gl.uniform1f(pAdvect.u.uDt, pass === 0 ? dt : 0)
+      gl.uniform1f(pAdvect.u.uDecay, pass === 0 ? decay : 0)
+      gl.uniform1f(pAdvect.u.uDiff, pass === 0 ? diff : 0)
+      gl.uniform1f(pAdvect.u.uFrame, ++frameNo % 997)
+      gl.uniform4fv(pAdvect.u.uDrops, pass === 0 ? dropArr : new Float32Array(16))
+      gl.uniform4fv(pAdvect.u.uSplat, sp0 ? [sp0.x, sp0.y, sp0.r, sp0.erase ? 2 : 1] : [0, 0, 0, 0])
+      gl.uniform4fv(pAdvect.u.uSplatCol, sp0 && sp0.rgb ? [...sp0.rgb, sp0.a] : [0, 0, 0, 0])
+      gl.bindFramebuffer(gl.FRAMEBUFFER, fbo[1 - cur]); gl.viewport(0, 0, DW, DH)
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
+      cur = 1 - cur
+    }
+    pendingDye.length = 0
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+  }
+
+  const sprites = []
+  let fireflies = []
+  const spriteArt = (type, color, size, seed) => {
+    const pad = 6, S = Math.ceil(size * 1.3 + pad * 2)
+    const c = document.createElement('canvas')
+    c.width = Math.round(S * dpr); c.height = Math.round(S * dpr)
+    const x = c.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, S * dpr / 2, S * dpr / 2)
+    x.fillStyle = color
+    const g = bench.rng(seed)
+    for (let i = 0; i < 7; i++) g()
+    bench.drawElem(x, type.startsWith('maple:dry') ? 'maple:red' : type, size, g)
+    const variant = (filter) => {
+      const v = document.createElement('canvas')
+      v.width = c.width; v.height = c.height
+      const vx = v.getContext('2d')
+      vx.filter = filter
+      vx.drawImage(c, 0, 0)
+      return v
+    }
+    const dark = isDark()
+    const face = dark ? variant('brightness(0.86)') : c
+    const back = variant(dark ? 'saturate(0.55) brightness(1.02)' : 'saturate(0.55) brightness(1.18)')
+    const pad2 = Math.ceil(10 * dpr)
+    const shadow = document.createElement('canvas')
+    shadow.width = c.width + pad2 * 2; shadow.height = c.height + pad2 * 2
+    const shx = shadow.getContext('2d')
+    shx.filter = 'brightness(0) blur(3px)'
+    shx.drawImage(c, pad2, pad2)
+    return { c: face, S, back, shadow, SS: S + (pad2 * 2) / dpr }
+  }
+  const makeSprite = (o, extra = {}) => {
+    const art = spriteArt(o.type, o.color, o.size, o.seed)
+    return {
+      type: o.type, color: o.color, size: o.size, seed: o.seed, art,
+      hx: o.x, hy: o.y, x: o.x, y: o.y, vx: 0, vy: 0, rot: o.rot, hrot: o.rot, vr: 0,
+      flip: o.flip ? -1 : 1, flipPh: 0, flipV: 0, alpha: o.alpha, lift: 0,
+      hue: 0, hueTo: 0, melt: 0, glow: 0, shed: 0, splits: 0, oldArt: null, swapT: 1, home: true, born: performance.now(),
+      ...extra,
+    }
+  }
+  const liftSprites = () => {
+    sprites.length = 0
+    fireflies = []
+    const set = (window.__benchElemSets || {})[currentJq()] || []
+    for (const o of set) sprites.push(makeSprite(o))
+  }
+  const recolor = (s, type) => {
+    const colors = EXTRA_COLORS[type] || bench.ELEM_COLORS[type]
+    if (!colors) return
+    s.oldArt = s.art
+    s.type = type
+    s.color = colors[Math.floor(Math.random() * colors.length)]
+    s.art = spriteArt(type, s.color, s.size, s.seed)
+    s.swapT = 0
+  }
+  const spawnLoose = (parent, type, color, size) => {
+    const s = makeSprite({ type, color, size, seed: Math.floor(Math.random() * 1e9), x: parent.x, y: parent.y, rot: Math.random() * 6.28, flip: Math.random() < 0.5, alpha: parent.alpha }, { home: false, lift: 1 })
+    s.vx = parent.vx + (Math.random() - 0.5) * 80
+    s.vy = parent.vy + (Math.random() - 0.5) * 80
+    s.vr = (Math.random() - 0.5) * 4
+    sprites.push(s)
+  }
+  const familyOf = (t) => t.split(':')[0]
+  const ripples = []
+  let nextFallAt = 0
+  const FALL_CAP = 14
+  const spawnFall = (now) => {
+    const set = (window.__benchElemSets || {})[currentJq()] || []
+    if (!set.length) return
+    const o = set[Math.floor(Math.random() * set.length)]
+    let type = o.type, color = o.color, size = o.size
+    if (PETAL_OF[type] && Math.random() < 0.65) {
+      type = PETAL_OF[type]
+      const cs0 = bench.ELEM_COLORS[type]
+      color = o.type === 'peony' || o.type === 'lotus' ? o.color : cs0[Math.floor(Math.random() * cs0.length)]
+      size = o.size * 0.55
+    }
+    const x = 60 + Math.random() * (W - 120)
+    const y = 50 + Math.random() * (H - 150)
+    const s = makeSprite({ type, color, size, seed: Math.floor(Math.random() * 1e9), x, y, rot: Math.random() * 6.28, flip: Math.random() < 0.5, alpha: o.alpha }, { home: false, lift: 1 })
+    s.fall = { t0: now, dur: 2.4 + Math.random() * 1.4, x, y, ph: Math.random() * 6.28, spin: (Math.random() - 0.5) * 3, sway: 26 + Math.random() * 22 }
+    s.born = now
+    s.sinkAfter = now + (35 + Math.random() * 30) * 1000
+    sprites.push(s)
+  }
+  const stepFalls = (now) => {
+    if (phase !== 'immersed' && !(phase === 'sinking' && sinkDir > 0 && sink > 0.75)) return
+    if (now >= nextFallAt) {
+      spawnFall(now)
+      if (Math.random() < 0.25) spawnFall(now)
+      nextFallAt = now + (2200 + Math.random() * 4200)
+    }
+    const floating = sprites.filter((s) => !s.home && !s.fall && !s.sinkT)
+    floating.sort((a, b) => a.born - b.born)
+    let over = floating.length - FALL_CAP
+    for (const s of floating) {
+      if (over > 0) { s.sinkT = now; over--; continue }
+      if (now > s.sinkAfter) s.sinkT = now
+    }
+  }
+
+  const stepSprites = (dt, now, settle) => {
+    const loose = sprites.filter((s) => LOOSE.has(s.type) && !s.fall)
+    for (let i = sprites.length - 1; i >= 0; i--) {
+      const s = sprites[i]
+      if (s.sinkT && now - s.sinkT > 4800) sprites.splice(i, 1)
+    }
+    for (const s of sprites) {
+      if (s.fall) {
+        const f = s.fall
+        const t = clamp01((now - f.t0) / 1000 / f.dur)
+        const h = 1 - t
+        s.x = f.x + Math.sin(t * 5.2 + f.ph) * f.sway * h
+        s.y = f.y - 8 * h + Math.cos(t * 3.1 + f.ph) * 6 * h
+        s.rot += f.spin * dt * (0.3 + h)
+        s.flipPh = Math.sin(t * 7 + f.ph) * 1.2 * h
+        s.h = h
+        if (t >= 1) {
+          s.fall = null
+          s.h = 0
+          s.flipPh = 0
+          s.vx = Math.cos(f.ph) * 14; s.vy = Math.sin(f.ph) * 14
+          drops.push({ x: s.x, y: s.y, t0: now, q: (1600 + s.size * 60) * (0.6 + Math.random() * 0.8) })
+          if (drops.length > 8) drops.shift()
+          const n = 1 + Math.floor(Math.random() * 3)
+          const rings = []
+          for (let ri = 0; ri < n; ri++) rings.push({ delay: ri === 0 ? 0 : rings[ri - 1].delay + 0.12 + Math.random() * 0.25, gain: ri === 0 ? 1 : 0.35 + Math.random() * 0.4 })
+          ripples.push({ x: s.x, y: s.y, t0: now, R: (10 + Math.random() * 18) * (0.7 + s.size / 60), life: 0.9 + Math.random() * 0.8, ecc: 0.85 + Math.random() * 0.15, tilt: Math.random() * Math.PI, alpha: 0.5 + Math.random() * 0.4, rings })
+          if (ripples.length > 16) ripples.shift()
+        }
+        continue
+      }
+      if (s.sinkT) {
+        const k = clamp01((now - s.sinkT) / 4800)
+        s.vx *= 1 - k * 0.05; s.vy *= 1 - k * 0.05
+      }
+      let wu = sample(U, s.x, s.y), wv = sample(V, s.x, s.y)
+      const [dvx, dvy] = dropVel(s.x, s.y, now)
+      wu += dvx; wv += dvy
+      const speed = Math.hypot(wu, wv)
+      const fam = familyOf(s.type)
+      const drag = 1 - Math.exp(-dt * (LOOSE.has(s.type) ? 4 : 2.4))
+      s.vx += (wu - s.vx) * drag
+      s.vy += (wv - s.vy) * drag
+      if (s.home) { s.vx += (s.hx - s.x) * 0.25 * dt; s.vy += (s.hy - s.y) * 0.25 * dt }
+      if (LOOSE.has(s.type) && speed < 120) {
+        for (const o of loose) {
+          if (o === s) continue
+          const dx = o.x - s.x, dy = o.y - s.y, d = Math.hypot(dx, dy)
+          if (d < 60 && d > s.size * 0.7) { s.vx += (dx / d) * 22 * dt * 3; s.vy += (dy / d) * 22 * dt * 3 }
+        }
+      }
+      if (settle > 0) {
+        const k = ease(settle)
+        s.x += (s.hx - s.x) * Math.min(1, k * 0.25 + dt * 3 * k)
+        s.y += (s.hy - s.y) * Math.min(1, k * 0.25 + dt * 3 * k)
+        s.rot += (s.hrot - s.rot) * Math.min(1, dt * 4 * k)
+        s.flipPh *= 1 - Math.min(1, dt * 5 * k)
+      } else {
+        s.x += s.vx * dt; s.y += s.vy * dt
+      }
+      const curl = (sample(V, s.x + 20, s.y) - sample(V, s.x - 20, s.y) - sample(U, s.x, s.y + 20) + sample(U, s.x, s.y - 20)) / 40
+      s.vr += (curl * 0.9 - s.vr) * (1 - Math.exp(-dt * 2))
+      if ((fam === 'lotus' || LOOSE.has(s.type)) && speed > 40) {
+        const target = Math.atan2(wv, wu) + Math.PI / 2
+        let dA = ((target - s.rot + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI
+        s.vr += dA * Math.min(1, speed / 400) * dt * 2
+      }
+      if (settle === 0) s.rot += s.vr * dt
+      if ((fam === 'maple' || fam === 'ginkgo' || LOOSE.has(s.type)) && speed > 260 && Math.abs(s.flipV) < 3) s.flipV += (speed / 260) * (Math.random() < 0.5 ? -1 : 1) * 4
+      s.flipPh += s.flipV * dt
+      s.flipV *= Math.exp(-dt * 1.6)
+      if (Math.abs(s.flipV) < 0.6) {
+        const restAng = Math.round(s.flipPh / Math.PI) * Math.PI
+        s.flipPh += (restAng - s.flipPh) * Math.min(1, dt * 3)
+      }
+      if (PETAL_OF[s.type] && speed > 520 && s.shed < 5 && now - (s.lastShed || 0) > 160 && settle === 0) {
+        s.lastShed = now
+        s.shed++
+        const pt = PETAL_OF[s.type]
+        spawnLoose(s, pt, s.type === 'peony' || s.type === 'lotus' ? s.color : bench.ELEM_COLORS[pt][Math.floor(Math.random() * bench.ELEM_COLORS[pt].length)], s.size * (s.type === 'lotus' ? 0.6 : 0.5))
+      }
+      if (fam === 'osmanthus' && speed > 380 && s.splits < 3 && now - (s.lastSplit || 0) > 300 && settle === 0) {
+        s.lastSplit = now
+        s.splits++
+        spawnLoose(s, 'osmanthus', s.color, s.size * 0.62)
+      }
+      if (fam === 'osmanthus' && speed > 160 && Math.random() < 0.5 && settle === 0) dust.push({ x: s.x, y: s.y, vx: s.vx * 0.3 + (Math.random() - 0.5) * 30, vy: s.vy * 0.3 + (Math.random() - 0.5) * 30, t0: now, c: s.color })
+      if (fam === 'snow') {
+        const near = pointer && Math.hypot(pointer.x - s.x, pointer.y - s.y) < 80
+        s.melt = clamp01(s.melt + (near ? dt * 1.3 : -dt * 0.35))
+      }
+      if (fam === 'wintersweet') {
+        const near = pointer && Math.hypot(pointer.x - s.x, pointer.y - s.y) < 110
+        s.glow += ((near ? 1 : 0) - s.glow) * Math.min(1, dt * 3)
+      }
+      s.hue += (s.hueTo - s.hue) * Math.min(1, dt * 2.2)
+      s.swapT = Math.min(1, s.swapT + dt * 1.6)
+    }
+    for (let i = sprites.length - 1; i >= 0; i--) {
+      const s = sprites[i]
+      if (s.x < -80 || s.x > W + 80 || s.y < -80 || s.y > H + 80) sprites.splice(i, 1)
+    }
+  }
+  const dust = []
+  const drawSprites = (now, alphaK, liftK, settle) => {
+    sp.setTransform(dpr, 0, 0, dpr, 0, 0)
+    sp.clearRect(0, 0, W, H)
+    const dark = isDark()
+    for (let i = dust.length - 1; i >= 0; i--) {
+      const d = dust[i], age = (now - d.t0) / 1000
+      if (age > 1.4) { dust.splice(i, 1); continue }
+      d.x += d.vx / 60; d.y += d.vy / 60
+      sp.globalAlpha = (1 - age / 1.4) * 0.7 * alphaK
+      sp.fillStyle = d.c
+      sp.beginPath(); sp.arc(d.x, d.y, 1.1, 0, Math.PI * 2); sp.fill()
+    }
+    for (let i = ripples.length - 1; i >= 0; i--) {
+      const r = ripples[i], age = (now - r.t0) / 1000
+      if (age > r.life + 1) { ripples.splice(i, 1); continue }
+      for (const { delay, gain } of r.rings) {
+        const t = (age - delay) / r.life
+        if (t <= 0 || t >= 1) continue
+        const R = 3 + r.R * Math.sqrt(t)
+        const fade = (1 - t) * (1 - t) * gain * r.alpha * alphaK
+        sp.lineWidth = 0.9 * (1 - t * 0.4)
+        sp.globalAlpha = fade * 0.65
+        sp.strokeStyle = dark ? 'rgb(235,230,220)' : 'rgb(80,70,58)'
+        sp.beginPath(); sp.ellipse(r.x, r.y, R, R * r.ecc, r.tilt, 0, Math.PI * 2); sp.stroke()
+        sp.globalAlpha = fade * (dark ? 0.3 : 0.75)
+        sp.strokeStyle = dark ? 'rgb(20,18,16)' : 'rgb(255,255,252)'
+        sp.beginPath(); sp.ellipse(r.x, r.y, Math.max(1, R - 1.2), Math.max(1, R - 1.2) * r.ecc, r.tilt, 0, Math.PI * 2); sp.stroke()
+      }
+    }
+    for (const s of sprites) {
+      const fam = familyOf(s.type)
+      const lift = s.home ? liftK : 1
+      if (lift <= 0.001) continue
+      const h = s.h || 0
+      const sinkK = s.sinkT ? clamp01((now - s.sinkT) / 4800) : 0
+      const bob = 1 + Math.sin(now / 900 + s.seed) * 0.02 * lift
+      const fx = Math.cos(s.flipPh) * s.flip
+      const melt = s.melt
+      const sc = bob * (1 + 0.06 * lift) * (1 - 0.55 * melt) * (1 + 0.55 * h) * (1 - 0.18 * sinkK)
+      let a = s.alpha * (dark ? 0.62 : 0.72) * (0.55 + 0.45 * lift) * alphaK * (1 - 0.85 * melt) * (1 - sinkK)
+      if (!s.home) a *= clamp01((now - s.born) / 450) * (1 - settle)
+      const { c, S } = s.art
+      sp.save()
+      sp.translate(s.x + 3 * lift + 26 * h, s.y + 4 * lift + 34 * h)
+      sp.rotate(s.rot)
+      sp.scale(sc * fx * (1 - 0.35 * h), sc * (1 - 0.35 * h))
+      sp.globalAlpha = a * (0.16 * lift * (1 - sinkK) + 0.1 * h)
+      const SS = s.art.SS * (1 + 0.5 * h)
+      if (perf.shadow) sp.drawImage(s.art.shadow, -SS / 2, -SS / 2, SS, SS)
+      sp.restore()
+      sp.save()
+      sp.translate(s.x, s.y)
+      sp.rotate(s.rot)
+      sp.scale(sc * fx, sc)
+      const hueOn = fam === 'ajisai' && Math.abs(s.hue) > 0.5
+      if (hueOn) sp.filter = `hue-rotate(${s.hue}deg)`
+      const img = fx < 0 || sinkK > 0.5 ? s.art.back : c
+      if (s.oldArt && s.swapT < 1) {
+        sp.globalAlpha = a * (1 - s.swapT)
+        sp.drawImage(fx < 0 ? s.oldArt.back : s.oldArt.c, -s.oldArt.S / 2, -s.oldArt.S / 2, s.oldArt.S, s.oldArt.S)
+      }
+      sp.globalAlpha = a * (s.oldArt ? s.swapT : 1)
+      sp.drawImage(img, -S / 2, -S / 2, S, S)
+      if (hueOn) sp.filter = 'none'
+      if (s.glow > 0.02) {
+        sp.globalCompositeOperation = 'lighter'
+        sp.globalAlpha = s.glow * 0.5 * alphaK
+        sp.drawImage(c, -S / 2, -S / 2, S, S)
+        sp.globalCompositeOperation = 'source-over'
+      }
+      sp.restore()
+      if (fam === 'snow' && melt > 0.15) {
+        sp.globalAlpha = melt * 0.35 * alphaK
+        sp.strokeStyle = dark ? 'rgba(190,205,225,1)' : 'rgba(120,140,170,1)'
+        sp.lineWidth = 0.8
+        sp.beginPath(); sp.arc(s.x, s.y, s.size * (0.3 + melt * 0.5), 0, Math.PI * 2); sp.stroke()
+      }
+      if (fam === 'wintersweet' && s.glow > 0.02) {
+        const g = sp.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.size * 1.6)
+        g.addColorStop(0, `rgba(255,214,120,${0.35 * s.glow * alphaK})`)
+        g.addColorStop(1, 'rgba(255,214,120,0)')
+        sp.globalAlpha = 1
+        sp.fillStyle = g
+        sp.beginPath(); sp.arc(s.x, s.y, s.size * 1.6, 0, Math.PI * 2); sp.fill()
+      }
+    }
+    for (const f of fireflies) {
+      const pulse = 0.5 + 0.5 * Math.sin(now / 380 + f.ph)
+      const g = sp.createRadialGradient(f.x, f.y, 0, f.x, f.y, 14)
+      const k = f.life * pulse * alphaK
+      g.addColorStop(0, `rgba(226,255,140,${0.9 * k})`)
+      g.addColorStop(0.25, `rgba(190,240,110,${0.45 * k})`)
+      g.addColorStop(1, 'rgba(160,220,90,0)')
+      sp.globalAlpha = 1
+      sp.globalCompositeOperation = dark ? 'lighter' : 'source-over'
+      sp.fillStyle = g
+      sp.beginPath(); sp.arc(f.x, f.y, 14, 0, Math.PI * 2); sp.fill()
+      sp.globalCompositeOperation = 'source-over'
+    }
+    sp.globalAlpha = 1
+    sp.filter = 'none'
+  }
+  const stepFireflies = (dt, now) => {
+    const jq = currentJq()
+    const season = jq === 10 || jq === 11 || jq === 9
+    const still = pointer && now - pointerStillAt > 1100
+    if (season && still && fireflies.length < 9 && Math.random() < dt * 3) {
+      const a = Math.random() * 6.28, r = 160 + Math.random() * 120
+      fireflies.push({ x: pointer.x + Math.cos(a) * r, y: pointer.y + Math.sin(a) * r, vx: 0, vy: 0, ph: Math.random() * 6.28, life: 0, seed: Math.random() * 100 })
+    }
+    for (let i = fireflies.length - 1; i >= 0; i--) {
+      const f = fireflies[i]
+      const tx = (pointer ? pointer.x : f.x) + Math.cos(now / 1300 + f.seed) * 46, ty = (pointer ? pointer.y : f.y) + Math.sin(now / 1100 + f.seed * 1.3) * 32
+      const go = still ? 1 : -1
+      f.vx += ((tx - f.x) * 0.6 * go + (Math.random() - 0.5) * 80) * dt
+      f.vy += ((ty - f.y) * 0.6 * go + (Math.random() - 0.5) * 80) * dt
+      f.vx *= Math.exp(-dt * 1.2); f.vy *= Math.exp(-dt * 1.2)
+      f.x += f.vx * dt; f.y += f.vy * dt
+      f.life = clamp01(f.life + (still ? dt * 0.8 : -dt * 0.6))
+      if (!still && f.life <= 0) fireflies.splice(i, 1)
+    }
+  }
+
+  const fontOf = (cs0) => `${cs0.fontStyle} ${cs0.fontWeight} ${cs0.fontSize} ${cs0.fontFamily}`
+  const visibleEl = (el) => {
+    for (let e = el; e && e !== stage; e = e.parentElement) {
+      const c = getComputedStyle(e)
+      if (c.visibility === 'hidden' || c.display === 'none' || +c.opacity === 0) return false
+    }
+    return true
+  }
+  const capture = () => {
+    ink.width = Math.round(W * dpr); ink.height = Math.round(H * dpr)
+    const x = ink.getContext('2d')
+    x.setTransform(dpr, 0, 0, dpr, 0, 0)
+    x.clearRect(0, 0, W, H)
+    const base = stage.getBoundingClientRect()
+    const inView = (r) => r.bottom > base.top && r.top < base.bottom && r.width > 0
+    const header = stage.querySelector('.mock-header')
+    if (header && visibleEl(header)) {
+      const c = getComputedStyle(header), r = header.getBoundingClientRect()
+      x.globalAlpha = 0.3
+      x.fillStyle = c.backgroundColor; x.fillRect(r.left - base.left, r.top - base.top, r.width, r.height)
+      x.globalAlpha = 1
+      x.fillStyle = c.borderBottomColor; x.fillRect(0, r.bottom - base.top - 1, W, 1)
+    }
+    for (const sh of stage.querySelectorAll('.sheet')) {
+      const r = sh.getBoundingClientRect()
+      if (!inView(r) || !visibleEl(sh)) continue
+      x.globalAlpha = 0.3
+      x.fillStyle = getComputedStyle(sh, '::before').backgroundColor
+      x.fillRect(r.left - base.left, r.top - base.top, r.width, r.height)
+      x.globalAlpha = 1
+    }
+    for (const img of stage.querySelectorAll('.sample img')) {
+      const r = img.getBoundingClientRect()
+      if (!inView(r) || !img.complete || !visibleEl(img)) continue
+      x.drawImage(img, r.left - base.left, r.top - base.top, r.width, r.height)
+    }
+    const ascents = new Map(), range = document.createRange()
+    x.textBaseline = 'alphabetic'
+    for (const root of [stage.querySelector('.mock-header'), $('sample'), stage.querySelector('.mock-footer')].filter(Boolean)) {
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+      for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+        const el = node.parentElement
+        if (!visibleEl(el)) continue
+        const pr = el.getBoundingClientRect()
+        if (pr.bottom < base.top || pr.top > base.bottom) continue
+        const c = getComputedStyle(el), font = fontOf(c)
+        if (!ascents.has(font)) { x.font = font; ascents.set(font, x.measureText('永').fontBoundingBoxAscent) }
+        x.font = font; x.fillStyle = c.color
+        const text = node.textContent
+        for (let i = 0; i < text.length; i++) {
+          if (/\s/.test(text[i])) continue
+          range.setStart(node, i); range.setEnd(node, i + 1)
+          const r = range.getClientRects()[0]
+          if (!r || !inView(r)) continue
+          x.fillText(text[i], r.left - base.left, r.top - base.top + ascents.get(font))
+        }
+      }
+    }
+    bindTex(0, inkTex)
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, ink)
+  }
+
+  const resize = () => {
+    const r = stage.getBoundingClientRect()
+    W = Math.max(1, Math.round(r.width)); H = Math.max(1, Math.round(r.height))
+    dpr = Math.min(2, window.devicePixelRatio || 1)
+    for (const c of [glCanvas, spriteCanvas]) { c.width = Math.round(W * dpr); c.height = Math.round(H * dpr) }
+    alloc()
+    setupDye()
+    clearDye()
+  }
+  new ResizeObserver(resize).observe(stage)
+  resize()
+
+  const poke = () => { lastActive = performance.now() }
+  const enter = () => {
+    if (phase !== 'reading') return
+    moved = 0
+    restoreAt = performance.now()
+    const a = bench.state.anim
+    restoreFrom = Object.fromEntries(Object.keys(RESTORE).map((k) => [k, getPath(a, k)]))
+    startSink()
+  }
+  const startSink = () => {
+    capture()
+    clearDye()
+    seedDye()
+    alloc()
+    liftSprites()
+    phase = 'sinking'; sinkDir = 1; sink = 0; moved = 0
+    stage.classList.add('egg-ink')
+    window.__benchFlowOn = 1
+  }
+  const leave = () => {
+    poke()
+    if (phase === 'immersed' || (phase === 'sinking' && sink > 0.6)) { phase = 'exiting'; exitT = 0 }
+    else if (phase === 'sinking') sinkDir = -1
+    else if (phase === 'restoring') phase = 'reading'
+  }
+  const finish = () => {
+    phase = 'reading'
+    stage.classList.remove('egg-ink')
+    sprites.length = 0; fireflies = []; dust.length = 0; drops.length = 0; ripples.length = 0
+    sink = 0
+    window.__benchFlowOn = 0
+    clearDye()
+    poke()
+  }
+
+  const nearest = (x, y, pred, r) => {
+    let best = null, bd = r
+    for (const s of sprites) {
+      if (!pred(s)) continue
+      const d = Math.hypot(s.x - x, s.y - y)
+      if (d < bd) { bd = d; best = s }
+    }
+    return best
+  }
+  const click = (x, y) => {
+    const now = performance.now()
+    const aj = nearest(x, y, (s) => familyOf(s.type) === 'ajisai', 60)
+    if (aj) {
+      for (const s of sprites) if (familyOf(s.type) === 'ajisai' && Math.hypot(s.x - aj.x, s.y - aj.y) < 170) s.hueTo += 70
+      hint = '紫阳花随土色转了一档'
+      return
+    }
+    const leaf = nearest(x, y, (s) => MAPLE_NEXT[s.type] || GINKGO_NEXT[s.type], 50)
+    if (leaf) {
+      const nx = MAPLE_NEXT[leaf.type] || GINKGO_NEXT[leaf.type]
+      recolor(leaf, nx)
+      leaf.flipV += 9
+      hint = '这片叶子先走了一个节气'
+      return
+    }
+    const turn = dropTurn++ % 4
+    const accent = accentRgb()
+    const sumi = isDark() ? [0.86, 0.84, 0.8] : [0.13, 0.12, 0.11]
+    drops.push({ x, y, t0: now, q: 52000 })
+    if (drops.length > 8) drops.shift()
+    if (turn === 1 || turn === 3) pendingDye.push({ x, y, r: 16, erase: true })
+    else pendingDye.push({ x, y, r: 15, rgb: turn === 0 ? sumi : accent, a: turn === 0 ? 0.75 : 0.65 })
+    hint = turn === 1 || turn === 3 ? '清水一滴，把墨推成环' : turn === 0 ? '落墨一滴' : '落一滴当季的色'
+  }
+
+  stage.addEventListener('pointermove', (e) => {
+    const b = stage.getBoundingClientRect()
+    const p = { x: e.clientX - b.left, y: e.clientY - b.top, t: performance.now() }
+    const prev = pointer
+    pointer = p
+    if (!prev) { pointerStillAt = p.t; return }
+    const d = Math.hypot(p.x - prev.x, p.y - prev.y)
+    if (d > 3) pointerStillAt = p.t
+    if (phase === 'reading') { if (d > 2) poke() }
+    else if (phase === 'restoring' || (phase === 'sinking' && sinkDir > 0)) { moved += d; if (moved > 60) leave() }
+    else if (phase === 'immersed') {
+      const dt = Math.max(0.008, (p.t - prev.t) / 1000)
+      const k = Math.min(1, 900 / (d / dt + 1))
+      splats.push({ x: p.x, y: p.y, vx: ((p.x - prev.x) / dt) * k, vy: ((p.y - prev.y) / dt) * k, r: 42 })
+    }
+  })
+  stage.addEventListener('pointerleave', () => { pointer = null })
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.target.closest?.('.egg-exit')) return
+    if (phase === 'reading') return poke()
+    if (phase !== 'immersed') return
+    const b = stage.getBoundingClientRect()
+    click(e.clientX - b.left, e.clientY - b.top)
+  }, true)
+  stage.addEventListener('wheel', (e) => {
+    if (phase === 'reading') return poke()
+    e.preventDefault()
+    leave()
+  }, { passive: false, capture: true })
+  scroller.addEventListener('scroll', () => { if (phase === 'reading') poke() }, { passive: true })
+  window.addEventListener('keydown', (e) => {
+    if (e.target.closest?.('.panel')) return
+    phase === 'reading' ? poke() : leave()
+  })
+
+  window.__egg = {
+    wantFull: () => phase !== 'reading' && !(phase === 'sinking' && sinkDir < 0),
+    busy: () => phase !== 'reading',
+    elemChanged: () => {},
+    override: (anim, now) => {
+      const restoring = restoreFrom && (phase === 'sinking' || phase === 'immersed') && (now - restoreAt) / 1000 < RESTORE_S + 0.2
+      if (restoring && !(phase === 'sinking' && sinkDir < 0)) {
+        const e = (now - restoreAt) / 1000
+        for (const [k, [d, dur]] of Object.entries(RESTORE)) setPath(anim, k, restoreFrom[k] + (1 - restoreFrom[k]) * ease(clamp01((e - d) / dur)))
+      }
+      if (phase === 'sinking' || phase === 'immersed') {
+        const s = phase === 'immersed' ? 1 : ease(sink)
+        anim.vis.sheet = 1 - s
+        anim.vis.dye = Math.min(anim.vis.dye, 1 - s)
+        anim.vis.elem = Math.min(anim.vis.elem, 1 - liftOf(sink))
+        return true
+      }
+      if (phase === 'exiting') {
+        const st = settleOf()
+        anim.vis.sheet = st
+        anim.vis.elem = st
+        return true
+      }
+      return false
+    },
+  }
+  const liftOf = (s) => ease(clamp01((s - 0.62) / 0.33))
+  const settleOf = () => clamp01(exitT / (EXIT_S * 0.4))
+
+  const syncLabels = () => {
+    $('eggIdleLabel').textContent = `${opts.idle} 秒`
+    $('eggSinkLabel').textContent = `${opts.sinkS} 秒`
+    $('eggInkLabel').textContent = `${Math.round(opts.ink * 100)}%`
+    $('eggStirLabel').textContent = `${opts.stir.toFixed(1)}×`
+    $('eggDriftLabel').textContent = `${opts.drift.toFixed(1)}×`
+  }
+  $('eggIdle').addEventListener('input', (e) => { opts.idle = +e.target.value; syncLabels() })
+  $('eggSinkS').addEventListener('input', (e) => { opts.sinkS = +e.target.value; syncLabels() })
+  $('eggEnter').addEventListener('click', () => { if (phase === 'reading') enter() })
+  $('eggLeave').addEventListener('click', () => leave())
+  $('eggInk').addEventListener('input', (e) => { opts.ink = +e.target.value / 100; syncLabels() })
+  $('eggStir').addEventListener('input', (e) => { opts.stir = +e.target.value; syncLabels() })
+  $('eggDrift').addEventListener('input', (e) => { opts.drift = +e.target.value; syncLabels() })
+  opts.ink = +$('eggInk').value / 100
+  opts.stir = +$('eggStir').value
+  opts.drift = +$('eggDrift').value
+  const applyPerf = () => {
+    FRAME_MS = 1000 / perf.fps
+    const pk = perf.paper === 'auto' ? 99 : +perf.paper
+    bench.setRenderScale(pk)
+    document.querySelectorAll('[data-perf]').forEach((b) => b.setAttribute('aria-pressed', String(String(perf[b.dataset.perf]) === b.dataset.v)))
+  }
+  document.querySelectorAll('[data-perf]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.perf, raw = b.dataset.v
+    perf[k] = raw === 'true' ? true : raw === 'false' ? false : isNaN(+raw) ? raw : +raw
+    if (k === 'ink' || k === 'grid') {
+      if (k === 'grid') { GX = perf.grid; alloc() }
+      if (k === 'ink') { setupDye(); clearDye(); if (phase !== 'reading') seedDye() }
+    }
+    applyPerf()
+  }))
+  applyPerf()
+  opts.idle = +$('eggIdle').value
+  opts.sinkS = +$('eggSinkS').value
+  syncLabels()
+
+  let lastT = performance.now(), lastUi = 0, accentCache = accentRgb(), lastStep = 0, jsMs = 0
+  let fpsCount = 0, fpsAt = performance.now(), fpsReal = 0
+  const frame = (now) => {
+    requestAnimationFrame(frame)
+    if (now - lastStep < FRAME_MS - 2) return
+    lastStep = now
+    fpsCount++
+    if (now - fpsAt >= 1000) { fpsReal = (fpsCount * 1000) / (now - fpsAt); fpsCount = 0; fpsAt = now }
+    const t0 = performance.now()
+    const dt = Math.min(0.08, (now - lastT) / 1000)
+    lastT = now
+    if (phase === 'reading' && now - lastActive > opts.idle * 1000) enter()
+    if (phase === 'restoring' && (now - restoreAt) / 1000 > RESTORE_S + HOLD_S) startSink()
+    if (phase === 'sinking') {
+      sink = clamp01(sink + (sinkDir > 0 ? dt / opts.sinkS : -dt / 0.6))
+      if (sinkDir > 0 && sink >= 1) phase = 'immersed'
+      if (sinkDir < 0 && sink <= 0) finish()
+    }
+    if (phase === 'exiting') {
+      exitT += dt
+      if (exitT >= EXIT_S) finish()
+    }
+    stage.classList.toggle('egg-immersed', phase === 'immersed')
+    exitBtn.classList.toggle('show', (phase === 'sinking' && sinkDir > 0 && sink > 0.3) || phase === 'immersed')
+    if (phase !== 'reading') bench.markDirty()
+
+    const wet = phase === 'sinking' || phase === 'immersed' || phase === 'exiting'
+    glCanvas.style.visibility = wet ? 'visible' : 'hidden'
+    spriteCanvas.style.visibility = wet ? 'visible' : 'hidden'
+    if (wet) {
+      const s = phase === 'sinking' ? ease(sink) : phase === 'immersed' ? 1 : 1
+      const settle = phase === 'exiting' ? settleOf() : 0
+      const ambient = phase === 'sinking' ? 26 * ease(clamp01((sink - 0.2) / 0.6)) : phase === 'immersed' ? 10 : 0
+      stepFluid(dt, now, ambient)
+      stepDisplacement(dt, now, phase === 'exiting')
+      stepFalls(now)
+      stepSprites(dt, now, settle)
+      stepFireflies(dt, now)
+      const decay = phase === 'sinking' ? (1 - opts.ink) * 0.25 * ease(clamp01((sink - 0.2) / 0.7)) : phase === 'exiting' ? 0 : (1 - opts.ink) * 0.025
+      const diff = phase === 'sinking' ? 0.002 + 0.03 * ease(clamp01((sink - 0.35) / 0.6)) : 0.014
+      advect(dt, now, decay * 2, diff)
+
+      const sharp = (phase === 'sinking' && sink < 0.7) || phase === 'exiting'
+      const os = perf.overlay === 'auto' ? (sharp ? dpr : 1) : perf.overlay === 'hi' ? dpr : perf.overlay === 'half' ? 0.6 : 1
+      const tw = Math.round(W * os), th = Math.round(H * os)
+      if (glCanvas.width !== tw || glCanvas.height !== th) { glCanvas.width = tw; glCanvas.height = th }
+      gl.useProgram(pShow.pr)
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+      gl.viewport(0, 0, glCanvas.width, glCanvas.height)
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT)
+      bindTex(0, dye[cur]); gl.uniform1i(pShow.u.tDye, 0)
+      bindTex(1, inkTex); gl.uniform1i(pShow.u.tInk, 1)
+      gl.uniform2f(pShow.u.uRes, W, H)
+      gl.uniform1f(pShow.u.uDpr, glCanvas.width / W)
+      const crisp = phase === 'sinking' ? 1 - ease(clamp01(sink / 0.1)) : 0
+      gl.uniform1f(pShow.u.uCrisp, crisp)
+      gl.uniform1f(pShow.u.uDyeK, (phase === 'sinking' ? ease(clamp01(sink / 0.1)) : 1) * (1 - settle))
+      const q = phase === 'exiting' ? clamp01((exitT / EXIT_S - 0.3) / 0.7) : 0
+      gl.uniform1f(pShow.u.uRe, phase === 'exiting' ? Math.max(0.0001, 1 - q) : 0)
+      gl.uniform1f(pShow.u.uDark, isDark() ? 1 : 0)
+      gl.uniform3fv(pShow.u.uAccent, accentCache)
+      gl.uniform1f(pShow.u.uT, now / 1000)
+      gl.uniform1f(pShow.u.uVeil, phase === 'sinking' ? ease(clamp01((sink - 0.12) / 0.7)) : phase === 'immersed' ? 1 : 1 - ease(settle))
+      gl.uniform3fv(pShow.u.uMilk, isDark() ? [0.34, 0.33, 0.315] : [0.975, 0.968, 0.948])
+      gl.drawArrays(gl.TRIANGLES, 0, 3)
+      const liftK = phase === 'sinking' ? liftOf(sink) : phase === 'exiting' ? 1 - settle : 1
+      drawSprites(now, phase === 'exiting' ? 1 - settle : 1, liftK, settle)
+    }
+
+    jsMs += (performance.now() - t0 - jsMs) * 0.1
+    if (now - lastUi > 120) {
+      lastUi = now
+      accentCache = accentRgb()
+      const a = bench.state.anim
+      $('eggLayers').textContent = LAYER_NAMES.map(([k, name]) => `${name} ${Math.round(getPath(a, k) * 100)}`).join(' · ')
+      $('perfRead').textContent = `实际 ${fpsReal.toFixed(0)} / 目标 ${Math.round(1000 / FRAME_MS)} fps · 彩蛋 JS ${jsMs.toFixed(1)}ms · 墨 ${DW}×${DH} · 叠层 ${glCanvas.width}×${glCanvas.height} · 纸 ${document.getElementById('paper').width}×${document.getElementById('paper').height} · 网格 ${GX}×${GY}`
+      const left = Math.max(0, opts.idle - (now - lastActive) / 1000)
+      const re = (now - restoreAt) / 1000
+      $('eggStatus').textContent =
+        phase === 'reading' ? `阅读中 · ${left.toFixed(1)} 秒后还原背景`
+        : phase === 'restoring' ? (re < RESTORE_S ? `还原背景 ${Math.round((re / RESTORE_S) * 100)}% · 动鼠标可打断` : '停一拍…')
+        : phase === 'sinking' ? (sinkDir > 0 ? `${re < RESTORE_S ? '还原图层 + ' : ''}化回纸浆 ${Math.round(sink * 100)}% · 动鼠标可打断` : '墨回来了…')
+        : phase === 'immersed' ? (hint || '纸槽 · 划水搅动，点一下落一滴')
+        : '回到正文 · 纸浆澄清、复印'
+      const jq = currentJq()
+      $('eggKou').textContent = `${bench.jqName(jq)} · ${bench.groupLabel(jq)}`
+    }
+  }
+  requestAnimationFrame(frame)
+})()
+</script>
+
+
+</body></html>

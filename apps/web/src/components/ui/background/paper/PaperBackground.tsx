@@ -8,6 +8,8 @@ import { labToRgb } from '~/lib/paper/oklab'
 
 import { createDye, dyeProgress, stepDye } from './dye'
 import { dyeBands, dyeInput } from './dye-input'
+import { eggActive, eggBridge, flowStrength } from './egg/bridge'
+import { overrideProfile, wantsFull } from './egg/phase'
 import { createPressTracker, createSheetTracker } from './inputs'
 import type { PageState } from './page-state'
 import {
@@ -80,6 +82,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
     }
 
     const boot = () => {
+      eggBridge.lost = false
       builtFor = ''
       renderer = PaperRenderer.create(canvas)
       rendererRef.current = renderer
@@ -94,6 +97,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
 
     const onLost = (event: Event) => {
       event.preventDefault()
+      eggBridge.lost = true
       ready = false
       renderer = null
       rendererRef.current = null
@@ -118,6 +122,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
     let last = performance.now()
     let frame = 0
     let drawnKey = ''
+    let flowVersion = -1
 
     const loop = (nowMs: number) => {
       frame = requestAnimationFrame(loop)
@@ -131,6 +136,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
         reduceMotion,
         visible = true,
       } = propsRef.current
+      eggBridge.ready = false
       if (!ready || !renderer) {
         if (!visible) exit()
         return
@@ -144,10 +150,23 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
         exit()
         return
       }
+      eggBridge.ready = visible && presence.phase === 'in' && !entering
       const now = nowMs / 1000
+      const egg = eggBridge.state
+      const wet = eggActive()
+      const target = wantsFull(egg) ? PAGE_PROFILES.browse : PAGE_PROFILES[page]
       profile = reduceMotion
         ? PAGE_PROFILES[page]
-        : easeProfile(profile, PAGE_PROFILES[page], dt)
+        : overrideProfile(easeProfile(profile, target, dt), egg)
+      eggBridge.profile = profile
+      renderer.setRenderScale(
+        wet ? 1 : Math.min(2, window.devicePixelRatio || 1),
+      )
+      const flow = eggBridge.flow
+      if (wet && flow && flow.version !== flowVersion) {
+        flowVersion = flow.version
+        renderer.uploadFlow(flow.bytes, flow.gx, flow.gy)
+      }
       if (!reduceMotion) {
         t += dt * SPEED
         spinT += dt * SPEED * profile.move.sunago
@@ -176,11 +195,12 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
         ),
       ].join()
       const still =
+        !wet &&
         !entering &&
         !renderer.animating &&
         pressed.length === 0 &&
         (reduceMotion || !isMoving(profile)) &&
-        profileSettled(profile, PAGE_PROFILES[page])
+        profileSettled(profile, target)
       if (still && key === drawnKey) return
       drawnKey = key
       renderer.render(
@@ -195,6 +215,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
           leafClock: leafClock(presence, nowMs),
           light,
           presses: pressed,
+          flowOn: flowStrength(),
           sheets: rects,
           dye: {
             amount: dyeAmount,
@@ -213,6 +234,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
 
     return () => {
       alive = false
+      eggBridge.ready = false
       cancelAnimationFrame(frame)
       window.clearTimeout(resizeTimer)
       resizeObserver.disconnect()

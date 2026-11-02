@@ -385,3 +385,14 @@ export const paintElements = (
     x.restore()
   }
 }
+
+export const drawElement = (
+  x: Ctx,
+  type: ElemType,
+  color: string,
+  size: number,
+  seed: number,
+) => {
+  x.fillStyle = color
+  DRAW[type](x, size, rng(seed ^ 0x9E3779B9))
+}

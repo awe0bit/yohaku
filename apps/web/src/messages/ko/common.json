@@ -229,6 +229,7 @@
   "pagination_next": "다음",
   "pagination_page_info": "{current} / {total} 쪽",
   "pagination_prev": "이전",
+  "paper_egg_exit": "본문으로 돌아가기",
   "pinned_label": "고정",
   "posts_heading": "글",
   "posts_total_count": "모두 {count}편",

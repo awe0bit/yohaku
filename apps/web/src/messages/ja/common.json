@@ -228,6 +228,7 @@
   "pagination_next": "次のページ",
   "pagination_page_info": "{current} / {total} ページ",
   "pagination_prev": "前のページ",
+  "paper_egg_exit": "本文に戻る",
   "pinned_label": "ピン留め",
   "posts_heading": "記事",
   "posts_total_count": "全 {count} 件",

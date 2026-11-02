@@ -225,6 +225,7 @@
   "pagination_next": "Next page",
   "pagination_page_info": "Page {current} of {total}",
   "pagination_prev": "Previous page",
+  "paper_egg_exit": "Back to the page",
   "pinned_label": "Pinned",
   "posts_heading": "Posts",
   "posts_total_count": "{count} posts",

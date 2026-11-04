@@ -89,6 +89,14 @@ minimumReleaseAgeExclude:
   - expo@58.0.13
   - pele@1.6.0 || 1.7.0
   - '@pierre/highlights@0.2.0'
+  - '@better-auth/core@1.7.16'
+  - '@better-auth/expo@1.7.16'
+  - '@better-auth/kysely-adapter@1.7.16'
+  - '@better-auth/memory-adapter@1.7.16'
+  - '@better-auth/mongo-adapter@1.7.16'
+  - '@better-auth/telemetry@1.7.16'
+  - better-auth@1.7.16
+  - better-call@1.4.5
 
 overrides:
   react-tweet: 'npm:@innei/react-tweet@4.0.0'

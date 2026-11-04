@@ -64,6 +64,8 @@
 
 ### 6.1 截取：克隆进可绘制画布
 
+> 实现更新：彩蛋不再克隆页面。应用挂载时若支持 HTML-in-Canvas，`CanvasRoot` 把 `#root` 直接放进 `<canvas content="drawable">` 并逐次 paint 绘制；彩蛋从该画布取当前视口。代价：canvas 子树内 `position: fixed` 与文本选择失效，跨域 `<img>` 在快照里为空。下面的克隆方案是早期设计，保留作对照。
+
 触发时不移动真实 DOM（避免 React 协调出错），而是：
 
 1. 克隆 `#root`（`AppShell` 里包着整站内容的 `div#root`）为 `clone`，剔除其中的 `canvas`、`video`、`iframe`。

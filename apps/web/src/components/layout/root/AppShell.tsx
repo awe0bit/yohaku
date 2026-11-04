@@ -5,6 +5,7 @@ import type { ComponentProps, PropsWithChildren } from 'react'
 
 import type { AggregationDataPayload } from '~/app/[locale]/aggregation-data'
 import { Analyze } from '~/app/[locale]/analyze'
+import { CanvasRoot } from '~/components/common/CanvasRoot'
 import { ErrorBoundary } from '~/components/common/ErrorBoundary'
 import { Global } from '~/components/common/Global'
 import { HydrationEndDetector } from '~/components/common/HydrationEndDetector'
@@ -67,9 +68,9 @@ export const AppShell = ({
             appConfig={data.theme.config}
           />
           <BgmProvider>
-            <div data-theme id="root">
+            <CanvasRoot>
               <Root footerConfig={data.theme.footer}>{children}</Root>
-            </div>
+            </CanvasRoot>
           </BgmProvider>
           <SearchPanelWithHotKey />
           <Analyze />

@@ -54,7 +54,7 @@
     "@vercel/functions": "3.10.1",
     "@yohaku/design-system": "workspace:*",
     "@yohaku/rich-content": "workspace:*",
-    "better-auth": "1.6.27",
+    "better-auth": "1.7.16",
     "chroma-js": "3.2.0",
     "clsx": "2.1.1",
     "cn": "0.5.0",

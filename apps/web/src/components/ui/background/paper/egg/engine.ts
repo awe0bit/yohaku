@@ -1,10 +1,11 @@
-import { eggBridge } from './bridge'
 import {
   canCapture,
-  capturePage,
-  captureSources,
-  viewportSize,
-} from './capture'
+  captureViewport,
+  getCanvasRoot,
+} from '~/lib/html-in-canvas'
+
+import { eggBridge } from './bridge'
+import { viewportSize } from './capture'
 import { isFocusBusy, isMediaPlaying, isOverlayOpen } from './dom'
 import {
   addTravel,
@@ -61,21 +62,21 @@ export const createEggEngine = (initial: EggEnv) => {
   for (const type of ACTIVITY)
     window.addEventListener(type, poke, { passive: true, capture: true })
 
-  const start = async () => {
+  const start = () => {
     starting = true
     const startedAt = clock.last
     const { width, height } = viewportSize()
     const dpr = Math.min(2, window.devicePixelRatio || 1)
-    const sources = captureSources()
-    const snapshot = await capturePage(sources, { width, height, dpr })
+    const canvas = getCanvasRoot()
+    const snapshot = canvas ? captureViewport({ width, height, dpr }) : null
     starting = false
-    if (!snapshot || disposed || clock.last !== startedAt) {
+    if (!canvas || !snapshot || disposed || clock.last !== startedAt) {
       pokeIdle(clock, performance.now())
       return
     }
     session = startSession({
       snapshot,
-      sources,
+      sources: [canvas],
       width,
       height,
       dpr,
@@ -91,7 +92,7 @@ export const createEggEngine = (initial: EggEnv) => {
   }
 
   const check = () => {
-    if (session || starting || disposed) return
+    if (session || starting || disposed || !getCanvasRoot()) return
     const idle = idleFor(clock, performance.now())
     const threshold = idleThreshold()
     if (idle < threshold) return

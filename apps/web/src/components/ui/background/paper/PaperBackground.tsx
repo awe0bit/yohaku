@@ -9,6 +9,7 @@ import { labToRgb } from '~/lib/paper/oklab'
 import { createDye, dyeProgress, stepDye } from './dye'
 import { dyeBands, dyeInput } from './dye-input'
 import { eggActive, eggBridge, flowStrength } from './egg/bridge'
+import { KEEP_ATTR } from './egg/capture'
 import { overrideProfile, wantsFull } from './egg/phase'
 import { createPressTracker, createSheetTracker } from './inputs'
 import type { PageState } from './page-state'
@@ -255,6 +256,7 @@ export const PaperBackground: FC<PaperBackgroundProps> = (props) => {
     <canvas
       aria-hidden
       data-hide-print
+      {...{ [KEEP_ATTR]: '' }}
       className="pointer-events-none fixed inset-0 -z-10 size-full"
       ref={canvasRef}
     />

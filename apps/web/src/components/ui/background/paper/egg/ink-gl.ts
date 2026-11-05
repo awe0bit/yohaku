@@ -1,5 +1,6 @@
 import type { Drop } from './fluid'
-import { ADVECT_FS, COPY_FS, INK_VS, SHOW_FS } from './ink-shaders'
+import { ADVECT_FS, COPY_FS, FLIP_FS, INK_VS, SHOW_FS } from './ink-shaders'
+import type { SourceRect } from './ink-size'
 
 export interface DyeSplat {
   a?: number
@@ -25,6 +26,17 @@ const MILK_DARK = [0.34, 0.33, 0.315]
 const DROP_TAU_S = 0.28
 
 type GL = WebGLRenderingContext
+
+interface ElementGL extends GL {
+  texElementSubImage2D: (
+    target: number,
+    level: number,
+    x: number,
+    y: number,
+    element: Element,
+    config: SourceRect,
+  ) => void
+}
 
 const makeProgram = (gl: GL, fs: string, names: string[]) => {
   const compile = (type: number, code: string) => {
@@ -73,7 +85,7 @@ export const createInk = (canvas: HTMLCanvasElement) => {
   const gl = canvas.getContext('webgl', {
     premultipliedAlpha: false,
     antialias: false,
-  })
+  }) as ElementGL | null
   if (!gl) return null
   const pAdvect = makeProgram(gl, ADVECT_FS, [
     'tDye',
@@ -90,6 +102,7 @@ export const createInk = (canvas: HTMLCanvasElement) => {
     'uSplatCol',
   ])
   const pCopy = makeProgram(gl, COPY_FS, ['tInk', 'uSize'])
+  const pFlip = makeProgram(gl, FLIP_FS, ['tInk', 'uSize'])
   const pShow = makeProgram(gl, SHOW_FS, [
     'uRes',
     'uDpr',
@@ -104,7 +117,7 @@ export const createInk = (canvas: HTMLCanvasElement) => {
     'uVeil',
     'uMilk',
   ])
-  if (!pAdvect || !pCopy || !pShow) return null
+  if (!pAdvect || !pCopy || !pFlip || !pShow) return null
   const buffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
   gl.bufferData(
@@ -121,6 +134,8 @@ export const createInk = (canvas: HTMLCanvasElement) => {
   let fbo: WebGLFramebuffer[] = []
   let W = 1
   let H = 1
+  let CW = 1
+  let CH = 1
   let cur = 0
   let frameNo = 0
   const pending: DyeSplat[] = []
@@ -143,9 +158,11 @@ export const createInk = (canvas: HTMLCanvasElement) => {
     pending.length = 0
   }
 
-  const resize = (w: number, h: number) => {
-    W = Math.max(1, Math.round(w))
-    H = Math.max(1, Math.round(h))
+  const resize = (cssW: number, cssH: number, scale: number) => {
+    CW = Math.max(1, Math.round(cssW))
+    CH = Math.max(1, Math.round(cssH))
+    W = Math.max(1, Math.round(CW * scale))
+    H = Math.max(1, Math.round(CH * scale))
     for (const t of dye) gl.deleteTexture(t)
     for (const f of fbo) gl.deleteFramebuffer(f)
     dye = [makeTexture(gl, W, H), makeTexture(gl, W, H)]
@@ -164,19 +181,46 @@ export const createInk = (canvas: HTMLCanvasElement) => {
     clear()
   }
 
-  const seed = (snapshot: HTMLCanvasElement) => {
-    bind(0, inkTex)
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true)
+  const seedElement = (
+    element: Element,
+    rect: SourceRect,
+    full: { height: number; width: number },
+  ) => {
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
+    const raw = makeTexture(gl, full.width, full.height)
+    gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, element, rect)
+    bind(0, inkTex)
     gl.texImage2D(
       gl.TEXTURE_2D,
       0,
       gl.RGBA,
+      full.width,
+      full.height,
+      0,
       gl.RGBA,
       gl.UNSIGNED_BYTE,
-      snapshot,
+      null,
     )
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false)
+    const flipFbo = gl.createFramebuffer()
+    gl.bindFramebuffer(gl.FRAMEBUFFER, flipFbo)
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      inkTex,
+      0,
+    )
+    gl.useProgram(pFlip.program)
+    bind(0, raw)
+    gl.uniform1i(pFlip.u.tInk, 0)
+    gl.uniform2f(pFlip.u.uSize, full.width, full.height)
+    gl.viewport(0, 0, full.width, full.height)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+    gl.deleteFramebuffer(flipFbo)
+    gl.deleteTexture(raw)
+    bind(0, inkTex)
     clear()
     gl.useProgram(pCopy.program)
     gl.uniform1i(pCopy.u.tInk, 0)
@@ -225,7 +269,7 @@ export const createInk = (canvas: HTMLCanvasElement) => {
     gl.uniform1i(u.tDye, 0)
     gl.uniform1i(u.tVel, 1)
     gl.uniform2f(u.uSize, W, H)
-    gl.uniform1f(u.uScale, 1)
+    gl.uniform1f(u.uScale, CW / W)
     gl.uniform1f(u.uSharp, 1)
     for (let pass = 0; pass < passes; pass++) {
       const sp = pending[pass]
@@ -261,8 +305,8 @@ export const createInk = (canvas: HTMLCanvasElement) => {
   }
 
   const setOutputScale = (scale: number) => {
-    const tw = Math.round(W * scale)
-    const th = Math.round(H * scale)
+    const tw = Math.round(CW * scale)
+    const th = Math.round(CH * scale)
     if (canvas.width !== tw || canvas.height !== th) {
       canvas.width = tw
       canvas.height = th
@@ -280,8 +324,8 @@ export const createInk = (canvas: HTMLCanvasElement) => {
     gl.uniform1i(u.tDye, 0)
     bind(1, inkTex)
     gl.uniform1i(u.tInk, 1)
-    gl.uniform2f(u.uRes, W, H)
-    gl.uniform1f(u.uDpr, canvas.width / W)
+    gl.uniform2f(u.uRes, CW, CH)
+    gl.uniform1f(u.uDpr, canvas.width / CW)
     gl.uniform1f(u.uCrisp, o.crisp)
     gl.uniform1f(u.uDyeK, o.dyeK)
     gl.uniform1f(u.uRe, o.reprint)
@@ -296,14 +340,13 @@ export const createInk = (canvas: HTMLCanvasElement) => {
   const dispose = () => {
     for (const t of [...dye, inkTex, velTex]) gl.deleteTexture(t)
     for (const f of fbo) gl.deleteFramebuffer(f)
-    for (const p of [pAdvect, pCopy, pShow]) gl.deleteProgram(p.program)
+    for (const p of [pAdvect, pCopy, pFlip, pShow]) gl.deleteProgram(p.program)
     gl.deleteBuffer(buffer)
-    gl.getExtension('WEBGL_lose_context')?.loseContext()
   }
 
   return {
     resize,
-    seed,
+    seedElement,
     clear,
     advect,
     show,

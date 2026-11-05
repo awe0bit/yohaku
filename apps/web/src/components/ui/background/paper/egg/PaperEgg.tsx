@@ -4,8 +4,8 @@ import { useTranslations } from 'next-intl'
 import type { FC } from 'react'
 import { useEffect, useRef } from 'react'
 
+import { getYohakuRoot } from '~/components/common/yohaku-root'
 import { usePathname } from '~/i18n/navigation'
-import { canCapture } from '~/lib/html-in-canvas'
 
 import type { EggEnv } from './engine'
 import { createEggEngine } from './engine'
@@ -24,7 +24,7 @@ export const PaperEgg: FC<PaperEggProps> = ({ dark, reduceMotion, term }) => {
   const engineRef = useRef<ReturnType<typeof createEggEngine> | null>(null)
 
   useEffect(() => {
-    if (!canCapture()) return
+    if (!getYohakuRoot()?.supported) return
     const engine = createEggEngine(envRef.current)
     engineRef.current = engine
     return () => {

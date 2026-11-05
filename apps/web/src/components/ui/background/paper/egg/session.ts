@@ -1,11 +1,13 @@
+import type { YohakuRootElement } from '~/components/common/yohaku-root'
 import { accentRgb } from '~/lib/paper/season'
 
 import { layoutElements } from '../layout'
 import { PAGE_PROFILES } from '../page-state'
 import { eggBridge } from './bridge'
 import { KEEP_ATTR } from './capture'
-import { hidePage, swallowExitKey } from './dom'
+import { preservePageState, swallowExitKey } from './dom'
 import { stepFalls, stepFireflies } from './falls'
+import { bodyHost, fadeFloating } from './float'
 import type { Drop } from './fluid'
 import {
   addSplat,
@@ -16,7 +18,10 @@ import {
   stepFluid,
   velocityBytes,
 } from './fluid'
+import type { GhostSource } from './images'
+import { ghostImages } from './images'
 import { createInk } from './ink-gl'
+import { inkScale, sourceRect } from './ink-size'
 import { eggCurves, enterEgg, leaveEgg, resetEgg, stepEggPhase } from './phase'
 import { drawSpriteWorld } from './sprite-draw'
 import {
@@ -33,13 +38,14 @@ export interface SessionEnv {
 }
 
 interface SessionInput {
+  canvas: HTMLCanvasElement
   dpr: number
   env: () => SessionEnv
+  ghosts: GhostSource[]
   height: number
   onEnd: () => void
   onTravel: (distance: number) => boolean
-  snapshot: HTMLCanvasElement
-  sources: HTMLElement[]
+  root: YohakuRootElement
   width: number
 }
 
@@ -49,42 +55,58 @@ const SUMI_DARK: [number, number, number] = [0.86, 0.84, 0.8]
 const EXIT_CLASS =
   'absolute bottom-7 left-1/2 -translate-x-1/2 translate-y-1.5 cursor-pointer rounded-[2px] border border-neutral-5/40 bg-paper/70 py-2 pl-[18px] pr-4 font-serif text-[13px] leading-none tracking-[0.12em] text-neutral-7 opacity-0 pointer-events-none transition-[opacity,translate,color] duration-[900ms] data-[show]:translate-y-0 data-[show]:opacity-70 data-[show]:pointer-events-auto hover:data-[show]:opacity-100 hover:text-neutral-9'
 
+const NON_VISUAL = new Set([
+  'SCRIPT',
+  'STYLE',
+  'LINK',
+  'TEMPLATE',
+  'NOSCRIPT',
+  'NEXT-ROUTE-ANNOUNCER',
+])
+
+const keepFloating = (root: Element) => (el: HTMLElement) =>
+  NON_VISUAL.has(el.tagName) || el.hasAttribute(KEEP_ATTR) || el.contains(root)
+
 const makeLayer = (label: string) => {
   const layer = document.createElement('div')
   layer.setAttribute(KEEP_ATTR, '')
   layer.setAttribute('aria-hidden', 'true')
   layer.style.cssText =
     'position:fixed;inset:0;z-index:9990;cursor:default;touch-action:none;'
-  const glCanvas = document.createElement('canvas')
   const spriteCanvas = document.createElement('canvas')
-  for (const c of [glCanvas, spriteCanvas])
-    c.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;'
+  spriteCanvas.style.cssText =
+    'position:absolute;inset:0;width:100%;height:100%;'
   const exit = document.createElement('button')
   exit.type = 'button'
   exit.className = EXIT_CLASS
   exit.textContent = label
-  layer.append(glCanvas, spriteCanvas, exit)
+  layer.append(spriteCanvas, exit)
   document.body.append(layer)
-  return { layer, glCanvas, spriteCanvas, exit }
+  return { layer, spriteCanvas, exit }
 }
 
 export const startSession = (input: SessionInput) => {
-  const { width: W, height: H, dpr } = input
-  const { layer, glCanvas, spriteCanvas, exit } = makeLayer(
-    input.env().exitLabel,
-  )
-  const ink = createInk(glCanvas)
+  const { width: W, height: H, dpr, root, canvas } = input
+  const target = root.firstElementChild
+  const { layer, spriteCanvas, exit } = makeLayer(input.env().exitLabel)
+  const ink = createInk(canvas)
   const sctx = spriteCanvas.getContext('2d')
-  if (!ink || !sctx) {
+  if (!ink || !sctx || !target) {
     layer.remove()
     ink?.dispose()
     return null
   }
-  ink.resize(W, H)
-  ink.seed(input.snapshot)
+  const scale = inkScale(dpr)
+  ink.resize(W, H, scale)
+  ink.setOutputScale(scale)
+  const box = root.getBoundingClientRect()
+  const rect = sourceRect(box.top, box.height, { width: W, height: H }, scale)
+  const full = { width: Math.round(W * scale), height: Math.round(H * scale) }
   spriteCanvas.width = Math.round(W * dpr)
   spriteCanvas.height = Math.round(H * dpr)
-  const hidden = hidePage(input.sources)
+  const restorePage = preservePageState(window, document)
+  const ghosts = ghostImages(layer, input.ghosts)
+  const floats = fadeFloating(bodyHost(), keepFloating(root))
   const fluid = createFluid(W, H)
   const drops: Drop[] = []
   const world = createSpriteWorld()
@@ -105,6 +127,7 @@ export const startSession = (input: SessionInput) => {
   let dropTurn = 0
   let prev: { t: number; x: number; y: number } | null = null
   let ended = false
+  let seeded = false
 
   const leave = () => {
     leaveEgg(state)
@@ -118,11 +141,15 @@ export const startSession = (input: SessionInput) => {
     window.removeEventListener('keydown', onKey, true)
     window.removeEventListener('resize', end)
     document.removeEventListener('visibilitychange', onVisibility)
+    canvas.removeEventListener('webglcontextlost', end)
     resetEgg(state)
     eggBridge.flow = null
-    hidden.restore()
     ink.dispose()
+    root.exit()
+    ghosts.remove()
     layer.remove()
+    floats.restore()
+    restorePage()
     input.onEnd()
   }
 
@@ -198,17 +225,13 @@ export const startSession = (input: SessionInput) => {
     prev = null
   })
   exit.addEventListener('click', leave)
-  glCanvas.addEventListener('webglcontextlost', end)
+  canvas.addEventListener('webglcontextlost', end)
   window.addEventListener('wheel', onWheel, { capture: true, passive: false })
   window.addEventListener('keydown', onKey, true)
   window.addEventListener('resize', end)
   document.addEventListener('visibilitychange', onVisibility)
 
-  const frame = (now: number) => {
-    raf = requestAnimationFrame(frame)
-    if (now - last < FRAME_MS - 2) return
-    const dt = Math.min(0.08, (now - last) / 1000)
-    last = now
+  const step = (now: number, dt: number) => {
     if (eggBridge.lost || stepEggPhase(state, dt) !== 'running') {
       end()
       return
@@ -237,7 +260,6 @@ export const startSession = (input: SessionInput) => {
       c.diffusion,
       liveDrops(drops, now),
     )
-    ink.setOutputScale(c.sharp ? dpr : 1)
     ink.show({
       crisp: c.crisp,
       dyeK: c.dyeK,
@@ -248,13 +270,35 @@ export const startSession = (input: SessionInput) => {
       now,
     })
     drawSpriteWorld(sctx, world, now, c.spriteAlpha, c.lift, c.settle)
-    hidden.setImageFade(c.images)
+    ghosts.setFade(c.images)
     exit.toggleAttribute('data-show', c.showExit)
   }
-  raf = requestAnimationFrame(frame)
+
+  const frame = (now: number) => {
+    raf = requestAnimationFrame(frame)
+    if (now - last < FRAME_MS - 2) return
+    const dt = Math.min(0.08, (now - last) / 1000)
+    last = now
+    step(now, dt)
+  }
+
+  const paint = () => {
+    if (seeded || ended) return
+    seeded = true
+    try {
+      ink.seedElement(target, rect, full)
+    } catch {
+      end()
+      return
+    }
+    last = performance.now()
+    step(last, 0)
+    raf = requestAnimationFrame(frame)
+  }
 
   return {
     end,
+    paint,
     setLabel: (label: string) => {
       exit.textContent = label
     },

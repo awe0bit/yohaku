@@ -70,6 +70,11 @@ void main(){
   gl_FragColor = c;
 }`
 
+export const FLIP_FS = `
+precision highp float;
+uniform sampler2D tInk; uniform vec2 uSize;
+void main(){ vec2 uv = gl_FragCoord.xy / uSize; gl_FragColor = texture2D(tInk, vec2(uv.x, 1.0 - uv.y)); }`
+
 export const COPY_FS = `
 precision highp float;
 uniform sampler2D tInk; uniform vec2 uSize;

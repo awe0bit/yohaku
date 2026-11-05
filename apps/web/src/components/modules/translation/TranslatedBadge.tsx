@@ -4,6 +4,8 @@ import type { ArticleTranslation } from '@mx-space/api-client'
 import { clsx } from 'clsx'
 import { useTranslations } from 'next-intl'
 
+import { toAppLocale } from '~/i18n/config'
+
 const getLanguageNames = (
   t: ReturnType<typeof useTranslations<'common'>>,
 ): Record<string, string> => ({
@@ -20,7 +22,8 @@ function getLanguageName(
 ): string {
   if (!code) return 'Unknown'
   const names = t ? getLanguageNames(t) : {}
-  return names[code] || code.toUpperCase()
+  const locale = toAppLocale(code)
+  return (locale && names[locale]) || code.toUpperCase()
 }
 
 interface TranslatedBadgeProps {

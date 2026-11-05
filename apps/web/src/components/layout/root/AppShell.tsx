@@ -5,7 +5,6 @@ import type { ComponentProps, PropsWithChildren } from 'react'
 
 import type { AggregationDataPayload } from '~/app/[locale]/aggregation-data'
 import { Analyze } from '~/app/[locale]/analyze'
-import { CanvasRoot } from '~/components/common/CanvasRoot'
 import { ErrorBoundary } from '~/components/common/ErrorBoundary'
 import { Global } from '~/components/common/Global'
 import { HydrationEndDetector } from '~/components/common/HydrationEndDetector'
@@ -13,6 +12,7 @@ import { MiSansLoader } from '~/components/common/MiSansLoader'
 import { OpenPanelInit } from '~/components/common/OpenPanelInit'
 import { SafariDetector } from '~/components/common/SafariDetector'
 import { SyncServerTime } from '~/components/common/SyncServerTime'
+import { YohakuRoot } from '~/components/common/yohaku-root'
 import { BgmProvider } from '~/components/layout/bgm/BgmProvider'
 import { Root } from '~/components/layout/root/Root'
 import { SearchPanelWithHotKey } from '~/components/modules/shared/SearchPanel'
@@ -68,9 +68,9 @@ export const AppShell = ({
             appConfig={data.theme.config}
           />
           <BgmProvider>
-            <CanvasRoot>
+            <YohakuRoot>
               <Root footerConfig={data.theme.footer}>{children}</Root>
-            </CanvasRoot>
+            </YohakuRoot>
           </BgmProvider>
           <SearchPanelWithHotKey />
           <Analyze />

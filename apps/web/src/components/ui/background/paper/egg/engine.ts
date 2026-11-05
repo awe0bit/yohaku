@@ -1,8 +1,4 @@
-import {
-  canCapture,
-  captureViewport,
-  getCanvasRoot,
-} from '~/lib/html-in-canvas'
+import { getYohakuRoot } from '~/components/common/yohaku-root'
 
 import { eggBridge } from './bridge'
 import { viewportSize } from './capture'
@@ -16,6 +12,12 @@ import {
   MOVE_SLOP_PX,
   pokeIdle,
 } from './idle'
+import {
+  collectGhostSources,
+  probeCors,
+  upgradeToCors,
+  viewportImages,
+} from './images'
 import type { EggSession, SessionEnv } from './session'
 import { startSession } from './session'
 
@@ -62,21 +64,33 @@ export const createEggEngine = (initial: EggEnv) => {
   for (const type of ACTIVITY)
     window.addEventListener(type, poke, { passive: true, capture: true })
 
-  const start = () => {
+  const start = async () => {
+    const root = getYohakuRoot()
+    if (!root?.supported) return
     starting = true
     const startedAt = clock.last
     const { width, height } = viewportSize()
     const dpr = Math.min(2, window.devicePixelRatio || 1)
-    const canvas = getCanvasRoot()
-    const snapshot = canvas ? captureViewport({ width, height, dpr }) : null
+    const page = root.firstElementChild
+    if (page)
+      await upgradeToCors(viewportImages(page), location.origin, probeCors)
+    if (disposed || clock.last !== startedAt) {
+      starting = false
+      pokeIdle(clock, performance.now())
+      return
+    }
+    const ghosts = page ? collectGhostSources(page) : []
+    const canvas = await root.enter(() => session?.paint())
     starting = false
-    if (!canvas || !snapshot || disposed || clock.last !== startedAt) {
+    if (!canvas || disposed || clock.last !== startedAt) {
+      root.exit()
       pokeIdle(clock, performance.now())
       return
     }
     session = startSession({
-      snapshot,
-      sources: [canvas],
+      canvas,
+      ghosts,
+      root,
       width,
       height,
       dpr,
@@ -88,11 +102,18 @@ export const createEggEngine = (initial: EggEnv) => {
         pokeIdle(clock, performance.now())
       },
     })
-    if (!session) pokeIdle(clock, performance.now())
+    if (!session) {
+      root.exit()
+      pokeIdle(clock, performance.now())
+      return
+    }
+    ;(
+      canvas as HTMLCanvasElement & { requestPaint?: () => void }
+    ).requestPaint?.()
   }
 
   const check = () => {
-    if (session || starting || disposed || !getCanvasRoot()) return
+    if (session || starting || disposed || !getYohakuRoot()?.supported) return
     const idle = idleFor(clock, performance.now())
     const threshold = idleThreshold()
     if (idle < threshold) return
@@ -103,7 +124,7 @@ export const createEggEngine = (initial: EggEnv) => {
         backgroundReady: eggBridge.ready && !eggBridge.lost,
         reducedMotion: env.reduceMotion,
         pageVisible: document.visibilityState === 'visible',
-        captureSupported: canCapture(),
+        captureSupported: true,
         overlayOpen: isOverlayOpen(),
         mediaPlaying: isMediaPlaying(),
         focusBusy: isFocusBusy(document.activeElement as HTMLElement | null),
@@ -123,11 +144,13 @@ export const createEggEngine = (initial: EggEnv) => {
       session?.setLabel(next.exitLabel)
     },
     forceEnd() {
+      if (starting) getYohakuRoot()?.exit()
       session?.end()
       poke()
     },
     dispose() {
       disposed = true
+      if (starting) getYohakuRoot()?.exit()
       window.clearInterval(timer)
       window.removeEventListener('pointermove', onPointerMove)
       for (const type of ACTIVITY)

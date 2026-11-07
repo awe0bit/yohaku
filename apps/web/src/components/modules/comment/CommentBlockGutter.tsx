@@ -114,9 +114,8 @@ const DesktopGutterTrigger = function DesktopGutterTrigger({
   const isNew = useMemo(() => {
     if (!primary) return false
     return (
-      /* eslint-disable react-hooks/purity */
+      // eslint-disable-next-line react-hooks/purity
       Date.now() - new Date(primary.createdAt).getTime() < FRESH_THRESHOLD_MS
-      /* eslint-enable react-hooks/purity */
     )
   }, [primary])
 
@@ -220,9 +219,8 @@ function MobileGutterItem({
   const isNew = useMemo(() => {
     if (!primary) return false
     return (
-      /* eslint-disable react-hooks/purity */
+      // eslint-disable-next-line react-hooks/purity
       Date.now() - new Date(primary.createdAt).getTime() < FRESH_THRESHOLD_MS
-      /* eslint-enable react-hooks/purity */
     )
   }, [primary])
 

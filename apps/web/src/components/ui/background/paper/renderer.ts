@@ -54,7 +54,6 @@ const UNIFORMS = [
   'uLeaf',
   'uPaperK',
   'uDyeBand',
-  'uFlowOn',
 ] as const
 
 const SAMPLERS = [
@@ -66,7 +65,6 @@ const SAMPLERS = [
   'tSukiB',
   'tElemB',
   'tWither',
-  'tFlow',
 ] as const
 type Sampler = (typeof SAMPLERS)[number]
 
@@ -86,7 +84,6 @@ export interface FrameInput {
     mix: number
     to: Rgb
   }
-  flowOn?: number
   leafClock: number
   light: Light
   presence: Presence
@@ -243,24 +240,6 @@ export class PaperRenderer {
     canvas.height = Math.round(height * dpr)
   }
 
-  uploadFlow(bytes: Uint8Array, gx: number, gy: number) {
-    const { gl } = this
-    gl.activeTexture(gl.TEXTURE0 + SAMPLERS.indexOf('tFlow'))
-    gl.bindTexture(gl.TEXTURE_2D, this.textures.tFlow)
-    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false)
-    gl.texImage2D(
-      gl.TEXTURE_2D,
-      0,
-      gl.RGBA,
-      gx,
-      gy,
-      0,
-      gl.RGBA,
-      gl.UNSIGNED_BYTE,
-      bytes,
-    )
-  }
-
   setTerm(term: number, animate: boolean) {
     if (term === this.pendingTerm) return
     const generation = ++this.termGeneration
@@ -393,7 +372,6 @@ export class PaperRenderer {
       .slice(-MAX_PRESSES)
       .forEach((p, i) => presses.set([p.x, p.y, p.age, 1], i * 4))
     gl.uniform4fv(u.uPress, presses)
-    gl.uniform1f(u.uFlowOn, input.flowOn ?? 0)
     gl.drawArrays(gl.TRIANGLES, 0, 3)
   }
 

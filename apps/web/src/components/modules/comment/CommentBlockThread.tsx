@@ -297,7 +297,6 @@ export function CommentBlockThread({
   // depends on the active block, but the panel itself stays mounted across
   // block switches (so we can't derive via key).
   useEffect(() => {
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
     setChip({ kind: 'block' })
   }, [anchor.blockId])
 

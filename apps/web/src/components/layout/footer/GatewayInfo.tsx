@@ -10,6 +10,7 @@ import { buildRoomName } from '~/components/modules/activity/utils'
 import { PeekLink } from '~/components/modules/peek/PeekLink'
 import { Divider } from '~/components/ui/divider'
 import { FloatPopover } from '~/components/ui/float-popover'
+import { RevealText } from '~/components/ui/reveal-text'
 import { SlotText } from '~/components/ui/slot-text'
 import { usePageIsActive } from '~/hooks/common/use-is-active'
 import { useIsClient } from '~/hooks/common/use-is-client'
@@ -160,8 +161,8 @@ export const Heartbeat = () => {
         </div>
       </FloatPopover>
 
-      <span className="hidden h-[1.5em] max-w-[30rem] truncate md:block md:text-right">
-        {reading && <SlotText text={reading.title} />}
+      <span className="hidden h-[1.5em] max-w-[30rem] md:block">
+        {reading && <RevealText text={reading.title} />}
       </span>
     </div>
   )

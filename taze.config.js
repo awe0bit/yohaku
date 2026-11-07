@@ -11,6 +11,18 @@ export default defineConfig({
     'react-native-gesture-handler',
     'react-native-screens',
     'react-native-safe-area-context',
+    // Yohaku carries a ~370-line native iOS patch (code-block header strip).
+    // Upstream 1.1.x renamed/moved those files, so the patch no longer applies;
+    // re-target it by hand before bumping past 1.0.2.
+    'react-native-enriched-markdown',
+    // pnpm 12.18.0's frozen-lockfile validator rejects this workspace's
+    // symlinked members (each of apps/mobile, packages/{design-system,
+    // dom-webview,rich-content} is listed both under its symlink path and its
+    // real yohaku-oss path) with ERR_PNPM_OUTDATED_LOCKFILE for a "local
+    // dependency ... is outdated", even though `pnpm install` reports the
+    // lockfile is up to date. Verify `CI=true pnpm install --frozen-lockfile`
+    // before bumping past 12.14.0.
+    'pnpm',
   ],
   // fetch latest package info from registry without cache
   force: true,

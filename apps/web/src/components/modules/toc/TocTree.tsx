@@ -106,7 +106,6 @@ export const TocTree: Component<{
     if (!groups) return
 
     const collapseTimers = collapseTimersRef.current
-    // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
     setExpandedGroups((prev) => {
       const next = new Set<string>()
       for (const group of groups) {

@@ -11,7 +11,6 @@ export function extractMeta(markdown: string): YohakuMeta | null {
   // take last occurrence: scan from end using global match; body is greedy
   // but forbidden to cross `-->`, so `}` inside a JSON string doesn't
   // terminate early while multiple trailers stay independent.
-  // eslint-disable-next-line unicorn/better-regex
   const globalRe = /<!--\s*insights-meta:\s*(\{(?:(?!-->)[\s\S])*\})\s*-->/g
   let last: RegExpExecArray | null = null
   let m: RegExpExecArray | null

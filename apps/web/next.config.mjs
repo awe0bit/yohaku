@@ -240,6 +240,11 @@ let nextConfig = {
     rules: buildTurbopackRules(),
   },
   experimental: {
+    // The `typescript` package is not installed; `tsrs` checks the code and
+    // is aliased to @typescript/native-preview, the only other name Next
+    // accepts. That escape hatch is API-path only, so opt out of the CLI path
+    // Next defaults to.
+    useTypeScriptCli: false,
     serverMinification: true,
     webpackBuildWorker: true,
     globalNotFound: true,

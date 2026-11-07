@@ -2,21 +2,19 @@ import type { Profile } from '../page-state'
 import type { EggState } from './phase'
 import { createEggPhase } from './phase'
 
-export interface EggFlow {
-  bytes: Uint8Array
-  gx: number
-  gy: number
-  version: number
+export type PaperVariant = 'full' | 'bare' | 'flat'
+
+export interface PaperDriver {
+  canvas: HTMLCanvasElement
+  render: (variant: PaperVariant) => boolean
 }
 
 export const eggBridge = {
   state: createEggPhase() as EggState,
-  flow: null as EggFlow | null,
   profile: null as Profile | null,
+  paper: null as PaperDriver | null,
   ready: false,
   lost: false,
 }
 
 export const eggActive = () => eggBridge.state.stage !== 'reading'
-
-export const flowStrength = () => (eggActive() && eggBridge.flow ? 1 : 0)

@@ -175,8 +175,8 @@ export const fixtures: Array<{
     key: 'arrow-heads',
     title: 'Arrow — head variants',
     description: 'arrow / triangle / triangle_outline / dot / bar.',
-    scene: wrap([
-      ...['arrow', 'triangle', 'triangle_outline', 'dot', 'bar'].map(
+    scene: wrap(
+      ['arrow', 'triangle', 'triangle_outline', 'dot', 'bar'].map(
         (head, i) => ({
           id: `a${i}`,
           type: 'arrow',
@@ -191,7 +191,7 @@ export const fixtures: Array<{
           ],
         }),
       ),
-    ]),
+    ),
   },
   {
     key: 'arrow-curve',

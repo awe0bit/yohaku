@@ -15,11 +15,20 @@ import {
 import { jotaiStore } from '~/lib/store'
 
 const ACCENT_TRANSITION_MS = 10_000
+const DEV_TERM_KEY = 'paper-term'
+
+const currentTerm = () => {
+  if (process.env.NODE_ENV !== 'production') {
+    const stored = window.localStorage.getItem(DEV_TERM_KEY)
+    const term = stored === null ? Number.NaN : Number(stored)
+    if (Number.isInteger(term) && term >= 0 && term < 24) return term
+  }
+  return solarTermForLocalDay(new Date())
+}
 
 const useSolarTermClock = () => {
   useEffect(() => {
-    const sync = () =>
-      jotaiStore.set(paperTermAtom, solarTermForLocalDay(new Date()))
+    const sync = () => jotaiStore.set(paperTermAtom, currentTerm())
     let timer = 0
     const arm = () => {
       window.clearTimeout(timer)

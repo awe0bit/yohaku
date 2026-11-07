@@ -205,23 +205,25 @@ export function MapBlock({
   useEffect(() => {
     if (!shouldMountMap || !src || track) return
 
-    let cancelled = false
+    const controller = new AbortController()
     setLoadError(null)
 
-    fetch(src)
+    fetch(src, { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         return response.json() as Promise<MapTrackData>
       })
       .then((payload) => {
-        if (!cancelled) setRemoteTrack(payload)
+        if (!controller.signal.aborted) setRemoteTrack(payload)
       })
       .catch((error) => {
-        if (!cancelled) setLoadError(String(error))
+        // An aborted fetch rejects with AbortError; that unmount path is not a
+        // load failure, so only report errors while the effect is live.
+        if (!controller.signal.aborted) setLoadError(String(error))
       })
 
     return () => {
-      cancelled = true
+      controller.abort()
     }
   }, [shouldMountMap, src, track])
 

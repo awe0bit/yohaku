@@ -20,7 +20,6 @@ export const IMAGE_TRANSFORMER: ElementTransformer = {
     if (!$isCommentImageNode(node)) return null
     return `![${node.getAltText()}](${node.getSrc()})`
   },
-  // eslint-disable-next-line unicorn/better-regex
   regExp: /^!\[([^\]]*)\]\(([^\s()]+)\)\s*$/,
   replace: (parentNode, _children, match) => {
     const [, altText, src] = match

@@ -32,7 +32,6 @@ export const Comments: FC<CommentBaseProps> = ({ refId }) => {
     if (typeof window === 'undefined') return
     const hash = window.location.hash
     if (hash.startsWith(ANCHOR_HASH_PREFIX)) {
-      // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
       setAround(hash.slice(ANCHOR_HASH_PREFIX.length))
     }
   }, [])

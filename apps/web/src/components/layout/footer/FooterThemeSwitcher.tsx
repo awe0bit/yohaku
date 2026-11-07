@@ -24,7 +24,7 @@ export const FooterThemeSwitcher = () => {
   const handleSelect = (value: string) => {
     transitionViewIfSupported(
       () => {
-        // eslint-disable-next-line @eslint-react/dom/no-flush-sync
+        // eslint-disable-next-line @eslint-react/dom-no-flush-sync
         flushSync(() => setTheme(value))
       },
       { rootAnimation: true },

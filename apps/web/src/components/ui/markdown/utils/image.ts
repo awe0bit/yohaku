@@ -4,10 +4,9 @@ interface MImageType {
   url: string
 }
 export const pickImagesFromMarkdown = (md: string) => {
-  /* eslint-disable regexp/no-empty-lookarounds-assertion, regexp/strict, regexp/optimal-lookaround-quantifier -- markdown image alt; nested brackets */
+  // markdown image alt; nested brackets
   const regexp =
     /^!\[((?:\[[^\]]*]|[^[\]]|](?=[^[]*))*)]\(\s*<?((?:[^\s\\]|\\.)*?)>?(?:\s+["'](.*?)["'])?\s*\)/s
-  /* eslint-enable regexp/no-empty-lookarounds-assertion, regexp/strict, regexp/optimal-lookaround-quantifier */
 
   const lines = md.split('\n')
 

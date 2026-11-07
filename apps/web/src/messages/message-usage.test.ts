@@ -272,7 +272,6 @@ function collectUsedKeys() {
     const jsonVars = new Map<string, string>()
 
     for (const match of source.matchAll(
-      // eslint-disable-next-line unicorn/better-regex
       /const\s+(\w+)\s*=\s*(?:await\s+)?(?:useTranslations|getTranslations)\(\s*(?:'([^']+)'|"([^"]+)"|\{[^}]*?namespace:\s*(?:'([^']+)'|"([^"]+)"))/g,
     )) {
       const variableName = match[1]

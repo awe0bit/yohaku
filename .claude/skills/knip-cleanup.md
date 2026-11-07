@@ -22,7 +22,7 @@ If config drifts from real layout, rewrite. Yohaku reference shape:
 ```json
 {
   "workspaces": {
-    ".": { "entry": ["eslint.config.mjs", "taze.config.js"], "project": ["*.{ts,mjs,js}"] },
+    ".": { "entry": ["oxlint.config.ts", "taze.config.js"], "project": ["*.{ts,mjs,js}"] },
     "apps/web": {
       "entry": [
         "src/app/**/{page,layout,template,loading,error,not-found,route,default,sitemap,robots,opengraph-image,twitter-image,icon,apple-icon,manifest}.{ts,tsx}",

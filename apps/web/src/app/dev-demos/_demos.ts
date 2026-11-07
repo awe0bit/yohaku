@@ -148,6 +148,13 @@ export const devDemos: DevDemo[] = [
   },
   {
     group: 'ambient',
+    href: '/dev-demos/reveal-text',
+    name: 'RevealText',
+    meta: '单行文字擦出切换 · 页脚实时阅读标题 · 截断与减少动态',
+    tags: ['reveal', 'wipe', 'motion', 'footer'],
+  },
+  {
+    group: 'ambient',
     href: '/dev-demos/notice-card-demo',
     name: 'NoticeCard',
     meta: '提示卡片各语义色与折叠态',

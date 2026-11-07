@@ -15,26 +15,26 @@
     "dev": "pnpm --filter @yohaku/web dev",
     "dev:mobile": "pnpm --filter @yohaku/mobile start",
     "ios": "pnpm --filter @yohaku/mobile ios",
-    "lint": "pnpm --filter @yohaku/web lint",
+    "lint": "oxlint --fix apps/web apps/mobile apps/mobile-overlay packages",
     "oss:ship": "bash ./scripts/ship-oss.sh",
     "postinstall": "node ./scripts/link-yohaku-oss-node-modules.mjs",
-    "prepare": "pnpm exec simple-git-hooks"
+    "prepare": "pnpm exec simple-git-hooks",
+    "typecheck": "tsrs --noEmit -p apps/web/tsconfig.json && tsrs --noEmit -p apps/mobile/tsconfig.json && tsrs --noEmit -p packages/rich-content/tsconfig.json && tsrs --noEmit -p packages/dom-webview/tsconfig.json"
   },
   "devDependencies": {
     "@innei/prettier": "1.0.0",
-    "@lobehub/lint": "^2.1.5",
+    "@lobehub/oxlint-config": "^3.0.1",
     "@types/node": "26.6.5",
-    "eslint": "^10.13.0",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "7.1.1",
-    "eslint-plugin-react-refresh": "0.5.3",
-    "fast-xml-parser": "^5.11.2",
-    "knip": "^6.41.0",
+    "@typescript/native-preview": "npm:tsrs@0.22.0-ts7.1.0-beta",
+    "fast-xml-parser": "^5.12.0",
+    "knip": "^6.44.1",
     "lint-staged": "17.6.0",
+    "oxlint": "^1.91.0",
     "prettier": "3.9.10",
     "simple-git-hooks": "2.14.0",
     "taze": "21.3.0",
-    "vitest": "^5.0.5"
+    "tsrs": "0.22.0-ts7.1.0-beta",
+    "vitest": "^5.1.0"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm exec lint-staged"
@@ -43,8 +43,8 @@
     "*.{js,jsx,ts,tsx}": [
       "prettier --ignore-path ./.gitignore --write "
     ],
-    "*.{js,ts,cjs,mjs,jsx,tsx,json}": [
-      "eslint --fix"
+    "*.{js,ts,cjs,mjs,jsx,tsx}": [
+      "oxlint --fix"
     ]
   }
 }

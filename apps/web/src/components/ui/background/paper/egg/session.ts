@@ -1,35 +1,30 @@
 import type { YohakuRootElement } from '~/components/common/yohaku-root'
-import { accentRgb } from '~/lib/paper/season'
+import { lightAt, localHour } from '~/lib/paper/light'
+import { accentRgb, paperColor, seasonOf } from '~/lib/paper/season'
 
 import { layoutElements } from '../layout'
 import { PAGE_PROFILES } from '../page-state'
 import { eggBridge } from './bridge'
 import { KEEP_ATTR } from './capture'
 import { preservePageState, swallowExitKey } from './dom'
-import { stepFalls, stepFireflies } from './falls'
 import { bodyHost, fadeFloating } from './float'
-import type { Drop } from './fluid'
-import {
-  addSplat,
-  createFluid,
-  flowBytes,
-  liveDrops,
-  stepDisplacement,
-  stepFluid,
-  velocityBytes,
-} from './fluid'
+import { createLive } from './gl/live'
 import type { GhostSource } from './images'
 import { ghostImages } from './images'
-import { createInk } from './ink-gl'
+import type { SourceRect } from './ink-size'
 import { inkScale, sourceRect } from './ink-size'
-import { eggCurves, enterEgg, leaveEgg, resetEgg, stepEggPhase } from './phase'
-import { drawSpriteWorld } from './sprite-draw'
+import { collectBoxes, collectGlyphs } from './page-marks'
 import {
-  clickSprites,
-  createSpriteWorld,
-  liftSprites,
-  stepSprites,
-} from './sprites'
+  canCancel,
+  enterEgg,
+  leaveEgg,
+  pageLayerVisibility,
+  resetEgg,
+  showsExit,
+  stepEggPhase,
+} from './phase'
+import { SEASON_EFFECTS } from './seasons'
+import type { PointerInput, SeasonEffect } from './seasons/types'
 
 export interface SessionEnv {
   dark: boolean
@@ -49,23 +44,30 @@ interface SessionInput {
   width: number
 }
 
+interface ElementGL extends WebGL2RenderingContext {
+  texElementSubImage2D: (
+    target: number,
+    level: number,
+    x: number,
+    y: number,
+    element: Element,
+    config: SourceRect,
+  ) => void
+}
+
 const FRAME_MS = 33
-const SUMI_LIGHT: [number, number, number] = [0.13, 0.12, 0.11]
-const SUMI_DARK: [number, number, number] = [0.86, 0.84, 0.8]
+const MASK_EVERY = 4
 const EXIT_CLASS =
   'absolute bottom-7 left-1/2 -translate-x-1/2 translate-y-1.5 cursor-pointer rounded-[2px] border border-neutral-5/40 bg-paper/70 py-2 pl-[18px] pr-4 font-serif text-[13px] leading-none tracking-[0.12em] text-neutral-7 opacity-0 pointer-events-none transition-[opacity,translate,color] duration-[900ms] data-[show]:translate-y-0 data-[show]:opacity-70 data-[show]:pointer-events-auto hover:data-[show]:opacity-100 hover:text-neutral-9'
 
-const NON_VISUAL = new Set([
-  'SCRIPT',
-  'STYLE',
-  'LINK',
-  'TEMPLATE',
-  'NOSCRIPT',
-  'NEXT-ROUTE-ANNOUNCER',
-])
-
-const keepFloating = (root: Element) => (el: HTMLElement) =>
-  NON_VISUAL.has(el.tagName) || el.hasAttribute(KEEP_ATTR) || el.contains(root)
+const NON_VISUAL: Record<string, true> = {
+  SCRIPT: true,
+  STYLE: true,
+  LINK: true,
+  TEMPLATE: true,
+  NOSCRIPT: true,
+  'NEXT-ROUTE-ANNOUNCER': true,
+}
 
 const makeLayer = (label: string) => {
   const layer = document.createElement('div')
@@ -73,64 +75,84 @@ const makeLayer = (label: string) => {
   layer.setAttribute('aria-hidden', 'true')
   layer.style.cssText =
     'position:fixed;inset:0;z-index:9990;cursor:default;touch-action:none;'
-  const spriteCanvas = document.createElement('canvas')
-  spriteCanvas.style.cssText =
-    'position:absolute;inset:0;width:100%;height:100%;'
   const exit = document.createElement('button')
   exit.type = 'button'
   exit.className = EXIT_CLASS
   exit.textContent = label
-  layer.append(spriteCanvas, exit)
+  layer.append(exit)
   document.body.append(layer)
-  return { layer, spriteCanvas, exit }
+  return { layer, exit }
 }
 
-export const startSession = (input: SessionInput) => {
-  const { width: W, height: H, dpr, root, canvas } = input
+export interface EggSession {
+  end: () => void
+  paint: () => void
+  setLabel: (label: string) => void
+}
+
+export const startSession = (input: SessionInput): EggSession | null => {
+  const { width: W, height: H, root, canvas } = input
   const target = root.firstElementChild
-  const { layer, spriteCanvas, exit } = makeLayer(input.env().exitLabel)
-  const ink = createInk(canvas)
-  const sctx = spriteCanvas.getContext('2d')
-  if (!ink || !sctx || !target) {
-    layer.remove()
-    ink?.dispose()
-    return null
-  }
-  const scale = inkScale(dpr)
-  ink.resize(W, H, scale)
-  ink.setOutputScale(scale)
+  const paper = eggBridge.paper
+  if (!target || !paper) return null
+  const { dark, term, exitLabel } = input.env()
+  const scale = inkScale(input.dpr)
   const box = root.getBoundingClientRect()
   const rect = sourceRect(box.top, box.height, { width: W, height: H }, scale)
-  const full = { width: Math.round(W * scale), height: Math.round(H * scale) }
-  spriteCanvas.width = Math.round(W * dpr)
-  spriteCanvas.height = Math.round(H * dpr)
-  const restorePage = preservePageState(window, document)
-  const ghosts = ghostImages(layer, input.ghosts)
-  const floats = fadeFloating(bodyHost(), keepFloating(root))
-  const fluid = createFluid(W, H)
-  const drops: Drop[] = []
-  const world = createSpriteWorld()
-  Object.assign(world, {
+  const { layer, exit } = makeLayer(exitLabel)
+  const created = createLive({
+    canvas,
     w: W,
     h: H,
-    dpr,
-    dark: input.env().dark,
-    placements: layoutElements(W, H, input.env().term),
+    dpr: scale,
+    glyphs: collectGlyphs(target, W, H),
+    boxes: collectBoxes(target, W, H),
+    season: {
+      term,
+      season: seasonOf(term),
+      dark,
+      accent: accentRgb(term, dark),
+      paperRgb: paperColor(term, dark),
+      light: lightAt(localHour(new Date())),
+      elements: layoutElements(W, H, term),
+    },
+    elemVisibility: () => eggBridge.profile?.vis.elem ?? 1,
+    setCursor: (cursor) => {
+      layer.style.cursor = cursor || 'default'
+    },
   })
-  liftSprites(world)
+  if (!created) {
+    layer.remove()
+    return null
+  }
+  const { live, release } = created
+  let effect: SeasonEffect
+  try {
+    effect = SEASON_EFFECTS[live.season.season](live)
+  } catch {
+    release()
+    layer.remove()
+    return null
+  }
+  const restorePage = preservePageState(window, document)
+  const ghosts = ghostImages(layer, input.ghosts)
+  const floats = fadeFloating(
+    bodyHost(),
+    (el) =>
+      NON_VISUAL[el.tagName] || el.hasAttribute(KEEP_ATTR) || el.contains(root),
+  )
   const state = eggBridge.state
   enterEgg(state, eggBridge.profile ?? PAGE_PROFILES.browse)
 
   let raf = 0
   let last = performance.now()
-  let version = 0
-  let dropTurn = 0
-  let prev: { t: number; x: number; y: number } | null = null
+  let frameIndex = 0
+  let prev: { x: number; y: number } | null = null
   let ended = false
   let seeded = false
 
   const leave = () => {
-    leaveEgg(state)
+    if (leaveEgg(state)) effect.exit()
   }
 
   const end = () => {
@@ -142,9 +164,13 @@ export const startSession = (input: SessionInput) => {
     window.removeEventListener('resize', end)
     document.removeEventListener('visibilitychange', onVisibility)
     canvas.removeEventListener('webglcontextlost', end)
+    try {
+      effect.dispose()
+    } catch (error) {
+      console.error(error)
+    }
+    release()
     resetEgg(state)
-    eggBridge.flow = null
-    ink.dispose()
     root.exit()
     ghosts.remove()
     layer.remove()
@@ -153,61 +179,39 @@ export const startSession = (input: SessionInput) => {
     input.onEnd()
   }
 
-  const drop = (x: number, y: number, now: number) => {
-    if (clickSprites(world, x, y)) return
-    const turn = dropTurn++ % 4
-    drops.push({ x, y, t0: now, q: 52_000 })
-    if (drops.length > 8) drops.shift()
-    if (turn === 1 || turn === 3) {
-      ink.pushDye({ x, y, r: 16, erase: true })
-      return
+  const feedPaper = () => {
+    if (frameIndex % MASK_EVERY === 0) {
+      paper.render('flat')
+      live.upload(paper.canvas, live.paperFlatTex, false)
+      paper.render('bare')
+      live.upload(paper.canvas, live.paperBareTex, false)
     }
-    const { dark, term } = input.env()
-    ink.pushDye({
-      x,
-      y,
-      r: 15,
-      rgb: turn === 0 ? (dark ? SUMI_DARK : SUMI_LIGHT) : accentRgb(term, dark),
-      a: turn === 0 ? 0.75 : 0.65,
-    })
+    paper.render('full')
+    live.upload(paper.canvas, live.paperTex, false)
+    frameIndex++
   }
 
-  const onMove = (e: PointerEvent) => {
-    const now = performance.now()
-    const p = { x: e.clientX, y: e.clientY, t: now }
-    const before = prev
-    prev = p
-    if (!before) {
-      world.pointer = { x: p.x, y: p.y, stillAt: now }
-      return
-    }
-    const d = Math.hypot(p.x - before.x, p.y - before.y)
-    world.pointer = {
-      x: p.x,
-      y: p.y,
-      stillAt: d > 3 ? now : (world.pointer?.stillAt ?? now),
-    }
-    if (state.stage === 'sinking' && state.dir > 0) {
-      if (input.onTravel(d)) leave()
-      return
-    }
-    if (state.stage !== 'immersed') return
-    const dt = Math.max(0.008, (p.t - before.t) / 1000)
-    const k = Math.min(1, 900 / (d / dt + 1))
-    addSplat(fluid, {
-      x: p.x,
-      y: p.y,
-      vx: ((p.x - before.x) / dt) * k,
-      vy: ((p.y - before.y) / dt) * k,
-      r: 42,
-    })
-  }
-
-  const onDown = (e: PointerEvent) => {
+  const forward = (kind: PointerInput['kind'], e: PointerEvent) => {
     if (e.target === exit) return
-    if (state.stage === 'immersed')
-      drop(e.clientX, e.clientY, performance.now())
-    else leave()
+    effect.pointer({ kind, x: e.clientX, y: e.clientY, now: performance.now() })
+  }
+  const onMove = (e: PointerEvent) => {
+    const before = prev
+    prev = { x: e.clientX, y: e.clientY }
+    if (
+      before &&
+      canCancel(state) &&
+      input.onTravel(Math.hypot(e.clientX - before.x, e.clientY - before.y))
+    ) {
+      leave()
+      return
+    }
+    forward('move', e)
+  }
+  const onDown = (e: PointerEvent) => forward('down', e)
+  const onLeave = (e: PointerEvent) => {
+    prev = null
+    forward('leave', e)
   }
   const onWheel = (e: WheelEvent) => {
     e.preventDefault()
@@ -220,10 +224,7 @@ export const startSession = (input: SessionInput) => {
 
   layer.addEventListener('pointermove', onMove)
   layer.addEventListener('pointerdown', onDown)
-  layer.addEventListener('pointerleave', () => {
-    world.pointer = null
-    prev = null
-  })
+  layer.addEventListener('pointerleave', onLeave)
   exit.addEventListener('click', leave)
   canvas.addEventListener('webglcontextlost', end)
   window.addEventListener('wheel', onWheel, { capture: true, passive: false })
@@ -231,47 +232,18 @@ export const startSession = (input: SessionInput) => {
   window.addEventListener('resize', end)
   document.addEventListener('visibilitychange', onVisibility)
 
-  const step = (now: number, dt: number) => {
-    if (eggBridge.lost || stepEggPhase(state, dt) !== 'running') {
+  const step = (dt: number) => {
+    stepEggPhase(state, dt)
+    if (eggBridge.lost || !eggBridge.paper) {
       end()
       return
     }
-    const c = eggCurves(state)
-    const { dark, term } = input.env()
-    const live = liveDrops(drops, now)
-    stepFluid(fluid, dt, now, c.ambient)
-    stepDisplacement(fluid, dt, now, state.stage === 'exiting', live)
-    eggBridge.flow = {
-      bytes: flowBytes(fluid),
-      gx: fluid.gx,
-      gy: fluid.gy,
-      version: ++version,
-    }
-    stepFalls(world, now, c.falling)
-    stepSprites(world, fluid, drops, dt, now, c.settle)
-    stepFireflies(world, dt, now, term)
-    ink.advect(
-      velocityBytes(fluid),
-      fluid.gx,
-      fluid.gy,
-      dt,
-      now,
-      c.decay,
-      c.diffusion,
-      liveDrops(drops, now),
-    )
-    ink.show({
-      crisp: c.crisp,
-      dyeK: c.dyeK,
-      reprint: c.reprint,
-      veil: c.veil,
-      dark,
-      accent: accentRgb(term, dark),
-      now,
-    })
-    drawSpriteWorld(sctx, world, now, c.spriteAlpha, c.lift, c.settle)
-    ghosts.setFade(c.images)
-    exit.toggleAttribute('data-show', c.showExit)
+    feedPaper()
+    live.time += dt
+    effect.frame(dt, live.time)
+    ghosts.setFade(pageLayerVisibility(state))
+    exit.toggleAttribute('data-show', showsExit(state))
+    if (state.stage === 'exiting' && effect.done) end()
   }
 
   const frame = (now: number) => {
@@ -279,20 +251,28 @@ export const startSession = (input: SessionInput) => {
     if (now - last < FRAME_MS - 2) return
     const dt = Math.min(0.08, (now - last) / 1000)
     last = now
-    step(now, dt)
+    try {
+      step(dt)
+    } catch (error) {
+      console.error(error)
+      end()
+    }
   }
 
   const paint = () => {
     if (seeded || ended) return
     seeded = true
     try {
-      ink.seedElement(target, rect, full)
-    } catch {
+      const gl = live.gl as ElementGL
+      gl.bindTexture(gl.TEXTURE_2D, live.inkTex)
+      gl.texElementSubImage2D(gl.TEXTURE_2D, 0, 0, 0, target, rect)
+      step(0)
+    } catch (error) {
+      console.error(error)
       end()
       return
     }
     last = performance.now()
-    step(last, 0)
     raf = requestAnimationFrame(frame)
   }
 
@@ -304,5 +284,3 @@ export const startSession = (input: SessionInput) => {
     },
   }
 }
-
-export type EggSession = NonNullable<ReturnType<typeof startSession>>

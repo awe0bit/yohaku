@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "workspaces": {
     ".": {
-      "entry": ["eslint.config.mjs", "taze.config.js", "ecosystem.config.js"],
+      "entry": ["taze.config.js", "ecosystem.config.js"],
       "project": ["*.{ts,mjs,js}"]
     },
     "apps/web": {
@@ -19,12 +19,7 @@
         "src/**/*.test.{ts,tsx}"
       ],
       "project": ["src/**/*.{ts,tsx,js,jsx}"],
-      "ignore": [
-        "public/**/*",
-        "src/types/api.ts",
-        "src/**/*.css"
-      ],
-      "ignoreBinaries": ["eslint"],
+      "ignore": ["public/**/*", "src/types/api.ts", "src/**/*.css"],
       "next": true
     },
     "packages/design-system": {
@@ -44,7 +39,6 @@
   },
   "ignore": ["yohaku-oss/**", "haklex/**"],
   "ignoreDependencies": [
-    "typescript",
     "prettier",
     "@innei/prettier",
     "@yohaku/design-system",
@@ -54,9 +48,6 @@
     "@iconify-json/material-symbols",
     "@iconify-json/mingcute",
     "sharp",
-    "eslint-plugin-react",
-    "eslint-plugin-react-hooks",
-    "eslint-plugin-react-refresh",
     "taze",
     "zx",
     "@types/katex",

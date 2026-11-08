@@ -1,35 +1,28 @@
 ## TL;DR
 
-The editor AI agent now keeps its conversation history on the server, sends far less data per message, and can edit paywall settings.
-
-## Breaking Changes
-
-- **AI agent conversations**: the conversation table is rebuilt so the server-side transcript is the only stored history; every existing agent conversation is discarded during the upgrade. **Migration**: run the release migration (`mx-migrate`) as usual before the new pods start; no data needs to be exported, since previous agent chats cannot be carried over.
-- **Admin ↔ server agent protocol**: the admin agent now talks a new WebSocket protocol, and neither side accepts the previous payload shape. **Migration**: upgrade the server and the bundled admin together, and reload any admin tab that was open during the deploy.
+The writing agent can now edit Excalidraw drawings and dynamic components in an article, read images, and insert images it generates.
 
 ## Highlights
 
-Agent conversations now live entirely on the server. A conversation is created the moment you send your first message, its full transcript (thinking, tool calls and results) is the single record, and reopening a conversation shows exactly what the model saw instead of a partial chat log. Review proposals are saved alongside it, so pending suggestions come back after a reload.
+Embedded content is now part of the agent's workspace. Excalidraw drawings, dynamic components and images from your own storage appear as files under `/embeds`, so the agent edits a drawing or a component the same way it edits the article. Each edit is saved as a new, immutable version tied to the current draft, so the published article keeps working until you publish again. Excalidraw text is remeasured after an edit, so labels stay centred.
 
-Long editing sessions are much lighter. After the first message, the agent's instructions and tool definitions are referenced by hash instead of being resent, and the article is sent as a small patch of what changed rather than the whole document on every turn. Large tool outputs are shown as previews when history is reopened.
+Dynamic components now go through the normal proposal review instead of a separate preview card, and are added to the component catalog when you accept them. A component's name, description and props schema live in a `.meta.json` file next to it. If someone else changes a drawing while the agent is working, that block keeps their version and the agent is told, while the rest of its edits still apply.
 
-The agent can now read and change a post's paywall settings — premium status, purchase availability, free window and preview length — and invalid values are rejected with a clear reason instead of being silently coerced.
+The agent can look at images in the article with a multimodal model, and images it generates are saved into the workspace so it can insert them directly. Uploads made in a draft are protected from orphan-file cleanup while the draft still has unsaved edits.
 
 ## Changes
 
 ### Features
-- Agent conversation history is stored once on the server and reopened from it, with review proposals restored ([ad8dc5e](https://github.com/mx-space/core/commit/ad8dc5ef0d13b94c6a1c6aa2cb8c0deb3090d265))
-- Agent messages send only hashes and patches after the first turn, cutting per-message traffic on long sessions ([ad8dc5e](https://github.com/mx-space/core/commit/ad8dc5ef0d13b94c6a1c6aa2cb8c0deb3090d265))
-- The editor agent can read and edit post paywall fields ([cbd5c18](https://github.com/mx-space/core/commit/cbd5c18d2a536e8c7501de95b23ba8eef73c55ac))
+- The writing agent edits Excalidraw drawings, dynamic components and images through `/embeds`, and can view and generate images ([497c149](https://github.com/mx-space/core/commit/497c1490412027d5e4fd9a8f8c3e732568c46dba))
+- Articles get a language field preset that suggests common languages and accepts any valid language tag ([8be5b8c](https://github.com/mx-space/core/commit/8be5b8c030b71576a41b9fe864fb9986621ccdd1))
 
 ### Bug Fixes
-- Sign-in and sessions run on Better Auth 1.7.16 ([12a1bac](https://github.com/mx-space/core/commit/12a1bac79bde8d62d255f9f1104fc60eb43dbf10))
-- Rebuilding an imported collaborative draft keeps its public fields ([b7170de](https://github.com/mx-space/core/commit/b7170dead5f9b9a5f56bb24508d5662ea6e9e373))
+- Requests without an `Origin` header (image loads, server-side fetches) no longer fail with a 500 when no allowed-origin list is configured ([1899da8](https://github.com/mx-space/core/commit/1899da8db9ff3eaf6a9547ee8de6e8d3351c9dfa))
 
 ## Upgrade Notes
 
-Deploy the server and admin from this release together. Agent chats from earlier versions will be gone after the migration; everything else is unaffected.
+- This release adds migration `0049` (two nullable columns and an index on `file_references`). Run the release-phase migration (`mx-migrate`) before starting the new server; it is additive and safe for rolling deploys.
 
 ---
 
-**Full Changelog**: https://github.com/mx-space/core/compare/v16.4.1...v17.0.0
+**Full Changelog**: https://github.com/mx-space/core/compare/v17.0.1...v17.0.2

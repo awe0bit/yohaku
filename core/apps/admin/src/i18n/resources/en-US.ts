@@ -42,24 +42,6 @@ export const enUS = {
   'auth.entry.scene.ai-models': 'Order',
   'auth.entry.scene.ai-features': 'Growth',
   'auth.entry.scene.ready': 'Ready',
-  'write.agent.dynamic.replace': 'Upload new version and replace',
-  'write.agent.dynamic.updated': 'Draft updated',
-  'write.agent.dynamic.versionHint':
-    'Adoption replaces the original component in this draft. Publish again to update the live article.',
-  'write.agent.dynamic.targetChanged':
-    'The original component changed. Read it again to create a new version.',
-  'write.agent.dynamic.preview': 'Preview',
-  'write.agent.dynamic.publish': 'Upload and insert',
-  'write.agent.dynamic.uploading': 'Uploading…',
-  'write.agent.dynamic.inserted': 'Inserted into article',
-  'write.agent.dynamic.hint':
-    'Preview and request changes in chat, then upload and insert when ready.',
-  'write.agent.dynamic.source': 'View source',
-  'write.agent.dynamic.busy':
-    'Another component is being uploaded. Please retry shortly.',
-  'write.agent.dynamic.contextChanged':
-    'The conversation or editor state changed. Please retry in the current conversation.',
-  'write.agent.dynamic.invalidDraft': 'Invalid component draft.',
   'tasks.action.cancel': 'Cancel task',
   'tasks.action.clearCompleted': 'Clear completed',
   'tasks.action.continueTts': 'Continue generation',
@@ -2437,6 +2419,7 @@ export const enUS = {
   'settings.common.section.unknownAction': 'Unknown action: {action}',
   'settings.fieldType.boolean': 'Switch',
   'settings.fieldType.checkbox': 'Checkbox',
+  'settings.fieldType.language': 'Language tag',
   'settings.fieldType.multiSelect': 'Multi-select',
   'settings.fieldType.number': 'Number',
   'settings.fieldType.object': 'Object',
@@ -4007,6 +3990,11 @@ export const enUS = {
   'write.meta.builtin.cover.label': 'Cover image',
   'write.meta.builtin.keywords.label': 'SEO keywords',
   'write.meta.builtin.keywords.placeholder': 'Type a keyword and press Enter',
+  'write.meta.builtin.lang.description':
+    'Source language of this article (BCP 47 tag). Drives AI translation, summaries, insights, TTS and search.',
+  'write.meta.builtin.lang.label': 'Article language',
+  'write.meta.builtin.lang.placeholder':
+    'Pick a language or type a tag, e.g. en-US',
   'write.meta.builtin.style.label': 'Article style',
   'write.meta.builtin.style.placeholder': 'Enter a style name',
   'write.meta.kvList.addField': 'Add field',
@@ -4015,6 +4003,9 @@ export const enUS = {
   'write.meta.kvList.keyPlaceholder': 'Key',
   'write.meta.kvList.previewJson': 'Preview JSON',
   'write.meta.kvList.valuePlaceholder': 'Value',
+  'write.meta.language.invalid': 'Not a valid BCP 47 language tag',
+  'write.meta.language.noSuggestion':
+    'No matching suggestion — type the tag directly',
   'write.meta.multiSelect.customPlaceholder': 'Custom value...',
   'write.meta.multiSelect.removeAria': 'Remove {value}',
   'write.meta.preset.empty': 'No preset fields available',

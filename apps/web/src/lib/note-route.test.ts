@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildNotePath, parseNotePath } from './note-route'
+import {
+  buildNotePath,
+  noteShuffleDirection,
+  parseNotePath,
+} from './note-route'
 
 describe('buildNotePath', () => {
   it('prefers the slug route when slug and created exist', () => {
@@ -116,5 +120,23 @@ describe('parseNotePath', () => {
     expect(parseNotePath('/notes/series/hello')).toBeNull()
     expect(parseNotePath('/notes/2026/6/slug')).toBeNull()
     expect(parseNotePath('/notes/2026/13/1/slug')).toBeNull()
+  })
+})
+
+describe('noteShuffleDirection', () => {
+  it('moves forward to an older note', () => {
+    expect(noteShuffleDirection(218, '219')).toBe('next')
+  })
+
+  it('comes back to a newer note', () => {
+    expect(noteShuffleDirection(220, '219')).toBe('prev')
+  })
+
+  it('has no direction for the current note', () => {
+    expect(noteShuffleDirection(219, '219')).toBeNull()
+  })
+
+  it('has no direction without a current note', () => {
+    expect(noteShuffleDirection(219, null)).toBeNull()
   })
 })

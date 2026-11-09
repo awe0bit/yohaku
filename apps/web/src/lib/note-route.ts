@@ -141,3 +141,13 @@ export const isValidNoteSlugDateParts = (
   const maxDay = new Date(Date.UTC(y, m, 0)).getUTCDate()
   return d >= 1 && d <= maxDay
 }
+
+export const noteShuffleDirection = (
+  targetNid: number,
+  currentNid: number | string | null | undefined,
+): 'next' | 'prev' | null => {
+  if (currentNid === null || currentNid === undefined) return null
+  const current = Number(currentNid)
+  if (!Number.isFinite(current) || targetNid === current) return null
+  return targetNid < current ? 'next' : 'prev'
+}

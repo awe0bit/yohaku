@@ -26,6 +26,7 @@ export const DesktopHeader = ({
   return (
     <m.div
       data-hide-print
+      data-paper-transition-above
       className="yohaku-page-right-inset fixed inset-x-0 top-0 z-0 hidden h-[4.5rem] lg:block"
       style={{ opacity, visibility, y: shift }}
     >

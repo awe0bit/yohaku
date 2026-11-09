@@ -28,6 +28,7 @@ export const HeaderStrip = ({ visible }: { visible: boolean }) => {
       {visible && (
         <m.div
           data-hide-print
+          data-paper-transition-above
           animate={{ opacity: 1, y: 0 }}
           className="yohaku-page-right-inset pointer-events-none fixed inset-x-0 top-3 z-[20] mr-[var(--removed-body-scroll-bar-size)] hidden justify-center lg:flex"
           exit={{ opacity: 0, y: offset }}

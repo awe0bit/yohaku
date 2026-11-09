@@ -10,9 +10,8 @@ import {
   NoteTitle,
 } from '~/app/[locale]/notes/(note-detail)/[id]/pageExtra'
 import { AckRead } from '~/components/common/AckRead'
-import { PaperWithEntrance } from '~/components/layout/container/PaperWithEntrance'
+import { Paper } from '~/components/layout/container/Paper'
 import { Loading } from '~/components/ui/loading'
-import { BottomToUpSmoothTransitionView } from '~/components/ui/transition'
 import type { ParsedNotePath } from '~/lib/note-route'
 import {
   CurrentNoteDataAtomProvider,
@@ -68,33 +67,36 @@ const NotePreviewBody: FC<{
     () => atom(null! as NoteWrappedPayloadWithMeta),
     [],
   )
-  if (isLoading) return <Loading useDefaultLoadingText className="w-full" />
+  if (isLoading)
+    return (
+      <Paper as="div" className="min-h-full">
+        <Loading useDefaultLoadingText className="w-full" />
+      </Paper>
+    )
   if (!data) return null
   const note = data.data
   return (
     <CurrentNoteDataAtomProvider overrideAtom={overrideAtom}>
       <CurrentNoteDataProvider data={data} />
       {!!note.id && <AckRead id={note.id} type="note" />}
-      <BottomToUpSmoothTransitionView>
-        <PaperWithEntrance>
-          <NoteHeadCover image={note.meta?.cover} />
-          <IndentArticleContainer prose={note.contentFormat !== 'lexical'}>
-            <header>
-              <NoteTitle />
-              <NoteMetaBar />
-              <NoteRootBanner />
-            </header>
+      <Paper as="div" className="min-h-full">
+        <NoteHeadCover image={note.meta?.cover} />
+        <IndentArticleContainer prose={note.contentFormat !== 'lexical'}>
+          <header>
+            <NoteTitle />
+            <NoteMetaBar />
+            <NoteRootBanner />
+          </header>
 
-            <NoteHideIfSecret>
-              <WrappedElementProvider eoaDetect>
-                <NoteMarkdownImageRecordProvider>
-                  <NoteMarkdown />
-                </NoteMarkdownImageRecordProvider>
-              </WrappedElementProvider>
-            </NoteHideIfSecret>
-          </IndentArticleContainer>
-        </PaperWithEntrance>
-      </BottomToUpSmoothTransitionView>
+          <NoteHideIfSecret>
+            <WrappedElementProvider eoaDetect>
+              <NoteMarkdownImageRecordProvider>
+                <NoteMarkdown />
+              </NoteMarkdownImageRecordProvider>
+            </WrappedElementProvider>
+          </NoteHideIfSecret>
+        </IndentArticleContainer>
+      </Paper>
     </CurrentNoteDataAtomProvider>
   )
 }

@@ -32,6 +32,7 @@ import { InlineLinkAnchor } from '~/components/ui/link-card/InlineLinkAnchor'
 import { BlockLinkRenderer } from '~/components/ui/markdown/renderers/LinkRenderer'
 import { useModalStack } from '~/components/ui/modal/stacked/provider'
 import { Favicon } from '~/components/ui/rich-link/Favicon'
+import { useHydratedColorScheme } from '~/hooks/common/use-is-dark'
 import {
   setLastImageClickTarget,
   useWebHost,
@@ -96,7 +97,7 @@ interface RichContentBodyProps {
   editorOverrideStyle: React.CSSProperties
   editorState: SerializedEditorState
   pollAdapter: PollDataAdapter
-  theme: HostCapabilities['theme']
+  theme: HostCapabilities['theme'] | undefined
   variant: RichEditorVariant | undefined
 }
 
@@ -139,6 +140,7 @@ export function LexicalContent({
   const isMobile = useIsMobile()
   const { present } = useModalStack()
 
+  const colorScheme = useHydratedColorScheme()
   const webHost = useWebHost({
     nestedDocPresentation: 'modal',
     slots: richContentSlots,
@@ -199,7 +201,7 @@ export function LexicalContent({
         editorOverrideStyle={editorOverrideStyle}
         editorState={editorState}
         pollAdapter={pollAdapter}
-        theme={webHost.theme}
+        theme={colorScheme}
         variant={variant}
       />
     </HostProvider>

@@ -5,19 +5,18 @@ import { useLayoutEffect, useState } from 'react'
 
 import { isHydrationEnded } from '~/components/common/HydrationEndDetector'
 
-import { isPaperSwapPending, notifyPaperMounted } from './paper-swap'
+import { PAPER_EASING, playStackShift } from './paper-stack-motion'
+import {
+  getPaperTransition,
+  notifyPaperMounted,
+  paperEntranceMode,
+} from './paper-swap'
 
 const PAPER_SHIFT_DURATION_MS = 460
-const PAPER_STACK_DELAY_MS = 40
-const PAPER_STACK_STAGGER_MS = 40
-const PAPER_STACK_DURATION_MS = 420
-const PAPER_EASING = 'cubic-bezier(0.22, 1, 0.36, 1)'
 
 const FLAT_POSE = 'translateZ(0) translateX(0) translateY(0) rotate(0deg)'
 const NEAREST_BACK_POSE =
   'translateZ(-8px) translateX(18px) translateY(5px) rotate(2.5deg)'
-const DEEPEST_BACK_POSE =
-  'translateZ(-26px) translateX(16px) translateY(8px) rotate(2.4deg)'
 
 function airbornePaperShadow(isDark: boolean) {
   return isDark
@@ -42,14 +41,17 @@ type Rider = {
 }
 
 export function usePaperEntrance(ref: RefObject<HTMLElement | null>) {
-  const [skipAnimation] = useState(
-    () => !isHydrationEnded() || isPaperSwapPending(),
+  const [mode] = useState(() =>
+    paperEntranceMode({
+      hydrated: isHydrationEnded(),
+      transition: getPaperTransition(),
+    }),
   )
 
   useLayoutEffect(() => {
     const el = ref.current
     if (el) notifyPaperMounted(el)
-    if (!el || skipAnimation) return
+    if (!el || mode === 'skip') return
 
     const prefersReduced = window.matchMedia(
       '(prefers-reduced-motion: reduce)',
@@ -76,9 +78,6 @@ export function usePaperEntrance(ref: RefObject<HTMLElement | null>) {
         willChange: node.style.willChange,
         transformOrigin: node.style.transformOrigin,
       }))
-    const previousStackWillChange = stackLayers.map(
-      (layer) => layer.style.willChange,
-    )
     const animations: Animation[] = []
     const shiftTiming: KeyframeAnimationOptions = {
       duration: PAPER_SHIFT_DURATION_MS,
@@ -120,28 +119,16 @@ export function usePaperEntrance(ref: RefObject<HTMLElement | null>) {
       )
     }
 
-    stackLayers.forEach((layer, index) => {
-      layer.style.willChange = 'transform, opacity'
+    animations.push(...playStackShift(stackLayers))
 
-      animations.push(
-        layer.animate(
-          [
-            {
-              opacity: index === 0 ? 0 : 1,
-              transform:
-                index === 0 ? DEEPEST_BACK_POSE : stackFinalPoses[index - 1],
-            },
-            { opacity: 1, transform: stackFinalPoses[index] },
-          ],
-          {
-            delay: PAPER_STACK_DELAY_MS + index * PAPER_STACK_STAGGER_MS,
-            duration: PAPER_STACK_DURATION_MS,
-            easing: PAPER_EASING,
-            fill: 'both',
-          },
-        ),
+    if (mode === 'await-ready') {
+      // Document time keeps running while a view transition's update callback
+      // holds rendering; unpaused, the entrance would be half spent by `ready`.
+      animations.forEach((animation) => animation.pause())
+      void getPaperTransition()?.ready.then(() =>
+        animations.forEach((animation) => animation.play()),
       )
-    })
+    }
 
     let released = false
     const release = () => {
@@ -153,9 +140,6 @@ export function usePaperEntrance(ref: RefObject<HTMLElement | null>) {
         node.style.willChange = willChange
         node.style.transformOrigin = transformOrigin
       })
-      stackLayers.forEach((layer, index) => {
-        layer.style.willChange = previousStackWillChange[index]
-      })
     }
 
     void Promise.all(
@@ -163,5 +147,5 @@ export function usePaperEntrance(ref: RefObject<HTMLElement | null>) {
     ).then(release)
 
     return release
-  }, [ref, skipAnimation])
+  }, [ref, mode])
 }

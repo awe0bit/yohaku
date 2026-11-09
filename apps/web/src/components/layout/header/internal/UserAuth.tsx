@@ -79,7 +79,11 @@ export function UserAuth({ size = 28 }: { size?: number }) {
     <AnimatePresence>
       <div style={opacityStyle}>
         <DropdownMenu modal={false}>
-          <DropdownMenuTrigger nativeButton={false} openOnHover={hoverOnly}>
+          <DropdownMenuTrigger
+            nativeButton={false}
+            openOnHover={hoverOnly}
+            render={<div className="inline-block" />}
+          >
             {isOwner ? (
               <OwnerAvatar size={size} />
             ) : session ? (

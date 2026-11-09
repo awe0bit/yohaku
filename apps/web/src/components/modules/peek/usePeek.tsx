@@ -4,6 +4,7 @@ import { useIsMobile } from '~/atoms/hooks/viewport'
 import { useModalStack } from '~/components/ui/modal'
 import { parseNotePath } from '~/lib/note-route'
 
+import { PaperPeekModal } from './PaperPeekModal'
 import type { PeekOrigin } from './peek-motion'
 import { PeekModal } from './PeekModal'
 
@@ -29,11 +30,11 @@ export const usePeek = () => {
           )
           present({
             ...basePresentProps,
-
+            overlay: false,
             CustomModalComponent: () => (
-              <PeekModal origin={origin} to={href}>
+              <PaperPeekModal to={href}>
                 <NotePreview noteRef={noteRef} />
-              </PeekModal>
+              </PaperPeekModal>
             ),
             content: () => null,
           })

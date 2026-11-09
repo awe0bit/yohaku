@@ -99,6 +99,13 @@ export const devDemos: DevDemo[] = [
   },
   {
     group: 'ambient',
+    href: '/dev-demos/petal-eaves',
+    name: 'Seasonal eaves',
+    meta: 'html-in-canvas spike · 四季落檐：樱 / 夕立 / 红叶 / 檐雪',
+    tags: ['html-in-canvas', 'canvas', 'particle'],
+  },
+  {
+    group: 'ambient',
     href: '/dev-demos/peek-modal',
     name: 'Peek modal',
     meta: '三种入场机制 · 文字 FLIP / 卡片页 FLIP / 中心缝 · 假内容不走网络',

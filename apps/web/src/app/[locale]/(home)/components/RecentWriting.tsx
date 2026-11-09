@@ -53,10 +53,10 @@ const WritingItem = ({ item, index }: { item: MergedItem; index: number }) => {
           <div className="text-label-12 text-neutral-6">
             {typeLabel}
             {' · '}
-            <RelativeTime date={item.createdAt} />
+            <RelativeTime compact date={item.createdAt} />
             {weather && <> · {weather}</>}
           </div>
-          <h3 className="mt-2 hyphens-auto break-words text-title-20 font-medium leading-normal text-neutral-9 transition-colors hover:text-accent">
+          <h3 className="mt-2 text-pretty break-words [word-break:normal] text-title-20 font-medium leading-normal text-neutral-9 transition-colors hover:text-accent">
             {item.title}
           </h3>
           {summary && (
@@ -66,16 +66,17 @@ const WritingItem = ({ item, index }: { item: MergedItem; index: number }) => {
           )}
         </Link>
       ) : (
-        <Link className="block" href={url}>
-          <div className="flex items-baseline justify-between gap-5">
-            <h3 className="hyphens-auto break-words text-copy-14 font-normal text-neutral-8 transition-colors hover:text-accent">
-              {item.title}
-            </h3>
-            <span className="shrink-0 whitespace-nowrap text-label-12 tabular-nums text-neutral-6">
-              <RelativeTime date={item.createdAt} />
-            </span>
-          </div>
-          <div className="mt-1 text-label-12 text-neutral-6">
+        <Link
+          className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-5 gap-y-1"
+          href={url}
+        >
+          <h3 className="col-span-2 text-pretty break-words [word-break:normal] text-copy-14 font-normal text-neutral-8 transition-colors hover:text-accent lg:col-span-1">
+            {item.title}
+          </h3>
+          <span className="col-start-2 row-start-2 whitespace-nowrap text-label-12 tabular-nums text-neutral-6 lg:row-start-1">
+            <RelativeTime compact date={item.createdAt} />
+          </span>
+          <div className="col-start-1 row-start-2 text-label-12 text-neutral-6">
             {item.type === 'note'
               ? typeLabel
               : `${typeLabel}${

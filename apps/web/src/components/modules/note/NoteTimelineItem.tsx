@@ -6,10 +6,13 @@ import type { MouseEvent } from 'react'
 import { memo, useCallback } from 'react'
 import { tv } from 'tailwind-variants'
 
-import { Link } from '~/i18n/navigation'
+import { shufflePaperAcrossRoute } from '~/components/layout/container/paper-swap'
+import { Link, useRouter } from '~/i18n/navigation'
 import { clsxm } from '~/lib/helper'
+import { noteShuffleDirection } from '~/lib/note-route'
 import { routeBuilder, Routes } from '~/lib/route-builder'
 import { springScrollToTop } from '~/lib/scroller'
+import { useCurrentNoteNid } from '~/providers/note/CurrentNoteIdProvider'
 
 const styles = tv({
   base: 'flex max-w-full min-w-0 items-baseline text-left text-copy-13 leading-[1.45] tabular-nums transition-colors',
@@ -57,21 +60,34 @@ export const NoteTimelineItem = memo<{
     createdAt,
   })
 
+  const router = useRouter()
+  const currentNid = useCurrentNoteNid()
+
   const handleClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
-      springScrollToTop()
+      const plainClick =
+        event.button === 0 &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        !event.shiftKey &&
+        !event.altKey
+      const direction = plainClick && noteShuffleDirection(nid, currentNid)
+      // Selecting marks the note navigation pending, which hides the paper;
+      // it has to wait until the view transition has captured the old page.
       if (
-        event.button !== 0 ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey
+        direction &&
+        shufflePaperAcrossRoute(direction, () => {
+          onSelect?.(nid)
+          router.push(href)
+        })
       ) {
+        event.preventDefault()
         return
       }
-      onSelect?.(nid)
+      springScrollToTop()
+      if (plainClick) onSelect?.(nid)
     },
-    [nid, onSelect],
+    [currentNid, href, nid, onSelect, router],
   )
 
   return (

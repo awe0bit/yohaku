@@ -9,8 +9,9 @@ import { useRelativeTime } from '~/hooks/common/use-relative-time'
 export const RelativeTime: FC<{
   date: string | Date
   displayAbsoluteTimeAfterDay?: number
+  compact?: boolean
 }> = (props) => {
-  const { displayAbsoluteTimeAfterDay = 29 } = props
+  const { displayAbsoluteTimeAfterDay = 29, compact = false } = props
   const { relativeTimeFromNow } = useRelativeTime()
   const format = useFormatter()
 
@@ -21,6 +22,14 @@ export const RelativeTime: FC<{
         Math.floor((dateObj.getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
       )
       if (relativeBeforeDay && daysDiff > relativeBeforeDay) {
+        if (compact) {
+          const sameYear = dateObj.getFullYear() === new Date().getFullYear()
+          return format.dateTime(dateObj, {
+            year: sameYear ? undefined : 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })
+        }
         return format.dateTime(dateObj, {
           year: 'numeric',
           month: 'long',
@@ -30,7 +39,7 @@ export const RelativeTime: FC<{
       }
       return relativeTimeFromNow(date)
     },
-    [format, relativeTimeFromNow],
+    [compact, format, relativeTimeFromNow],
   )
 
   const [relative, setRelative] = useState<string>('')

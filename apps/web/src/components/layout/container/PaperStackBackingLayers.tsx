@@ -1,11 +1,12 @@
 'use client'
 
 import type { CSSProperties } from 'react'
-import { useCallback } from 'react'
+import { useCallback, useLayoutEffect, useRef } from 'react'
 
 import { useViewport } from '~/atoms/hooks/viewport'
 import { clsxm } from '~/lib/helper'
 
+import { isLateStackArrival, playStackShift } from './paper-stack-motion'
 import { PaperSheet } from './PaperSheet'
 
 type PaperStackBackLayer = {
@@ -31,12 +32,35 @@ export function PaperStackBackingLayers({
 }) {
   const stackDesktop = useViewport(useCallback((v) => v.lg && v.w !== 0, []))
   const effectiveLayers = stackDesktop ? layers : []
+  const containerRef = useRef<HTMLDivElement>(null)
+  const renderedEmptyRef = useRef(effectiveLayers.length === 0)
+
+  useLayoutEffect(() => {
+    const late = isLateStackArrival({
+      count: effectiveLayers.length,
+      renderedEmpty: renderedEmptyRef.current,
+    })
+    renderedEmptyRef.current = effectiveLayers.length === 0
+    const container = containerRef.current
+    if (!late || !container) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    // On a hard load the viewport is only measured after hydration, so the
+    // sheets arrive after the paper entrance has already decided to skip.
+    const animations = playStackShift(
+      Array.from(
+        container.querySelectorAll<HTMLElement>('[data-paper-stack-layer]'),
+      ),
+    )
+    return () => animations.forEach((animation) => animation.cancel())
+  }, [effectiveLayers.length])
 
   if (effectiveLayers.length === 0) return null
 
   return (
     <div
       aria-hidden
+      ref={containerRef}
       className="pointer-events-none absolute inset-0 -z-10 [clip-path:inset(0_-100px_0_0)]"
     >
       {effectiveLayers.map(({ tz, tx, ty = 0, rot, z, ribbed }) => {

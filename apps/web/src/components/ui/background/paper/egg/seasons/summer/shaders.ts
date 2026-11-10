@@ -78,7 +78,7 @@ void main(){
     em *= 1.0 - gm;
   }
 
-  vec3 amb = pow(uNight, vec3(e));
+  vec3 amb = pow(uNight, vec3(e * (1.0 - 0.6 * centerVeil(p))));
   vec3 bok = uBok / max(dot(uBok, vec3(0.3333)), 0.05);
   float band = pow(sin(3.14159 * e), 0.8);
   amb *= mix(vec3(1.0), uFront > -0.9 ? vec3(1.35, 0.95, 0.62) : mix(vec3(1.0), bok, 0.9), band * (uFront > -0.9 ? 0.9 : 0.85));

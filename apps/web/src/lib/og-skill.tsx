@@ -21,7 +21,7 @@ import { buildSkillOgText } from '~/lib/skill-og-text'
 export async function renderSkillOg(name: string): Promise<Response> {
   try {
     const [aggregation, skill] = await Promise.all([
-      apiClient.aggregate.getAggregateData<AppThemeConfig>('yohaku|shiro'),
+      apiClient.aggregate.getAggregateData<AppThemeConfig>('yohaku'),
       fetchSkill(name),
     ])
 

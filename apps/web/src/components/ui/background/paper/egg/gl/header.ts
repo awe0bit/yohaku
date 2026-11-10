@@ -32,6 +32,10 @@ float flakeAt(vec2 uv){ return clamp(length(bareAt(uv) - flatAt(uv)) * 4.0, 0.0,
 float elemAt(vec2 uv){ return clamp(length(paperAt(uv) - bareAt(uv)) * 3.0, 0.0, 1.0); }
 vec3 over(vec4 ink, vec3 paper){ return ink.rgb + paper * (1.0 - ink.a); }
 vec3 pageAt(vec2 uv){ return over(inkAt(uv), paperAt(uv)); }
+float centerVeil(vec2 css){
+  vec2 q = (css - uRes * 0.5) / vec2(max(uRes.x * 0.32, 420.0), uRes.y * 0.48);
+  return 1.0 - smoothstep(0.55, 1.2, length(q));
+}
 #line 1
 `
 

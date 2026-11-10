@@ -36,7 +36,7 @@ export async function GET() {
 
   const [{ author, data, url }, agg] = await Promise.all([
     apiClient.aggregate.proxy.feed.get<RSSProps>(),
-    apiClient.aggregate.getAggregateData<AppThemeConfig>('yohaku|shiro'),
+    apiClient.aggregate.getAggregateData<AppThemeConfig>('yohaku'),
   ])
 
   const { title, description } = agg.seo

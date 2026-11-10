@@ -40,7 +40,7 @@ export const fetchAggregationData = async ({
 } = {}): Promise<AggregationDataPayload> => {
   const resolvedLocale = await resolveLocaleOverride(locale, getLocale)
   const data = await apiClient.aggregate.getAggregateData<AppThemeConfig>(
-    'yohaku|shiro',
+    'yohaku',
     {
       lang: resolvedLocale,
       next: withCacheTag(

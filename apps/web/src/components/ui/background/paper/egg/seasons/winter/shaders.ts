@@ -21,7 +21,7 @@ uniform vec4 uThaw;
 float hoarAmt(vec2 css, float lump){
   float d = min(min(css.x, uRes.x - css.x), min(css.y, uRes.y - css.y));
   float e = smoothstep(430., 10., d);
-  return uHoar * (0.6 + 0.4 * e) * (0.5 + 1.0 * lump);
+  return uHoar * (0.6 + 0.4 * e) * (0.5 + 1.0 * lump) * (1. - 0.55 * centerVeil(css));
 }
 float thawKeep(vec2 css){
   if (uThaw.y < 0.5) return 1.;
@@ -44,7 +44,7 @@ float iceAt(ivec2 ip, vec4 sim, vec2 ek){
   float reveal = max(max(sim.a * 0.8, hoarAmt(css, nd.a) * (1. - sim.r)), ek.x * 1.3 * (1. - sim.r));
   float grow = clamp((reveal - nd.g * 0.85) / 0.2, 0., 1.);
   float needle = nd.r * step(nd.b + 0.001, grow) * (0.12 + 0.38 * sim.a + 0.08 * reveal + 0.5 * ek.x);
-  return max(fern, needle) * (1. - 0.8 * ek.y);
+  return max(fern, needle) * (1. - 0.8 * ek.y) * (1. - 0.55 * centerVeil(css));
 }
 `
 

@@ -121,7 +121,7 @@ export async function renderOg(
 ): Promise<Response> {
   try {
     const aggregation =
-      await apiClient.aggregate.getAggregateData<AppThemeConfig>('yohaku|shiro')
+      await apiClient.aggregate.getAggregateData<AppThemeConfig>('yohaku')
 
     const messages =
       locale &&

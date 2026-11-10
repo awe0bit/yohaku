@@ -79,13 +79,14 @@ void main(){
   vec3 lightTint = mix(vec3(1.), uLightColor, 0.35);
   vec2 off = -gI * 2.4 - gH * 22. - gW * 4.;
   float leafIn = smoothstep(0.45, 0.8, texture(uMaskB, uv).r) * (1. - clearK);
-  float L = clamp(film * 2.75 + I * 0.7 + fog * 2.4, 0., 3.) * (1. - 0.7 * warm) * (1. - 0.45 * leafIn);
+  float veil = centerVeil(css);
+  float L = clamp(film * mix(2.75, 1.1, veil) + I * 0.7 + fog * 2.4, 0., 3.) * (1. - 0.7 * warm) * (1. - 0.45 * leafIn);
   vec3 col = pageBlur(uv + off / uRes, L);
   col = coldGrade(col, uCast * (0.12 + 0.88 * film) * (1. - 0.85 * warm));
   vec3 frostL = mix(vec3(0.905, 0.928, 0.952), uPaperRgb * vec3(0.98, 0.995, 1.02), 0.45);
   vec3 frostD = mix(vec3(0.6, 0.67, 0.76), uPaperRgb, 0.22);
   vec3 frostC = mix(frostL, frostD, uDark);
-  col = mix(col, frostC, clamp(film * 0.36 + I * 0.4, 0., 0.85) * (1. - 0.55 * warm));
+  col = mix(col, frostC, clamp(film * 0.36 + I * 0.4, 0., mix(0.85, 0.42, veil)) * (1. - 0.55 * warm));
   vec3 n = normalize(vec3(-gI * 1.7, 1.));
   float sh = dot(n, Ld) - Ld.z;
   vec3 crystal = mix(vec3(0.975, 0.983, 0.992), vec3(0.8, 0.86, 0.93), uDark);

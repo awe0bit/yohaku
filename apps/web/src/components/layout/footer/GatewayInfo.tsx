@@ -1,7 +1,8 @@
 'use client'
 
+import type { RoomsData } from '@mx-space/api-client'
 import { useQuery } from '@tanstack/react-query'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useEffect, useState } from 'react'
 
 import { useOnlineCount } from '~/atoms'
@@ -21,14 +22,19 @@ import { routeBuilder, Routes } from '~/lib/route-builder'
 
 const ROTATE_MS = 8000
 
-const useReadingRooms = (enabled: boolean) =>
-  useQuery({
-    queryKey: ['rooms'],
+const useReadingRooms = (enabled: boolean) => {
+  const locale = useLocale()
+  return useQuery({
+    queryKey: ['rooms', locale],
     enabled,
     staleTime: 1000 * 10,
     refetchInterval: 1000 * 30,
     queryFn: async () => {
-      const data = (await apiClient.activity.getRoomsInfo()).$serialized
+      const data = (
+        await apiClient.activity.proxy.rooms.get<RoomsData>({
+          params: { lang: locale },
+        })
+      ).$serialized
       const result = [] as { path: string; title: string; count: number }[]
       data.objects.notes.forEach((note) => {
         result.push({
@@ -57,6 +63,7 @@ const useReadingRooms = (enabled: boolean) =>
       return result.filter((r) => r.count > 0).sort((a, b) => b.count - a.count)
     },
   })
+}
 
 const Pulse = ({
   connected,

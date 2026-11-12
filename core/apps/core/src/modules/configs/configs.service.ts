@@ -11,7 +11,6 @@ import {
   type AIModelAssignment,
   type AIProviderCapability,
   type AIProviderConfig,
-  AIProviderType,
 } from '~/modules/ai/ai.types'
 import { EventManagerService } from '~/processors/helper/helper.event.service'
 import {
@@ -32,9 +31,16 @@ import {
 } from './configs.encrypt.util'
 import { configDtoMapping, IConfig } from './configs.interface'
 import type { OAuthConfig } from './configs.schema'
+import {
+  canonicalConfigRows,
+  LegacyConfigConflictError,
+  legacySecretConflicts,
+  normalizeLegacyConfig,
+  normalizeLegacyPatch,
+  updateLegacyMedia,
+} from './legacy-config.util'
 import { OptionsRepository } from './options.repository'
 
-const configsKeySet = new Set(Object.keys(configDtoMapping))
 const aggregateConfigKeys = new Set<keyof IConfig>([
   'ai',
   'commentOptions',
@@ -60,27 +66,6 @@ function normalizeS3StorageOptionNulls<T extends object>(value: T): T {
   return normalized as T
 }
 
-function isGoogleVertexEndpoint(endpoint: string): boolean {
-  try {
-    const url = new URL(endpoint)
-    return (
-      url.hostname === 'aiplatform.googleapis.com' &&
-      url.pathname.endsWith('/endpoints/openapi')
-    )
-  } catch {
-    return false
-  }
-}
-
-function extractGoogleVertexProjectId(endpoint: string): string | undefined {
-  try {
-    const match = new URL(endpoint).pathname.match(/\/projects\/([^/]+)/)
-    return match?.[1] ? decodeURIComponent(match[1]) : undefined
-  } catch {
-    return undefined
-  }
-}
-
 /*
  * NOTE:
  * 1. Configs live in Redis. `getConfig` is the single entry point; all reads
@@ -92,6 +77,9 @@ function extractGoogleVertexProjectId(endpoint: string): string | undefined {
 @Injectable()
 export class ConfigsService implements OnModuleInit {
   private readonly logger = new Logger(ConfigsService.name)
+  private stageCache = false
+  private stagedConfig?: IConfig
+  private sourceConfig: Record<string, any> = {}
   private configInitd = false
   private configInitPromise?: Promise<void>
 
@@ -116,10 +104,15 @@ export class ConfigsService implements OnModuleInit {
   }
 
   private async setConfig(config: IConfig) {
+    const encrypted = encryptObject(cloneDeep(config))
+    if (this.stageCache) {
+      this.stagedConfig = encrypted
+      return
+    }
     const redis = await this.getRedisClient()
     await redis.set(
       getRedisKey(RedisKeys.ConfigCache),
-      JSON.stringify(encryptObject(cloneDeep(config))),
+      JSON.stringify(encrypted),
     )
   }
 
@@ -172,247 +165,14 @@ export class ConfigsService implements OnModuleInit {
       return
     }
 
-    const configs = await this.optionsRepository.findAll()
-    const storedAiConfig = configs.find((field) => field.name === 'ai')
-      ?.value as Record<string, any> | undefined
-    const mergedConfig = generateDefaultConfig()
-    const mergeStoredConfig = <T extends keyof IConfig>(
-      name: T,
-      value: unknown,
-    ) => {
-      const storedValue =
-        value && typeof value === 'object' ? (value as Partial<IConfig[T]>) : {}
-      mergedConfig[name] = {
-        ...mergedConfig[name],
-        ...storedValue,
-      }
-    }
-    configs.forEach((field) => {
-      const name = field.name as keyof IConfig
-
-      if (!configsKeySet.has(name)) {
-        return
-      }
-      // skip url patch in dev mode
-      if (isDev && name === 'url') {
-        return
-      }
-
-      // Backward-compat: migrate old flat thirdPartyServiceIntegration
-      if (name === 'thirdPartyServiceIntegration') {
-        const normalized = this.normalizeThirdPartyConfig(
-          field.value as Record<string, any>,
-        )
-        mergeStoredConfig(name, normalized)
-      } else if (name === 'membership') {
-        const normalized = this.normalizeMembershipConfig(
-          field.value as Record<string, any>,
-        )
-        mergeStoredConfig(name, normalized)
-      } else {
-        mergeStoredConfig(name, field.value)
-      }
-    })
-
-    mergedConfig.ai = this.normalizeAiConfig(
-      storedAiConfig,
-      mergedConfig.ai,
-      mergedConfig.imageGenerationOptions,
-      mergedConfig.ttsOptions,
+    const rows = await this.optionsRepository.findAll()
+    const raw = Object.fromEntries(rows.map((row) => [row.name, row.value]))
+    const plaintext = decryptObject(cloneDeep(raw))
+    this.sourceConfig = cloneDeep(plaintext)
+    if (isDev) delete plaintext.url
+    await this.setConfig(
+      normalizeLegacyConfig(plaintext, { allowConflicts: true }),
     )
-
-    await this.setConfig(mergedConfig)
-  }
-
-  private normalizeAiConfig(
-    storedAiConfig: Record<string, any> | undefined,
-    aiConfig: IConfig['ai'],
-    legacyImageConfig: IConfig['imageGenerationOptions'],
-    legacyTtsConfig: IConfig['ttsOptions'],
-  ): IConfig['ai'] {
-    const providers = (aiConfig.providers ?? []).map((provider) => {
-      const endpoint = provider.endpoint?.trim() ?? ''
-      const isLegacyVertex =
-        provider.type === AIProviderType.OpenAICompatible &&
-        isGoogleVertexEndpoint(endpoint)
-      return {
-        ...provider,
-        ...(isLegacyVertex
-          ? {
-              type: AIProviderType.GoogleVertex,
-              modelListUrl: undefined,
-            }
-          : {}),
-        projectId: provider.projectId ?? extractGoogleVertexProjectId(endpoint),
-        capabilities: isLegacyVertex
-          ? { text: true, image: true, speech: true }
-          : {
-              decision: provider.capabilities?.decision ?? false,
-              text: provider.capabilities?.text ?? true,
-              image: provider.capabilities?.image ?? false,
-              speech: provider.capabilities?.speech ?? false,
-            },
-      }
-    })
-
-    if (storedAiConfig?.version === 2) {
-      return { ...aiConfig, version: 2, providers }
-    }
-
-    const imageGeneration = {
-      enable: legacyImageConfig.enable,
-      model: undefined as { providerId: string; model?: string } | undefined,
-      defaultAspectRatio: legacyImageConfig.defaultAspectRatio,
-      defaultQuality: legacyImageConfig.defaultQuality,
-      defaultFormat: legacyImageConfig.defaultFormat,
-    }
-    const tts = {
-      enable: legacyTtsConfig.enable,
-      model: undefined as { providerId: string; model?: string } | undefined,
-      voice: legacyTtsConfig.voice,
-      speed: legacyTtsConfig.speed,
-      maxCharsPerChunk: legacyTtsConfig.maxCharsPerChunk,
-      concurrency: legacyTtsConfig.concurrency,
-      maxCharsPerRun: legacyTtsConfig.maxCharsPerRun,
-    }
-
-    const addLegacyProvider = (input: {
-      apiKey?: string | null
-      capability: 'image' | 'speech'
-      defaultModel?: string | null
-      endpoint?: string | null
-      id: string
-      name: string
-    }): string | undefined => {
-      if (!input.apiKey) return undefined
-
-      const normalizedEndpoint = input.endpoint?.trim().replace(/\/+$/, '')
-      const existing = providers.find(
-        (provider) =>
-          provider.apiKey === input.apiKey &&
-          provider.endpoint?.trim().replace(/\/+$/, '') === normalizedEndpoint,
-      )
-      if (existing) {
-        existing.capabilities = {
-          text: existing.capabilities?.text ?? true,
-          image: existing.capabilities?.image || input.capability === 'image',
-          speech:
-            existing.capabilities?.speech || input.capability === 'speech',
-        }
-        return existing.id
-      }
-
-      let id = input.id
-      let suffix = 2
-      while (providers.some((provider) => provider.id === id)) {
-        id = `${input.id}-${suffix}`
-        suffix += 1
-      }
-
-      providers.push({
-        id,
-        name: input.name,
-        type: AIProviderType.OpenAICompatible,
-        apiKey: input.apiKey,
-        endpoint: normalizedEndpoint,
-        projectId: undefined,
-        defaultModel: input.defaultModel ?? '',
-        enabled: true,
-        capabilities: {
-          text: false,
-          image: input.capability === 'image',
-          speech: input.capability === 'speech',
-        },
-      })
-      return id
-    }
-
-    const imageProviderId = addLegacyProvider({
-      apiKey: legacyImageConfig.apiKey,
-      capability: 'image',
-      defaultModel: legacyImageConfig.model,
-      endpoint:
-        legacyImageConfig.endpoint ||
-        (legacyImageConfig.provider === 'openrouter'
-          ? 'https://openrouter.ai/api/v1'
-          : undefined),
-      id: '__legacy_image_generation__',
-      name: 'Imported image generation provider',
-    })
-    if (imageProviderId && legacyImageConfig.model) {
-      imageGeneration.model = {
-        providerId: imageProviderId,
-        model: legacyImageConfig.model,
-      }
-    }
-
-    const ttsProviderId = addLegacyProvider({
-      apiKey: legacyTtsConfig.apiKey,
-      capability: 'speech',
-      defaultModel: legacyTtsConfig.model,
-      endpoint:
-        legacyTtsConfig.endpoint ||
-        (legacyTtsConfig.provider === 'openrouter'
-          ? 'https://openrouter.ai/api/v1'
-          : legacyTtsConfig.provider === 'openai'
-            ? 'https://api.openai.com/v1'
-            : undefined),
-      id: '__legacy_tts__',
-      name: 'Imported speech provider',
-    })
-    if (ttsProviderId && legacyTtsConfig.model) {
-      tts.model = {
-        providerId: ttsProviderId,
-        model: legacyTtsConfig.model,
-      }
-    }
-
-    return {
-      ...aiConfig,
-      version: 2,
-      providers,
-      imageGeneration,
-      tts,
-    }
-  }
-
-  /**
-   * Backward-compat: migrate old flat { githubToken } to new nested
-   * { github: { enabled, token } } shape at read time.
-   */
-  private normalizeThirdPartyConfig(
-    raw: Record<string, any>,
-  ): IConfig['thirdPartyServiceIntegration'] {
-    // Already new shape
-    if (raw?.github && typeof raw.github === 'object') {
-      return raw as IConfig['thirdPartyServiceIntegration']
-    }
-    // Old flat shape — convert
-    return {
-      github: { enabled: true, token: raw.githubToken || '' },
-      tmdb: { enabled: false, apiKey: '' },
-      bangumi: { enabled: true, accessToken: '' },
-      neodb: { enabled: true },
-      arxiv: { enabled: true },
-      leetcode: { enabled: true },
-      neteaseMusic: { enabled: true },
-      qqMusic: { enabled: true },
-    } as IConfig['thirdPartyServiceIntegration']
-  }
-
-  private normalizeMembershipConfig(
-    raw: Record<string, any>,
-  ): IConfig['membership'] {
-    const { dodoApiKey, dodoEnvironment, dodoWebhookKey, ...providerConfig } =
-      raw
-
-    return {
-      ...providerConfig,
-      apiKey: providerConfig.apiKey ?? dodoApiKey ?? '',
-      webhookSigningKey:
-        providerConfig.webhookSigningKey ?? dodoWebhookKey ?? '',
-      environment: providerConfig.environment ?? dodoEnvironment ?? 'live_mode',
-    } as IConfig['membership']
   }
 
   public async get<T extends keyof IConfig>(
@@ -425,6 +185,8 @@ export class ConfigsService implements OnModuleInit {
   // Single entry point for config reads
   private async getStoredConfig(errorRetryCount = 3): Promise<IConfig> {
     await this.ensureConfigInitialized()
+    if (this.stageCache && this.stagedConfig)
+      return cloneDeep(this.stagedConfig)
 
     const redis = await this.getRedisClient()
     const configCache = await redis.get(getRedisKey(RedisKeys.ConfigCache))
@@ -475,6 +237,34 @@ export class ConfigsService implements OnModuleInit {
     data: Partial<IConfig[T]>,
   ): Promise<IConfig[T]> {
     const config = await this.getConfig()
+    const conflicts = legacySecretConflicts(key, this.sourceConfig[key] ?? {})
+    for (const path of conflicts) {
+      const replacement = path
+        .split('.')
+        .reduce<any>((node, part) => node?.[part], data)
+      if (typeof replacement !== 'string' || !replacement)
+        throw createAppException(AppErrorCode.CONFIG_VALIDATION_FAILED, {
+          message: `CONFIG_SECRET_CONFLICT (${key}.${path}); explicitly replace the canonical credential to resolve it`,
+        })
+    }
+    if (key === 'imageGenerationOptions' || key === 'ttsOptions') {
+      const canonical = updateLegacyMedia(config as IConfig, key, data)
+      const storedAi = await this.optionsRepository.upsert(
+        'ai',
+        encryptObject(cloneDeep(canonical.ai), 'ai'),
+      )
+      await this.optionsRepository.deleteByName?.('imageGenerationOptions')
+      await this.optionsRepository.deleteByName?.('ttsOptions')
+      await this.setConfig(canonical)
+      await this.eventManager.emit(
+        EventBusEvents.ConfigChanged,
+        storedAi.value,
+        {
+          scope: EventScope.TO_SYSTEM,
+        },
+      )
+      return encryptObject(cloneDeep(canonical[key]), key) as IConfig[T]
+    }
     const updatedConfigRow = await this.optionsRepository.upsert(
       key as string,
       encryptObject(
@@ -500,7 +290,14 @@ export class ConfigsService implements OnModuleInit {
       ),
     )
     const newData = updatedConfigRow.value as IConfig[T]
-    const mergedFullConfig = Object.assign({}, config, { [key]: newData })
+    this.sourceConfig[key] = decryptObject(cloneDeep(newData), key)
+    const mergedFullConfig = normalizeLegacyConfig(
+      Object.assign(
+        {},
+        key === 'ai' ? canonicalConfigRows(config as IConfig) : config,
+        { [key]: decryptObject(cloneDeep(newData), key) },
+      ),
+    )
 
     await this.setConfig(mergedFullConfig)
     this.eventManager.emit(
@@ -540,7 +337,56 @@ export class ConfigsService implements OnModuleInit {
     key: T,
     value: Partial<IConfig[T]>,
   ) {
-    value = camelcaseKeys(value) as any
+    if (this.optionsRepository.withConfigLock) {
+      const effects: Array<() => Promise<unknown>> = []
+      const publication = await this.optionsRepository.withConfigLock(
+        async (repository) => {
+          const versions = {
+            bump: (...args: Parameters<ConfigVersionService['bump']>) => {
+              effects.push(() => this.configVersionService.bump(...args))
+              return Promise.resolve(0)
+            },
+          } as ConfigVersionService
+          const events = {
+            emit: (...args: Parameters<EventManagerService['emit']>) => {
+              effects.push(() => this.eventManager.emit(...args))
+              return Promise.resolve()
+            },
+          } as EventManagerService
+          const scoped = new ConfigsService(
+            repository,
+            this.redisService,
+            versions,
+            events,
+          )
+          scoped.stageCache = true
+          await scoped.ensureConfigInitialized()
+          const result = await scoped.patchAndValidUnlocked(key, value)
+          return { result, config: scoped.stagedConfig! }
+        },
+        async ({ config }) => {
+          await this.setConfig(config)
+          for (const effect of effects) await effect()
+        },
+      )
+      return publication.result
+    }
+    return this.patchAndValidUnlocked(key, value)
+  }
+
+  private async patchAndValidUnlocked<T extends keyof IConfig>(
+    key: T,
+    value: Partial<IConfig[T]>,
+  ) {
+    try {
+      value = normalizeLegacyPatch(key, camelcaseKeys(value)) as any
+    } catch (error) {
+      if (error instanceof LegacyConfigConflictError)
+        throw createAppException(AppErrorCode.CONFIG_VALIDATION_FAILED, {
+          message: error.message,
+        })
+      throw error
+    }
     value = removeEmptyEncryptedFields(value as object, key) as Partial<
       IConfig[T]
     >

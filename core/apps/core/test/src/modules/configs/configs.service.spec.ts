@@ -21,6 +21,57 @@ function createDeferred() {
 }
 
 describe('ConfigsService', () => {
+  it('persists legacy media writes through canonical AI and retains blank secrets', async () => {
+    let cache: string | null = null
+    const rows = new Map<string, any>()
+    const repository = {
+      findAll: async () => [...rows].map(([name, value]) => ({ name, value })),
+      upsert: vi.fn(async (name, value) => {
+        rows.set(name, value)
+        return { name, value }
+      }),
+      deleteByName: vi.fn(async (name) => rows.delete(name)),
+    }
+    const service = new ConfigsService(
+      repository as any,
+      {
+        waitForReady: async () => {},
+        getClient: () => ({
+          get: async () => cache,
+          set: async (_key, value) => {
+            cache = value
+          },
+        }),
+      } as any,
+      {} as any,
+      { emit: vi.fn() } as any,
+    )
+    await service.patchAndValid('imageGenerationOptions', {
+      enable: true,
+      apiKey: 'image-secret',
+      model: 'image-v1',
+    })
+    expect(rows.has('imageGenerationOptions')).toBe(false)
+    expect(JSON.stringify(rows.get('ai'))).not.toContain('image-secret')
+    await service.patchAndValid('imageGenerationOptions', {
+      apiKey: '',
+      model: 'image-v2',
+    })
+    expect(await service.get('imageGenerationOptions')).toMatchObject({
+      apiKey: 'image-secret',
+      model: 'image-v2',
+    })
+    await service.patchAndValid('ai', { imageGeneration: { enable: false } })
+    expect((await service.get('imageGenerationOptions')).enable).toBe(false)
+    await service.patchAndValid('membership', {
+      dodoApiKey: 'billing-secret',
+    } as any)
+    expect(decryptObject(rows.get('membership'), 'membership').apiKey).toBe(
+      'billing-secret',
+    )
+    expect(rows.get('membership')).not.toHaveProperty('dodoApiKey')
+  })
+
   it('requires a public key to enable backup encryption and never accepts private keys in settings', async () => {
     const pair = generateKeyPairSync('rsa', {
       modulusLength: 2048,
@@ -235,7 +286,11 @@ describe('ConfigsService', () => {
     expect(cachedConfig.ai.version).toBe(2)
     expect(imageProvider).toMatchObject({
       apiKey: 'legacy-image-key',
-      capabilities: { text: false, image: true, speech: false },
+      capabilities: expect.objectContaining({
+        text: false,
+        image: true,
+        speech: false,
+      }),
       endpoint: 'https://openrouter.ai/api/v1',
     })
     expect(speechProvider).toMatchObject({
@@ -295,7 +350,7 @@ describe('ConfigsService', () => {
       JSON.parse(redisClient.set.mock.calls[0][1]),
     )
     expect(cachedConfig.ai.providers).toHaveLength(1)
-    expect(cachedConfig.ai.providers[0].capabilities).toEqual({
+    expect(cachedConfig.ai.providers[0].capabilities).toMatchObject({
       text: false,
       image: true,
       speech: true,
@@ -345,7 +400,11 @@ describe('ConfigsService', () => {
         apiKey: 'credential-without-model',
         defaultModel: '',
         endpoint: 'https://images.example.com/v1',
-        capabilities: { text: false, image: true, speech: false },
+        capabilities: expect.objectContaining({
+          text: false,
+          image: true,
+          speech: false,
+        }),
       }),
     ])
     expect(cachedConfig.ai.imageGeneration.model).toBeUndefined()
@@ -908,7 +967,11 @@ describe('ConfigsService', () => {
           apiKey: 'secret',
           defaultModel: '',
           enabled: true,
-          capabilities: { text: false, image: true, speech: false },
+          capabilities: {
+            text: false,
+            image: true,
+            speech: false,
+          },
         },
       ]
       const { service } = createService(currentConfig)

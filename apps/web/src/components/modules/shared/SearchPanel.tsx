@@ -280,9 +280,9 @@ const SearchPanelImpl = () => {
 
       {/* Results */}
       <div className="relative min-h-0 flex-1 overflow-auto">
-        <ul className="h-full px-2 py-2" ref={listRef}>
+        <ul className="flex min-h-full flex-col px-2 py-2" ref={listRef}>
           {list.length === 0 && !isLoading ? (
-            <div className="flex h-full items-center justify-center py-10">
+            <div className="flex flex-1 items-center justify-center py-10">
               <span className="font-serif text-copy-13 italic text-neutral-5">
                 {!keyword ? t('search_placeholder') : t('search_empty')}
               </span>
@@ -294,7 +294,7 @@ const SearchPanelImpl = () => {
           )}
 
           {list.length === 0 && isLoading && (
-            <div className="center flex h-full grow py-10">
+            <div className="center flex grow py-10">
               <LoadingMark size="md" />
             </div>
           )}
